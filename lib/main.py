@@ -9,32 +9,6 @@ from pprint import pprint
 from pylatex import Document, Section, Subsection, Command, Package
 from pylatex.utils import italic, NoEscape
 
-class __vector__(object):
-	def __init__(self, vector):
-		self.N = CoordSysCartesian('N')
-		self.vector = vector
-
-	def get_component_by_number(self, number):
-		if number == 0: return self.x
-		if number == 1: return self.y
-		if number == 2: return self.z
-		if number not in range(3): return None
-
-	@property
-	def x(self):
-		return self.vector.dot(self.N.i)
-
-	@property
-	def y(self):
-		return self.vector.dot(self.N.j)
-
-	@property
-	def z(self):
-		return self.vector.dot(self.N.k)
-
-	def __str__(self):
-		return "vector: {0}".format(self.vector)
-
 class Particle(object):
 	def __init__(self, m, x, y, z):
 		self.m = m
@@ -117,7 +91,7 @@ class Lagrange(object):
 		for j, k in product(range(3), self.freedom_degrees):
 			interim = []
 			for particle in self.particles:
-				interim.append(particle.m * self.calculate_A_element(particle, k, j))
+				interim.append(particle.m * Lagrange.calculate_A_element(particle, j, k))
 
 			A[j, self.freedom_degrees.index(k)] = simplify(sum(self.without_nans(interim)))
 
@@ -134,22 +108,32 @@ class Lagrange(object):
 		derivative2 = vector.diff(coord2)
 		return trigsimp(derivative1.dot(derivative2))
 
-	@staticmethod
-	def calculate_A_element(particle, coord, k):
+	@classmethod
+	def calculate_A_element(cls, particle, number, coord):
 		"""
 		Input: particle, generalized coordinate and number of component needed to be returned
 		(0 corresponds to X, 1 -- to Y, 2 -- to Z)
 		"""
 		vector = particle.vector
 		derivative = vector.diff(coord)
-		cross_product = __vector__(vector.cross(derivative))
-		return cross_product.get_component_by_number(k)
+		cross_product = vector.cross(derivative)
+		return cls.return_vector_component_by_number(cross_product, number)
+
+	@staticmethod
+	def return_vector_component_by_number(vector, number):
+		N = CoordSysCartesian('N')
+		if number == 0: return vector.dot(N.i)
+		if number == 1: return vector.dot(N.j)
+		if number == 2: return vector.dot(N.k)
 
 	def create_lagrangian(self):
 		# print 'angular velocity: {0}'.format(Matrix(self.angular_velocity).shape)
-		inertia_term = 0.5 * Matrix(self.angular_velocity).transpose() * self.inertia_tensor * Matrix(self.angular_velocity)
+		inertia_term = Rational(1, 2) * Matrix(self.angular_velocity).transpose() * self.inertia_tensor * Matrix(self.angular_velocity)
+		print 'inertia term: {0}'.format(inertia_term)
 		coriolis_term = Matrix(self.angular_velocity).transpose() * self.A_matrix * Matrix(self.freedom_degrees_derivatives)
-		kinetic_term = 0.5 * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
+		print 'coriolis term: {0}'.format(coriolis_term)
+		kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
+		print 'kinetic term: {0}'.format(kinetic_term)
 		lagrangian = inertia_term[0] + coriolis_term[0] + kinetic_term[0]
 		return lagrangian
 
@@ -168,13 +152,13 @@ class Hamilton(object):
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
 
 	def create_hamiltonian(self):
-		angular_term = 0.5 * Matrix(self.angular_momentum).transpose() * self.G11 * Matrix(self.angular_momentum)
-		#print 'angular term: {0}'.format(angular_term)
-		kinetic_term = 0.5 * Matrix(self.conjugate_momentum).transpose() * self.G22 * Matrix(self.conjugate_momentum)
-		#print 'kinetic term: {0}'.format(kinetic_term)
+		angular_term = Rational(1, 2) * Matrix(self.angular_momentum).transpose() * self.G11 * Matrix(self.angular_momentum)
+		print 'angular term: {0}'.format(angular_term)
+		kinetic_term = Rational(1, 2) * Matrix(self.conjugate_momentum).transpose() * self.G22 * Matrix(self.conjugate_momentum)
+		print 'kinetic term: {0}'.format(kinetic_term)
 		coriolis_term = Matrix(self.angular_momentum).transpose() * self.G12 * Matrix(self.conjugate_momentum)
-		#print 'coriolis_term: {0}'.format(coriolis_term)
-		hamiltonian = angular_term[0] + kinetic_term[0] + coriolis_term[0]
+		print 'coriolis_term: {0}'.format(coriolis_term)
+		hamiltonian = trigsimp(angular_term[0]) + simplify(kinetic_term[0]) + simplify(coriolis_term[0])
 		return hamiltonian
 
 class COM(object):
@@ -189,21 +173,21 @@ class COM(object):
 
 	@property
 	def M(self):
-		return sum([particle.m for particle in particles])
+		return sum([particle.m for particle in self.particles])
 
 	@property
 	def x(self):
-		expr = sum(self.without_nans([particle.x * particle.m for particle in particles])) / self.M
+		expr = sum(self.without_nans([particle.x * particle.m for particle in self.particles])) / self.M
 		return 0 if self.M._has(oo) else expr
 
 	@property
 	def y(self):
-		expr = sum(self.without_nans([particle.y * particle.m for particle in particles])) / self.M
+		expr = sum(self.without_nans([particle.y * particle.m for particle in self.particles])) / self.M
 		return 0 if self.M._has(oo) else expr
 
 	@property
 	def z(self):
-		expr = sum(self.without_nans([particle.z * particle.m for particle in particles])) / self.M
+		expr = sum(self.without_nans([particle.z * particle.m for particle in self.particles])) / self.M
 		return 0 if self.M._has(oo) else expr
 
 	def __str__(self):
@@ -216,12 +200,13 @@ class COM(object):
 			particle.z = particle.z - self.z
 
 class LatexOutput(object):
-	def __init__(self, lagrangian, hamiltonian):
+	def __init__(self, lagrangian = None, hamiltonian = None, name = 'output'):
 		self.lagrangian = lagrangian
 		self.hamiltonian = hamiltonian
 
-		self.doc = Document('output')
+		self.doc = Document(name)
 		self.doc.packages.append(Package("breqn"))
+
 		self.fill_document()
 		self.doc.generate_pdf(clean_tex = False)
 		self.doc.generate_tex()
@@ -229,43 +214,47 @@ class LatexOutput(object):
 	def fill_document(self):
 		with self.doc.create(Section('Lagrangian')):
 			self.doc.append(NoEscape(r'\begin{dmath}'))
-			self.doc.append(NoEscape(latex(self.lagrangian)))
+			self.doc.append(NoEscape('\mathcal{L} = ' + latex(self.lagrangian)))
 			self.doc.append(NoEscape(r'\end{dmath}'))
 
 		with self.doc.create(Section('Hamiltonian')):
 			self.doc.append(NoEscape(r'\begin{dmath}'))
-			self.doc.append(NoEscape(latex(self.hamiltonian)))
+			self.doc.append(NoEscape('\mathcal{H} = ' + latex(self.hamiltonian)))
 			self.doc.append(NoEscape(r'\end{dmath}'))
 
-t = Symbol('t')
-m = Symbol('m')
-M = Symbol('M')
-r1 = Symbol('r1')
-r2 = Symbol('r2')
-p = Symbol('p')
+# ----------------------------------------------------------
 
-q = dynamicsymbols('q')
+# t = Symbol('t')
+# R, theta = dynamicsymbols('R theta')
+# p, p_theta = dynamicsymbols('p p_theta')
+# m1 = Symbol('m1')
+# m2 = Symbol('m2')
+# m3 = Symbol('m3')
+# r0 = Symbol('r0')
 
-particle1 = Particle(m = m, x = -r1 * cos(q/2), y = 0, z = - r1 * sin(q/2))
-particle2 = Particle(m = m, x = -r2 * cos(q/2), y = 0, z = r2 * sin(q/2))
-particle3 = Particle(m = oo, x = 0, y = 0, z = 0)
+# particle1 = Particle(m = m1, x = -m2/ (2 * m1 + m2 + m3) * R - r0 / 2 * cos(theta), y = r0 / 2 * sin(theta), z = 0)
+# particle2 = Particle(m = m2, x = (2 * m1 + m3)  / (2 * m1 + m2 + m3) * R, y = 0, z = 0)
+# particle3 = Particle(m = m1, x = - m2 / (2 * m1 + m2 + m3) * R + r0 / 2 * cos(theta), y = - r0 / 2 * sin(theta), z = 0)
+# particle4 = Particle(m = m3, x = - m2 / (2 * m1 + m2 + m3) * R, y = 0, z = 0)
 
-particles = [particle1, particle2, particle3]
-com = COM(particles)
-print com
-particles = com.particles
+# particles = [particle1, particle2, particle3, particle4]
 
-freedom_degrees = [q]
-freedom_degrees_derivatives = [diff(degree, t) for degree in freedom_degrees]
-conjugate_momentum = [p]
+# com = COM(particles)
+# print com
+# particles = com.particles
+
+# freedom_degrees = [R, theta]
+# freedom_degrees_derivatives = [diff(degree, t) for degree in freedom_degrees]
+# conjugate_momentum = [p, p_theta]
+
+# lagrange = Lagrange(particles = particles, freedom_degrees = freedom_degrees, freedom_degrees_derivatives = freedom_degrees_derivatives)
+# pprint(vars(lagrange))
+
+# hamilton = Hamilton(lagrange = lagrange, conjugate_momentum = conjugate_momentum)
+# pprint(vars(hamilton))
+
+# latex_output = LatexOutput(lagrangian = lagrange.lagrangian, hamiltonian = hamilton.hamiltonian, name = 'ArCO2')
 
 
-lagrange = Lagrange(particles = particles, freedom_degrees = freedom_degrees, freedom_degrees_derivatives = freedom_degrees_derivatives)
-#pprint(vars(lagrange))
-
-hamilton = Hamilton(lagrange = lagrange, conjugate_momentum = conjugate_momentum)
-#pprint(vars(hamilton))
-
-latex_output = LatexOutput(lagrangian = lagrange.lagrangian, hamiltonian = hamilton.hamiltonian)
 
 

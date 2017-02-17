@@ -1,0 +1,25 @@
+\documentclass{article}%
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+\usepackage{breqn}%
+%
+%
+%
+\begin{document}%
+\normalsize%
+\section*{Lagrangian}%
+\begin{dmath}%
+\mathcal{L} = \frac{m \omega_{y}}{2} \left(- \operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right) \frac{d}{d t} q{\left (t \right )} + \frac{m}{8} \left(\operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right) \frac{d}{d t} q{\left (t \right )}^{2} + \frac{m}{2} \frac{d}{d t} \operatorname{r_{1}}{\left (t \right )}^{2} + \frac{m}{2} \frac{d}{d t} \operatorname{r_{2}}{\left (t \right )}^{2} + \omega_{x} \left(\frac{\omega_{x}}{2} \left(m \operatorname{r_{1}}^{2}{\left (t \right )} \sin^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )} + m \operatorname{r_{2}}^{2}{\left (t \right )} \sin^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )}\right) + \frac{\omega_{z}}{2} \left(- m \operatorname{r_{1}}^{2}{\left (t \right )} \sin{\left (\frac{1}{2} q{\left (t \right )} \right )} \cos{\left (\frac{1}{2} q{\left (t \right )} \right )} + m \operatorname{r_{2}}^{2}{\left (t \right )} \sin{\left (\frac{1}{2} q{\left (t \right )} \right )} \cos{\left (\frac{1}{2} q{\left (t \right )} \right )}\right)\right) + \frac{\omega_{y}^{2}}{2} \left(m \left(\operatorname{r_{1}}^{2}{\left (t \right )} \sin^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )} + \operatorname{r_{1}}^{2}{\left (t \right )} \cos^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )}\right) + m \left(\operatorname{r_{2}}^{2}{\left (t \right )} \sin^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )} + \operatorname{r_{2}}^{2}{\left (t \right )} \cos^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )}\right)\right) + \omega_{z} \left(\frac{\omega_{x}}{2} \left(- m \operatorname{r_{1}}^{2}{\left (t \right )} \sin{\left (\frac{1}{2} q{\left (t \right )} \right )} \cos{\left (\frac{1}{2} q{\left (t \right )} \right )} + m \operatorname{r_{2}}^{2}{\left (t \right )} \sin{\left (\frac{1}{2} q{\left (t \right )} \right )} \cos{\left (\frac{1}{2} q{\left (t \right )} \right )}\right) + \frac{\omega_{z}}{2} \left(m \operatorname{r_{1}}^{2}{\left (t \right )} \cos^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )} + m \operatorname{r_{2}}^{2}{\left (t \right )} \cos^{2}{\left (\frac{1}{2} q{\left (t \right )} \right )}\right)\right)%
+\end{dmath}
+
+%
+\section*{Hamiltonian}%
+\begin{dmath}%
+\mathcal{H} = J_{x} \left(\frac{J_{x}}{2} \left(\frac{\left(- \operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right)^{2} \sin^{2}{\left (q{\left (t \right )} \right )}}{8 m \left(\operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right) \left(\cos{\left (q{\left (t \right )} \right )} + 1\right) \operatorname{r_{1}}^{2}{\left (t \right )} \operatorname{r_{2}}^{2}{\left (t \right )} \sin^{4}{\left (\frac{1}{2} q{\left (t \right )} \right )}} + \frac{2}{m \left(\operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right) \left(- \cos{\left (q{\left (t \right )} \right )} + 1\right)}\right) - \frac{J_{z} \left(- \operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right)}{4 m \operatorname{r_{1}}^{2}{\left (t \right )} \operatorname{r_{2}}^{2}{\left (t \right )} \sin{\left (q{\left (t \right )} \right )}}\right) + \frac{J_{y}^{2} \left(\operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right)}{2 m \left(- \left(\operatorname{r_{1}}^{2}{\left (t \right )} - \operatorname{r_{2}}^{2}{\left (t \right )}\right)^{2} + \left(\operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right)^{2}\right)} + \frac{J_{y} p{\left (t \right )}}{2 m \operatorname{r_{2}}^{2}{\left (t \right )}} - \frac{J_{y} p{\left (t \right )}}{2 m \operatorname{r_{1}}^{2}{\left (t \right )}} + J_{z} \left(- \frac{J_{x} \left(- \operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right)}{4 m \operatorname{r_{1}}^{2}{\left (t \right )} \operatorname{r_{2}}^{2}{\left (t \right )} \sin{\left (q{\left (t \right )} \right )}} + \frac{J_{z} \left(\operatorname{r_{1}}^{2}{\left (t \right )} + \operatorname{r_{2}}^{2}{\left (t \right )}\right)}{4 m \left(\cos{\left (q{\left (t \right )} \right )} + 1\right) \operatorname{r_{1}}^{2}{\left (t \right )} \operatorname{r_{2}}^{2}{\left (t \right )}}\right) + \frac{p^{2}{\left (t \right )}}{2 m \operatorname{r_{2}}^{2}{\left (t \right )}} + \frac{p^{2}{\left (t \right )}}{2 m \operatorname{r_{1}}^{2}{\left (t \right )}} + \frac{\operatorname{p_{1}}^{2}{\left (t \right )}}{2 m} + \frac{\operatorname{p_{2}}^{2}{\left (t \right )}}{2 m}%
+\end{dmath}
+
+%
+\end{document}
