@@ -1,0 +1,1 @@
+Calculating hamiltonians for some small systems using sympy module. Pretty printing the result to latex.
