@@ -1,5 +1,7 @@
 import sys
-sys.path.append('/Users/mac/repos/sympy_project/sympy/')
+sys.path.append('/Users/mac/repos/sympy_project/sympy/') # path on mac
+sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/') # path on ubuntu
+
 from lib.main import Particle, COM, Lagrange, Hamilton, LatexOutput
 
 from sympy import *
@@ -11,8 +13,8 @@ m, r0, t = symbols('m r0 t')
 q = dynamicsymbols('q')
 p = dynamicsymbols('p')
 
-particle1 = Particle(m = m, x = -r0 * cos(q/2), y = 0, z = - r0 * sin(q/2))
-particle2 = Particle(m = m, x = -r0 * cos(q/2), y = 0, z = r0 * sin(q/2))
+particle1 = Particle(m = m, x = -r0 * cos(q * Rational(1, 2)), y = 0, z = - r0 * sin(q * Rational(1, 2)))
+particle2 = Particle(m = m, x = -r0 * cos(q * Rational(1, 2)), y = 0, z = r0 * sin(q * Rational(1, 2)))
 particle3 = Particle(m = oo, x = 0, y = 0, z = 0)
 
 particles = [particle1, particle2, particle3]

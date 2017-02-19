@@ -1,9 +1,11 @@
+from __future__ import division
+
 from sympy import *
-from sympy import sin, cos, diff, simplify, trigsimp, Matrix
+from sympy import sin, cos, simplify, trigsimp, Matrix, powsimp
 from sympy.vector import CoordSysCartesian
 from sympy.physics.vector import dynamicsymbols
 from sympy import oo
-from itertools import product
+from itertools import product, combinations
 from pprint import pprint
 
 from pylatex import Document, Section, Subsection, Command, Package
@@ -140,23 +142,21 @@ class Lagrange(object):
 		kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
 		print 'kinetic term: {0}'.format(kinetic_term)
 
-		inertia_term = self.inertia_transform(inertia_term[0]) if self.inertia_transform is not None else inertia_term[0]
-		coriolis_term = self.coriolis_transform(coriolis_term[0]) if self.coriolis_transform is not None else coriolis_term[0]
-		kinetic_term = self.kinetic_transform(kinetic_term[0]) if self.kinetic_transform is not None else kinetic_term[0]
+		inertia_term = inertia_term[0]
+		coriolis_term = coriolis_term[0]
+		kinetic_term = kinetic_term[0]
 
 		lagrangian = inertia_term + coriolis_term + kinetic_term
 		return lagrangian
 
 class Hamilton(object):
-	def __init__(self, lagrange, angular_momentum = None, conjugate_momentum = None, 
-				angular_transform = None, kinetic_transform = None, coriolis_transform = None):
+	def __init__(self, lagrange, angular_momentum = None, conjugate_momentum = None, substitutions = None):
+
 		self.lagrange = lagrange
 		self.angular_momentum = angular_momentum if angular_momentum is not None else [Symbol('J_x'), Symbol('J_y'), Symbol('J_z')]
 		self.conjugate_momentum = conjugate_momentum
 
-		self.angular_transform = angular_transform
-		self.kinetic_transform = kinetic_transform
-		self.coriolis_transform = coriolis_transform
+		self.substitutions = substitutions
 
 		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
 		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix).inv()
@@ -166,19 +166,49 @@ class Hamilton(object):
 		self.hamiltonian = self.create_hamiltonian()
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
 
+	@staticmethod
+	def check_equality(expr1, expr2):
+		difference = simplify(trigsimp(trigsimp(expr1 - expr2, method = 'old')))
+		return True if difference == 0 else False
+
+	def simplify_angular_term(self, expr):
+		# expanding given angular term
+		expr = expand(expr)
+
+		# angular combinations = [Jx**2, Jy**2, Jz**2, Jx*Jy, Jx*Jz, Jy*Jz]
+		angular_combinations = [self.angular_momentum[i] ** 2 for i in range(3)]
+		for i,j in combinations(self.angular_momentum, 2):
+			angular_combinations.append(i * j)
+		 
+		# extracting coefficients for all angular combinations
+		coeffs = [expr.coeff(term) for term in angular_combinations]
+		coeffs = [powsimp(trigsimp(trigsimp(coeff, method = 'old'))) for coeff in coeffs]
+
+		# printing results of simplification for each term
+		print '=' * 30 + '\n\n'
+		for term, coeff in zip(angular_combinations, coeffs):
+			print 'trigsimp coeff for {0}: {1}'.format(term, coeff)
+		print '=' * 30 + '\n\n'
+
+		# reconstructing expression
+		expr_simplified = sum([term * coeff for term, coeff in zip(angular_combinations, coeffs)])
+
+		# test if reconstructed expression is equal to initial form of angular term
+		difference = self.check_equality(expr, expr_simplified)
+		if not difference: print 'ERROR IN RECONSTRUCING ANGULAR EXPRESSION!'
+
+		return expr_simplified
+
 	def create_hamiltonian(self):
 		angular_term = Rational(1, 2) * Matrix(self.angular_momentum).transpose() * self.G11 * Matrix(self.angular_momentum)
-		print 'angular term: {0}'.format(angular_term)
 		kinetic_term = Rational(1, 2) * Matrix(self.conjugate_momentum).transpose() * self.G22 * Matrix(self.conjugate_momentum)
-		print 'kinetic term: {0}'.format(kinetic_term)
 		coriolis_term = Matrix(self.angular_momentum).transpose() * self.G12 * Matrix(self.conjugate_momentum)
-		print 'coriolis_term: {0}'.format(coriolis_term)
+		
+		angular_term_simplified = self.simplify_angular_term(expr = angular_term[0])
+		coriolis_term = coriolis_term[0]
+		kinetic_term = kinetic_term[0]
 
-		angular_term = self.angular_transform(angular_term[0]) if self.angular_transform is not None else angular_term[0]
-		coriolis_term = self.coriolis_transform(coriolis_term[0]) if self.coriolis_transform is not None else coriolis_term[0]
-		kinetic_term = self.kinetic_transform(kinetic_term[0]) if self.kinetic_transform is not None else kinetic_term[0]
-
-		return angular_term + kinetic_term + coriolis_term
+		return angular_term_simplified + kinetic_term + coriolis_term
 
 class COM(object):
 	def __init__(self, particles):
@@ -231,49 +261,12 @@ class LatexOutput(object):
 		self.doc.generate_tex()
 
 	def fill_document(self):
-		with self.doc.create(Section('Lagrangian')):
-			self.doc.append(NoEscape(r'\begin{dmath}'))
-			self.doc.append(NoEscape('\mathcal{L} = ' + latex(self.lagrangian)))
-			self.doc.append(NoEscape(r'\end{dmath}'))
+		# with self.doc.create(Section('Lagrangian')):
+		# 	self.doc.append(NoEscape(r'\begin{dmath}'))
+		# 	self.doc.append(NoEscape('\mathcal{L} = ' + latex(self.lagrangian)))
+		# 	self.doc.append(NoEscape(r'\end{dmath}'))
 
 		with self.doc.create(Section('Hamiltonian')):
 			self.doc.append(NoEscape(r'\begin{dmath}'))
 			self.doc.append(NoEscape('\mathcal{H} = ' + latex(self.hamiltonian)))
 			self.doc.append(NoEscape(r'\end{dmath}'))
-
-# ----------------------------------------------------------
-
-# t = Symbol('t')
-# R, theta = dynamicsymbols('R theta')
-# p, p_theta = dynamicsymbols('p p_theta')
-# m1 = Symbol('m1')
-# m2 = Symbol('m2')
-# m3 = Symbol('m3')
-# r0 = Symbol('r0')
-
-# particle1 = Particle(m = m1, x = -m2/ (2 * m1 + m2 + m3) * R - r0 / 2 * cos(theta), y = r0 / 2 * sin(theta), z = 0)
-# particle2 = Particle(m = m2, x = (2 * m1 + m3)  / (2 * m1 + m2 + m3) * R, y = 0, z = 0)
-# particle3 = Particle(m = m1, x = - m2 / (2 * m1 + m2 + m3) * R + r0 / 2 * cos(theta), y = - r0 / 2 * sin(theta), z = 0)
-# particle4 = Particle(m = m3, x = - m2 / (2 * m1 + m2 + m3) * R, y = 0, z = 0)
-
-# particles = [particle1, particle2, particle3, particle4]
-
-# com = COM(particles)
-# print com
-# particles = com.particles
-
-# freedom_degrees = [R, theta]
-# freedom_degrees_derivatives = [diff(degree, t) for degree in freedom_degrees]
-# conjugate_momentum = [p, p_theta]
-
-# lagrange = Lagrange(particles = particles, freedom_degrees = freedom_degrees, freedom_degrees_derivatives = freedom_degrees_derivatives)
-# pprint(vars(lagrange))
-
-# hamilton = Hamilton(lagrange = lagrange, conjugate_momentum = conjugate_momentum)
-# pprint(vars(hamilton))
-
-# latex_output = LatexOutput(lagrangian = lagrange.lagrangian, hamiltonian = hamilton.hamiltonian, name = 'ArCO2')
-
-
-
-
