@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.6.13)  19 FEB 2017 17:57
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.6.13)  19 FEB 2017 22:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Ar-CO2.tex
-(./Ar-CO2.tex
+**GeneralizedWater.tex
+(./GeneralizedWater.tex
 LaTeX2e <2016/02/01>
 Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
@@ -769,8 +769,9 @@ LaTeX Info: Redefining \addtolength on input line 81.
 \cur@row=\count127
 \cur@col=\count128
 \conditionsep=\skip59
-) (./Ar-CO2.aux)
-\openout1 = `Ar-CO2.aux'.
+)
+(./GeneralizedWater.aux)
+\openout1 = `GeneralizedWater.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
 LaTeX Font Info:    ... okay on input line 11.
@@ -829,10 +830,10 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 15.
 
 ! Undefined control sequence.
-\ss@scan@a ...\fi \fi \fi \breqn@next \@let@token 
-                                                  
-l.15 ...\right )}\right) R^{2}{\left (t \right )}}
-                                                   + \frac{\left(2 m_{1} + m...
+<argument> \operatorname 
+                         {r_{2}}^{2}{\left (t \right )}
+l.15 ...q{\left (t \right )} \right )} - 1\right)}
+                                                   + \frac{J_{x} J_{z} \left...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
@@ -841,9 +842,141 @@ and I'll forget about whatever was undefined.
 
 ! Undefined control sequence.
 <argument> \operatorname 
-                         {p_{\theta }}^{2}{\left (t \right )}
-l.15 ...} + m_{3}\right) R^{2}{\left (t \right )}}
-                                                   \left(2 m_{1}^{2} r_{0}^{...
+                         {r_{1}}^{2}{\left (t \right )}
+l.15 ...q{\left (t \right )} \right )} - 1\right)}
+                                                   + \frac{J_{x} J_{z} \left...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \operatorname 
+                         {r_{2}}^{2}{\left (t \right )}
+l.15 ...sin{\left (q{\left (t \right )} \right )}}
+                                                   + J_{y}^{2} \left(\frac{1...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \operatorname 
+                         {r_{1}}^{2}{\left (t \right )}
+l.15 ...sin{\left (q{\left (t \right )} \right )}}
+                                                   + J_{y}^{2} \left(\frac{1...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 8 m \operatorname 
+                             {r_{2}}^{2}{\left (t \right )}
+l.15 ...peratorname{r_{2}}^{2}{\left (t \right )}}
+                                                   + \frac{1}{8 m \operatorn...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 8 m \operatorname 
+                             {r_{1}}^{2}{\left (t \right )}
+l.15 ...peratorname{r_{1}}^{2}{\left (t \right )}}
+                                                  \right) + J_{y} \left(\fra...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 m \operatorname 
+                             {r_{2}}^{2}{\left (t \right )}
+l.15 ...peratorname{r_{2}}^{2}{\left (t \right )}}
+                                                   - \frac{1}{2 m \operatorn...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 m \operatorname 
+                             {r_{1}}^{2}{\left (t \right )}
+l.15 ...peratorname{r_{1}}^{2}{\left (t \right )}}
+                                                  \right) p{\left (t \right ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \operatorname 
+                         {r_{2}}^{2}{\left (t \right )}
+l.15 ...q{\left (t \right )} \right )} + 1\right)}
+                                                   + \left(\frac{1}{2 m \ope...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \operatorname 
+                         {r_{1}}^{2}{\left (t \right )}
+l.15 ...q{\left (t \right )} \right )} + 1\right)}
+                                                   + \left(\frac{1}{2 m \ope...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 m \operatorname 
+                             {r_{2}}^{2}{\left (t \right )}
+l.15 ...peratorname{r_{2}}^{2}{\left (t \right )}}
+                                                   + \frac{1}{2 m \operatorn...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 m \operatorname 
+                             {r_{1}}^{2}{\left (t \right )}
+l.15 ...peratorname{r_{1}}^{2}{\left (t \right )}}
+                                                  \right) p^{2}{\left (t \ri...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \operatorname 
+                         {p_{1}}^{2}{\left (t \right )}
+l.15 ...orname{p_{1}}^{2}{\left (t \right )}}{2 m}
+                                                   + \frac{\operatorname{p_{...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \operatorname 
+                         {p_{2}}^{2}{\left (t \right )}
+l.15 ...orname{p_{2}}^{2}{\left (t \right )}}{2 m}
+                                                  %
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
@@ -851,37 +984,35 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 
-Overfull \hbox (79.55301pt too wide) in paragraph at lines 16--16
-|  \OT1/lmr/m/n/10 + [] 
- []
+Package lastpage Warning: Rerun to get the references right on input line 19.
 
 
 AED: lastpage setting LastPage
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./Ar-CO2.aux)
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./GeneralizedWater.aux)
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
  ) 
 Here is how much of TeX's memory you used:
  8836 strings out of 493029
- 159916 string characters out of 6136234
- 188898 words of memory out of 5000000
+ 160006 string characters out of 6136234
+ 179907 words of memory out of 5000000
  12354 multiletter control sequences out of 15000+600000
  24400 words of font info for 28 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,8n,40p,10374b,275s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dv
-ips/lm/lm-mathex.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/s
-hare/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/l
-m/lm-ec.enc}</usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texm
+ 36i,9n,40p,10384b,275s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
+ips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/share
+/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm
+-mathsy.enc}</usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi
 10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi7.pfb></usr/share/texmf/font
 s/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr5.pfb></
 usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/pu
 blic/lm/lmsy10.pfb>
-Output written on Ar-CO2.pdf (1 page, 101322 bytes).
+Output written on GeneralizedWater.pdf (1 page, 98368 bytes).
 PDF statistics:
  47 PDF objects out of 1000 (max. 8388607)
  35 compressed objects within 1 object stream
