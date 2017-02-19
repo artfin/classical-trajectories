@@ -28,11 +28,16 @@ class Particle(object):
 		return 'm: {0}; x: {1}; y: {2}; z: {3}'.format(self.m, self.x, self.y, self.z)
 
 class Lagrange(object):
-	def __init__(self, particles, freedom_degrees, freedom_degrees_derivatives, angular_velocity = None):
+	def __init__(self, particles, freedom_degrees, freedom_degrees_derivatives, angular_velocity = None,
+			inertia_transform = None, kinetic_transform = None, coriolis_transform = None):
 		self.particles = particles
 		self.freedom_degrees = freedom_degrees
 		self.freedom_degrees_derivatives = freedom_degrees_derivatives
 		self.angular_velocity = angular_velocity if angular_velocity is not None else [Symbol('omega_x'), Symbol('omega_y'), Symbol('omega_z')]
+
+		self.inertia_transform = inertia_transform
+		self.kinetic_transform = kinetic_transform
+		self.coriolis_transform = coriolis_transform
 
 		self.inertia_tensor = self.calculate_inertia_tensor()
 		self.a_matrix = self.calculate_a_matrix()
@@ -134,14 +139,24 @@ class Lagrange(object):
 		print 'coriolis term: {0}'.format(coriolis_term)
 		kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
 		print 'kinetic term: {0}'.format(kinetic_term)
-		lagrangian = inertia_term[0] + coriolis_term[0] + kinetic_term[0]
+
+		inertia_term = self.inertia_transform(inertia_term[0]) if self.inertia_transform is not None else inertia_term[0]
+		coriolis_term = self.coriolis_transform(coriolis_term[0]) if self.coriolis_transform is not None else coriolis_term[0]
+		kinetic_term = self.kinetic_transform(kinetic_term[0]) if self.kinetic_transform is not None else kinetic_term[0]
+
+		lagrangian = inertia_term + coriolis_term + kinetic_term
 		return lagrangian
 
 class Hamilton(object):
-	def __init__(self, lagrange, angular_momentum = None, conjugate_momentum = None):
+	def __init__(self, lagrange, angular_momentum = None, conjugate_momentum = None, 
+				angular_transform = None, kinetic_transform = None, coriolis_transform = None):
 		self.lagrange = lagrange
 		self.angular_momentum = angular_momentum if angular_momentum is not None else [Symbol('J_x'), Symbol('J_y'), Symbol('J_z')]
 		self.conjugate_momentum = conjugate_momentum
+
+		self.angular_transform = angular_transform
+		self.kinetic_transform = kinetic_transform
+		self.coriolis_transform = coriolis_transform
 
 		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
 		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix).inv()
@@ -158,8 +173,12 @@ class Hamilton(object):
 		print 'kinetic term: {0}'.format(kinetic_term)
 		coriolis_term = Matrix(self.angular_momentum).transpose() * self.G12 * Matrix(self.conjugate_momentum)
 		print 'coriolis_term: {0}'.format(coriolis_term)
-		hamiltonian = trigsimp(angular_term[0]) + simplify(kinetic_term[0]) + simplify(coriolis_term[0])
-		return hamiltonian
+
+		angular_term = self.angular_transform(angular_term[0]) if self.angular_transform is not None else angular_term[0]
+		coriolis_term = self.coriolis_transform(coriolis_term[0]) if self.coriolis_transform is not None else coriolis_term[0]
+		kinetic_term = self.kinetic_transform(kinetic_term[0]) if self.kinetic_transform is not None else kinetic_term[0]
+
+		return angular_term + kinetic_term + coriolis_term
 
 class COM(object):
 	def __init__(self, particles):

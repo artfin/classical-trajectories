@@ -25,5 +25,6 @@ conjugate_momentum = [p, p1, p2]
 
 
 lagrange = Lagrange(particles = particles, freedom_degrees = freedom_degrees, freedom_degrees_derivatives = freedom_degrees_derivatives)
-hamilton = Hamilton(lagrange = lagrange, conjugate_momentum = conjugate_momentum)
+hamilton = Hamilton(lagrange = lagrange, conjugate_momentum = conjugate_momentum,
+		angular_transform = simplify, coriolis_transform = simplify, kinetic_transform = simplify)
 latex_output = LatexOutput(lagrangian = lagrange.lagrangian, hamiltonian = hamilton.hamiltonian, name = 'GeneralizedWater')

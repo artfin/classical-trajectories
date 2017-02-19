@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.5.24)  18 FEB 2017 01:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.5.24)  19 FEB 2017 13:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -900,204 +900,6 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 ! Undefined control sequence.
-<argument> \left (- \operatorname 
-                                  {r_{1}}^{2}{\left (t \right )} + \operator...
-l.21 ...frac{1}{2} q{\left (t \right )} \right )}}
-                                                   + \frac{2}{m \left(\opera...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...frac{1}{2} q{\left (t \right )} \right )}}
-                                                   + \frac{2}{m \left(\opera...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> 8 m \left (\operatorname 
-                                    {r_{1}}^{2}{\left (t \right )} + \operat...
-l.21 ...frac{1}{2} q{\left (t \right )} \right )}}
-                                                   + \frac{2}{m \left(\opera...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...frac{1}{2} q{\left (t \right )} \right )}}
-                                                   + \frac{2}{m \left(\opera...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\ss@scan@a ...\fi \fi \fi \breqn@next \@let@token 
-                                                  
-l.21 ...frac{1}{2} q{\left (t \right )} \right )}}
-                                                   + \frac{2}{m \left(\opera...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...2}{\left (t \right )} \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...frac{1}{2} q{\left (t \right )} \right )}}
-                                                   + \frac{2}{m \left(\opera...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> m \left (\operatorname 
-                                  {r_{1}}^{2}{\left (t \right )} + \operator...
-l.21 ...q{\left (t \right )} \right )} + 1\right)}
-                                                  \right) - \frac{J_{z} \lef...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...q{\left (t \right )} \right )} + 1\right)}
-                                                  \right) - \frac{J_{z} \lef...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> J_{z} \left (- \operatorname 
-                                        {r_{1}}^{2}{\left (t \right )} + \op...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                  \right) + \frac{J_{y}^{2} ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                  \right) + \frac{J_{y}^{2} ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> 4 m \operatorname 
-                             {r_{1}}^{2}{\left (t \right )} \operatorname {r...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                  \right) + \frac{J_{y}^{2} ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...2}{\left (t \right )} \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                  \right) + \frac{J_{y}^{2} ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> J_{y}^{2} \left (\operatorname 
-                                          {r_{1}}^{2}{\left (t \right )} + \...
-l.21 ...^{2}{\left (t \right )}\right)^{2}\right)}
-                                                   + \frac{J_{y} p{\left (t ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...^{2}{\left (t \right )}\right)^{2}\right)}
-                                                   + \frac{J_{y} p{\left (t ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> 2 m \left (- \left (\operatorname 
-                                             {r_{1}}^{2}{\left (t \right )} ...
-l.21 ...^{2}{\left (t \right )}\right)^{2}\right)}
-                                                   + \frac{J_{y} p{\left (t ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} - \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...^{2}{\left (t \right )}\right)^{2}\right)}
-                                                   + \frac{J_{y} p{\left (t ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...\right )^{2} + \left (\operatorname 
-                                                  {r_{1}}^{2}{\left (t \righ...
-l.21 ...^{2}{\left (t \right )}\right)^{2}\right)}
-                                                   + \frac{J_{y} p{\left (t ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...^{2}{\left (t \right )}\right)^{2}\right)}
-                                                   + \frac{J_{y} p{\left (t ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
 <argument> 2 m \operatorname 
                              {r_{2}}^{2}{\left (t \right )}
 l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
@@ -1112,95 +914,7 @@ and I'll forget about whatever was undefined.
 <argument> 2 m \operatorname 
                              {r_{1}}^{2}{\left (t \right )}
 l.21 ...peratorname{r_{1}}^{2}{\left (t \right )}}
-                                                   + J_{z} \left(- \frac{J_{...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> J_{x} \left (- \operatorname 
-                                        {r_{1}}^{2}{\left (t \right )} + \op...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                   + \frac{J_{z} \left(\oper...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                   + \frac{J_{z} \left(\oper...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> 4 m \operatorname 
-                             {r_{1}}^{2}{\left (t \right )} \operatorname {r...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                   + \frac{J_{z} \left(\oper...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...2}{\left (t \right )} \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...sin{\left (q{\left (t \right )} \right )}}
-                                                   + \frac{J_{z} \left(\oper...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> J_{z} \left (\operatorname 
-                                      {r_{1}}^{2}{\left (t \right )} + \oper...
-l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
-                                                  \right) + \frac{p^{2}{\lef...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...{\left (t \right )} + \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
-                                                  \right) + \frac{p^{2}{\lef...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\ss@scan@a ...\fi \fi \fi \breqn@next \@let@token 
-                                                  
-l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
-                                                  \right) + \frac{p^{2}{\lef...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-<argument> ...2}{\left (t \right )} \operatorname 
-                                                  {r_{2}}^{2}{\left (t \righ...
-l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
-                                                  \right) + \frac{p^{2}{\lef...
+                                                   + \frac{p^{2}{\left (t \r...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
@@ -1244,7 +958,105 @@ and I'll forget about whatever was undefined.
 <argument> \operatorname 
                          {p_{2}}^{2}{\left (t \right )}
 l.21 ...orname{p_{2}}^{2}{\left (t \right )}}{2 m}
-                                                  %
+                                                   + \frac{1}{2 m \left(- \c...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+\ss@scan@a ...\fi \fi \fi \breqn@next \@let@token 
+                                                  
+l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
+                                                   \left(J_{x}^{2} \operator...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> ...2}{\left (t \right )} \operatorname 
+                                                  {r_{2}}^{2}{\left (t \righ...
+l.21 ...peratorname{r_{2}}^{2}{\left (t \right )}}
+                                                   \left(J_{x}^{2} \operator...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.21 ...t \right )}} \left(J_{x}^{2} \operatorname
+                                                  {r_{1}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.21 ...ght )} \right )} + J_{x}^{2} \operatorname
+                                                  {r_{2}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.21 ...t )} \right )} + J_{x} J_{z} \operatorname
+                                                  {r_{1}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.21 ...t )} \right )} - J_{x} J_{z} \operatorname
+                                                  {r_{2}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+\ss@scan@a ...\fi \fi \fi \breqn@next \@let@token 
+                                                  
+l.21 ...ight )} \right )} + 1\right) \operatorname
+                                                  {r_{1}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+\ss@scan@a ...\fi \fi \fi \breqn@next \@let@token 
+                                                  
+l.21 ...ight )} \right )} + 1\right) \operatorname
+                                                  {r_{2}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.21 ...eft (t \right )} + J_{z}^{2} \operatorname
+                                                  {r_{1}}^{2}{\left (t \righ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.21 ...ght )} \right )} + J_{z}^{2} \operatorname
+                                                  {r_{2}}^{2}{\left (t \righ...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
@@ -1256,31 +1068,27 @@ AED: lastpage setting LastPage
 [1
 
 {/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(./GeneralizedWater.aux)
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+(./GeneralizedWater.aux) ) 
 Here is how much of TeX's memory you used:
  7680 strings out of 493089
  141975 string characters out of 6134842
- 188043 words of memory out of 5000000
+ 183043 words of memory out of 5000000
  11147 multiletter control sequences out of 15000+600000
  24400 words of font info for 28 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,11n,37p,10384b,238s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
-texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2015/t
-exmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2015/texmf-dist/
-fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2015/texmf-dist/fonts/enc/
-dvips/lm/lm-mathsy.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/public/l
-m/lmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/lm/lmex10.p
-fb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/l
-ocal/texlive/2015/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></usr/local/texliv
-e/2015/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2015/texm
-f-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2015/texmf-dist/fonts
-/type1/public/lm/lmsy10.pfb>
-Output written on GeneralizedWater.pdf (1 page, 83680 bytes).
+ 38i,9n,37p,10384b,224s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/l
+m/lm-ec.enc}{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/
+usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/
+texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/20
+15/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}</usr/local/texlive/2015/texmf-d
+ist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/
+type1/public/lm/lmex10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publ
+ic/lm/lmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/lm/lmmi
+7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr
+/local/texlive/2015/texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texli
+ve/2015/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
+Output written on GeneralizedWater.pdf (1 page, 82624 bytes).
 PDF statistics:
  43 PDF objects out of 1000 (max. 8388607)
  32 compressed objects within 1 object stream
