@@ -15,6 +15,7 @@ from pylatex import Document, Section, Subsection, Command, Package
 from pylatex.utils import italic, NoEscape
 
 import logging
+from time import time
 
 class __simp__(object):
 	@staticmethod
@@ -243,16 +244,23 @@ class Hamilton(object):
 		print 'Evaluating G-matrices...'
 
 		print 'inv to a: ...'
-		print self.lagrange.a_matrix.inv(method = "LU")
+		start = time()
+		a_inverse = self.lagrange.a_matrix.inv()
+		print 'time needed to inverse a: {0}s'.format(time() - start)
+
+		start = time()
+		print 'inv to I: ...'
+		I_inverse = self.lagrange.inertia_tensor.inv()
+		print 'time needed to inverse I: {0}s'.format(time() - start)
 		
 		print 'G11...'
-		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
+		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * a_inverse * self.lagrange.A_matrix.transpose()).inv()
 		print 'G22...'
-		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix).inv()
+		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * I_inverse * self.lagrange.A_matrix).inv()
 		print 'G12...'
-		self.G12 = - self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix * self.G22
+		self.G12 = - I_inverse * self.lagrange.A_matrix * self.G22
 		print 'G21...'
-		self.G21 = - self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose() * self.G11
+		self.G21 = - a_inverse * self.lagrange.A_matrix.transpose() * self.G11
 		
 		self.hamiltonian = self.create_hamiltonian()
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
