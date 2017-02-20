@@ -277,7 +277,7 @@ class Hamilton(object):
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
 
 	def simplify_coefficients(self, coeffs):
-		coeffs = [simplify(powsimp(trigsimp(coeff))) for coeff in coeffs]
+		coeffs = [simplify(trigsimp(coeff, method = 'old')) for coeff in coeffs]
 
 		simplified_coeffs = []
 
@@ -364,8 +364,8 @@ class Hamilton(object):
 		expr_simplified = sum([term * coeff for term, coeff in zip(angular_combinations, coeffs)])
 
 		# test equality of reconstructed expression and initial form of angular term
-		difference = self.check_equality(expr, expr_simplified)
-		if not difference: print 'ERROR IN RECONSTRUCTING ANGULAR EXPRESSION!'
+		#difference = self.check_equality(expr, expr_simplified)
+		#if not difference: print 'ERROR IN RECONSTRUCTING ANGULAR EXPRESSION!'
 
 		return expr_simplified
 
@@ -382,6 +382,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in coriolis_combinations]
 
 		# simplifying coefficients
+		print 'Simplifying coefficients...'
 		coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all coriolis terms
@@ -428,9 +429,14 @@ class Hamilton(object):
 		angular_term = Rational(1, 2) * Matrix(self.angular_momentum).transpose() * self.G11 * Matrix(self.angular_momentum)
 		kinetic_term = Rational(1, 2) * Matrix(self.conjugate_momentum).transpose() * self.G22 * Matrix(self.conjugate_momentum)
 		coriolis_term = Matrix(self.angular_momentum).transpose() * self.G12 * Matrix(self.conjugate_momentum)
-		
+			
+		print 'Simplifying angular term...'
 		angular_term_simplified = self.simplify_angular_term(expr = angular_term[0])
+
+		print 'Simplifying coriolis term...'
 		coriolis_term_simplified = self.simplify_coriolis_term(expr = coriolis_term[0])
+
+		print 'Simplifying kinetic term...'
 		kinetic_term_simplified = self.simplify_kinetic_term(expr = kinetic_term[0])
 
 		return angular_term_simplified + kinetic_term_simplified + coriolis_term_simplified
@@ -491,10 +497,10 @@ class LatexOutput(object):
 		self.doc.generate_tex()
 
 	def fill_document(self):
-		# with self.doc.create(Section('Lagrangian')):
-		# 	self.doc.append(NoEscape(r'\begin{dmath}'))
-		# 	self.doc.append(NoEscape('\mathcal{L} = ' + latex(self.lagrangian)))
-		# 	self.doc.append(NoEscape(r'\end{dmath}'))
+		with self.doc.create(Section('Lagrangian')):
+			self.doc.append(NoEscape(r'\begin{dmath}'))
+			self.doc.append(NoEscape('\mathcal{L} = ' + latex(self.lagrangian)))
+			self.doc.append(NoEscape(r'\end{dmath}'))
 
 		with self.doc.create(Section('Hamiltonian')):
 			self.doc.append(NoEscape(r'\begin{dmath}'))
