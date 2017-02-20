@@ -240,15 +240,71 @@ class Hamilton(object):
 		self.freedom_degrees = freedom_degrees
 		self.conjugate_momentum = conjugate_momentum
 
-		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
-		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix).inv()
-		self.G12 = - self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix * self.G22
-		self.G21 = - self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose() * self.G11
+		print 'Evaluating G-matrices...'
 
-		print 'Evaluated G-matrices...'
+		print 'inv to a: ...'
+		print self.lagrange.a_matrix.inv()
+		
+		print 'G11...'
+		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
+		print 'G22...'
+		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix).inv()
+		print 'G12...'
+		self.G12 = - self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix * self.G22
+		print 'G21...'
+		self.G21 = - self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose() * self.G11
 		
 		self.hamiltonian = self.create_hamiltonian()
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
+
+	def simplify_coefficients(self, coeffs):
+		coeffs = [simplify(powsimp(trigsimp(trigsimp(coeff, method = 'old')))) for coeff in coeffs]
+
+		simplified_coeffs = []
+
+		for coeff in coeffs:
+			# current complexity of coefficient
+			current_complexity = count_ops(coeff)
+
+			possible_simple_coeffs = []
+			
+			for degree in self.freedom_degrees:
+				# implementing apart on coefficient and calculating complexity
+				expr1 = apart(coeff, degree)
+				complexity1 = count_ops(expr1)
+
+				# implementing simplify on result of apart and calculating complexity
+				expr2 = simplify(expr1)
+				complexity2 = count_ops(expr2)
+
+				# implementing trigsimp on result of apart and calculating complexity
+				expr3 = trigsimp(expr1)
+				complexity3 = count_ops(expr3)
+
+				possible_simple_coeffs.append({'expression': coeff, 'complexity': current_complexity})
+				possible_simple_coeffs.append({'expression': expr1, 'complexity': complexity1})
+				possible_simple_coeffs.append({'expression': expr2, 'complexity': complexity2})
+				possible_simple_coeffs.append({'expression': expr3, 'complexity': complexity3})
+				
+			# sorting all proposed simplifications in increasing order of complexity
+			possible_simple_coeffs = sorted(possible_simple_coeffs, key = itemgetter('complexity'), reverse = False)
+			
+			# getting the best proposed simplification
+			simplified_coeffs.append(possible_simple_coeffs[0]['expression']) 
+
+		return simplified_coeffs
+
+	@staticmethod
+	def show_coefficients(combinations, coeffs):
+		print '\n' + '=' * 30 + '\n'
+		for term, coeff in zip(combinations, coeffs):
+			print 'simplified coeff for {0}: {1}'.format(term, coeff)
+		print '\n' + '=' * 30 + '\n'
+
+	@staticmethod
+	def check_equality(expr1, expr2):
+		difference = simplify(trigsimp(expr1 - expr2))
+		return [True] if difference == 0 else [False, difference]
 
 	@staticmethod
 	def find_common_subexpression(expr):
