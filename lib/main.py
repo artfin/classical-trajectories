@@ -49,7 +49,7 @@ class Lagrange(object):
 		self.A_matrix = self.calculate_A_matrix()
 
 		self.lagrangian = self.create_lagrangian()
-		# print 'Lagrangian: {0}'.format(self.lagrangian)
+		print 'Lagrangian: {0}'.format(self.lagrangian)
 
 	def calculate_inertia_tensor(self):
 		Ixx = [particle.m * (particle.y ** 2 + particle.z ** 2) for particle in self.particles]
@@ -137,13 +137,13 @@ class Lagrange(object):
 		if number == 2: return vector.dot(N.k)
 
 	def create_lagrangian(self):
-		# print 'angular velocity: {0}'.format(Matrix(self.angular_velocity).shape)
+		print 'angular velocity: {0}'.format(Matrix(self.angular_velocity).shape)
 		inertia_term = Rational(1, 2) * Matrix(self.angular_velocity).transpose() * self.inertia_tensor * Matrix(self.angular_velocity)
-		# print 'inertia term: {0}'.format(inertia_term)
+		print 'inertia term: {0}'.format(inertia_term)
 		coriolis_term = Matrix(self.angular_velocity).transpose() * self.A_matrix * Matrix(self.freedom_degrees_derivatives)
-		# print 'coriolis term: {0}'.format(coriolis_term)
+		print 'coriolis term: {0}'.format(coriolis_term)
 		kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
-		# print 'kinetic term: {0}'.format(kinetic_term)
+		print 'kinetic term: {0}'.format(kinetic_term)
 
 		inertia_term = inertia_term[0]
 		coriolis_term = coriolis_term[0]
