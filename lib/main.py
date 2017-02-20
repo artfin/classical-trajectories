@@ -277,7 +277,7 @@ class Hamilton(object):
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
 
 	def simplify_coefficients(self, coeffs):
-		coeffs = [simplify(powsimp(trigsimp(trigsimp(coeff, method = 'old')))) for coeff in coeffs]
+		coeffs = [simplify(powsimp(trigsimp(coeff))) for coeff in coeffs]
 
 		simplified_coeffs = []
 
