@@ -254,13 +254,24 @@ class Hamilton(object):
 		print 'time needed to inverse I: {0}s'.format(time() - start)
 		
 		print 'G11...'
+		start = time()
 		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * a_inverse * self.lagrange.A_matrix.transpose()).inv()
+		print 'time: {0}'.format(time() - start)
+
 		print 'G22...'
+		start = time()
 		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * I_inverse * self.lagrange.A_matrix).inv()
+		print 'time: {0}'.format(time() - start)
+
 		print 'G12...'
+		start = time()
 		self.G12 = - I_inverse * self.lagrange.A_matrix * self.G22
+		print 'time: {0}'.format(time() - start)
+
 		print 'G21...'
+		start = time()
 		self.G21 = - a_inverse * self.lagrange.A_matrix.transpose() * self.G11
+		print 'time: {0}'.format(time() - start)
 		
 		self.hamiltonian = self.create_hamiltonian()
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
