@@ -14,6 +14,82 @@ from operator import itemgetter
 from pylatex import Document, Section, Subsection, Command, Package
 from pylatex.utils import italic, NoEscape
 
+import logging
+
+class __simp__(object):
+	@staticmethod
+	def sly_apply(coeffs, *methods):
+		_coeffs = []
+		for coeff in coeffs:
+			for method in methods:
+				_coeff = method(coeff)
+			if count_ops(_coeff) < count_ops(coeff):
+				_coeffs.append(_coeff)
+			else:
+				_coeffs.append(coeff)
+		return _coeffs
+
+class __msimp__(object):
+	def __init__(self, matrix, freedom_degrees):
+		self.matrix = matrix
+		self.freedom_degrees = freedom_degrees
+
+		for i, j in product(range(self.matrix.rows), range(self.matrix.cols)):
+			_coeffs = self.factor_matrix_element(self.matrix[i, j])
+			_coeffs = self.simplify_coefficients(_coeffs)
+			
+			_expr = self.reconstruct_element(self.degree_combinations, _coeffs)
+						
+			check = self.check_equality(_expr, self.matrix[i, j])
+			
+			if len(check) == 1:
+				print 'check: {0}'.format(check[0])
+			else:
+				print 'check: {0}; added terms: {1}'.format(check[0], check[1])
+
+			self.matrix[i, j] = _expr
+
+			if not check[0]:
+				self.matrix[i,j] += simplify(check[1])
+
+	@staticmethod
+	def check_equality(expr1, expr2):
+		difference = simplify(trigsimp(expr1 - expr2))
+		return [True] if difference == 0 else [False, difference]
+
+	@staticmethod
+	def reconstruct_element(combinations, coeffs):
+		return simplify(sum([combination * coeff for combination, coeff in zip(combinations, coeffs)]))
+
+	@staticmethod
+	def simplify_coefficients(coeffs):
+		return [powsimp(simplify(factor(coeff))) for coeff in coeffs]
+
+	@staticmethod
+	def show_coefficients(combinations, coeffs):
+		print '\n' + '=' * 30 + '\n'
+		for term, coeff in zip(combinations, coeffs):
+			print 'simplified coeff for {0}: {1}'.format(term, coeff)
+		print '\n' + '=' * 30 + '\n'
+
+	def factor_matrix_element(self, element):
+		"""
+		returns list of coefficients for degree combinations
+		"""
+		element = expand(element)
+		coeffs = []
+		for combination in self.degree_combinations:
+			coeffs.append(element.coeff(combination))
+		return coeffs
+		
+	@property
+	def degree_combinations(self):
+		l = [degree **2 for degree in self.freedom_degrees]
+		for i,j in combinations(self.freedom_degrees, 2):
+			l.append(i * j)
+		return l
+
+
 class Particle(object):
 	def __init__(self, m, x, y, z):
 		self.m = m
@@ -32,9 +108,13 @@ class Particle(object):
 	def __str__(self):
 		return 'm: {0}; x: {1}; y: {2}; z: {3}'.format(self.m, self.x, self.y, self.z)
 
-class Lagrange(object):
+class Lagrange(__simp__):
+	"""
+	Lagrange class inherits from __simp__ the simplification function.
+	"""
 	def __init__(self, particles, freedom_degrees, freedom_degrees_derivatives, angular_velocity = None,
 			inertia_transform = None, kinetic_transform = None, coriolis_transform = None):
+
 		self.particles = particles
 		self.freedom_degrees = freedom_degrees
 		self.freedom_degrees_derivatives = freedom_degrees_derivatives
@@ -137,19 +217,19 @@ class Lagrange(object):
 		if number == 2: return vector.dot(N.k)
 
 	def create_lagrangian(self):
-		print 'angular velocity: {0}'.format(Matrix(self.angular_velocity).shape)
+		print 'Calculating inertia term...'
+		self.inertia_tensor = __msimp__(matrix = self.inertia_tensor, freedom_degrees = self.freedom_degrees).matrix
 		inertia_term = Rational(1, 2) * Matrix(self.angular_velocity).transpose() * self.inertia_tensor * Matrix(self.angular_velocity)
-		print 'inertia term: {0}'.format(inertia_term)
+		
+		print 'Calculating coriolis term...'
+		self.A_matrix = __msimp__(matrix = self.A_matrix, freedom_degrees = self.freedom_degrees).matrix
 		coriolis_term = Matrix(self.angular_velocity).transpose() * self.A_matrix * Matrix(self.freedom_degrees_derivatives)
-		print 'coriolis term: {0}'.format(coriolis_term)
+		
+		print 'Calculating kinetic term...'
+		self.a_matrix = __msimp__(matrix = self.a_matrix, freedom_degrees = self.freedom_degrees).matrix
 		kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
-		print 'kinetic term: {0}'.format(kinetic_term)
-
-		inertia_term = inertia_term[0]
-		coriolis_term = coriolis_term[0]
-		kinetic_term = kinetic_term[0]
-
-		lagrangian = inertia_term + coriolis_term + kinetic_term
+		
+		lagrangian = inertia_term[0] + coriolis_term[0] + kinetic_term[0]
 		return lagrangian
 
 class Hamilton(object):
@@ -159,12 +239,14 @@ class Hamilton(object):
 		self.angular_momentum = angular_momentum if angular_momentum is not None else [Symbol('J_x'), Symbol('J_y'), Symbol('J_z')]
 		self.freedom_degrees = freedom_degrees
 		self.conjugate_momentum = conjugate_momentum
-		
+
 		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
 		self.G22 = (self.lagrange.a_matrix - self.lagrange.A_matrix.transpose() * self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix).inv()
 		self.G12 = - self.lagrange.inertia_tensor.inv() * self.lagrange.A_matrix * self.G22
 		self.G21 = - self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose() * self.G11
 
+		print 'Evaluated G-matrices...'
+		
 		self.hamiltonian = self.create_hamiltonian()
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
 
@@ -184,54 +266,6 @@ class Hamilton(object):
 		# sorting it by counts
 		stats = sorted(stats, key = itemgetter('counts'), reverse = True)
 		pprint(stats)
-
-	@staticmethod
-	def check_equality(expr1, expr2):
-		difference = simplify(trigsimp(trigsimp(expr1 - expr2, method = 'old')))
-		return True if difference == 0 else False
-
-	def simplify_coefficients(self, coeffs):
-		coeffs = [simplify(powsimp(trigsimp(trigsimp(coeff, method = 'old')))) for coeff in coeffs]
-
-		simplified_coeffs = []
-
-		for coeff in coeffs:
-			# current complexity of coefficient
-			current_complexity = count_ops(coeff)
-
-			possible_simple_coeffs = []
-			
-			for degree in self.freedom_degrees:
-				# implementing apart on coefficient and calculating complexity
-				expr1 = apart(coeff, degree)
-				complexity1 = count_ops(expr1)
-
-				# implementing simplify on result of apart and calculating complexity
-				expr2 = simplify(expr1)
-				complexity2 = count_ops(expr2)
-
-				# implementing trigsimp on result of apart and calculating complexity
-				expr3 = trigsimp(expr1)
-				complexity3 = count_ops(expr3)
-
-				possible_simple_coeffs.append({'expression' : expr1, 'complexity': complexity1})
-				possible_simple_coeffs.append({'expression' : expr2, 'complexity': complexity2})
-				possible_simple_coeffs.append({'expression' : expr3, 'complexity': complexity3})
-
-			# sorting all proposed simplifications in increasing order of complexity
-			possible_simple_coeffs = sorted(possible_simple_coeffs, key = itemgetter('complexity'), reverse = False)
-			
-			# getting the best proposed simplification
-			simplified_coeffs.append(possible_simple_coeffs[0]['expression']) 
-
-		return simplified_coeffs
-
-	@staticmethod
-	def show_coefficients(combinations, coeffs):
-		print '\n' + '=' * 30 + '\n'
-		for term, coeff in zip(combinations, coeffs):
-			print 'simplified coeff for {0}: {1}'.format(term, coeff)
-		print '\n' + '=' * 30 + '\n'
 
 	def simplify_angular_term(self, expr):
 		# expanding given angular term
@@ -315,6 +349,7 @@ class Hamilton(object):
 		return expr_simplified
 
 	def create_hamiltonian(self):
+		print 'Creating hamiltonian...'
 		angular_term = Rational(1, 2) * Matrix(self.angular_momentum).transpose() * self.G11 * Matrix(self.angular_momentum)
 		kinetic_term = Rational(1, 2) * Matrix(self.conjugate_momentum).transpose() * self.G22 * Matrix(self.conjugate_momentum)
 		coriolis_term = Matrix(self.angular_momentum).transpose() * self.G12 * Matrix(self.conjugate_momentum)
@@ -326,8 +361,9 @@ class Hamilton(object):
 		return angular_term_simplified + kinetic_term_simplified + coriolis_term_simplified
 
 class COM(object):
-	def __init__(self, particles):
+	def __init__(self, particles = None, freedom_degrees = None):
 		self.particles = particles
+		self.freedom_degrees = freedom_degrees
 
 		self.recalculate_to_com_frame()
 
@@ -342,7 +378,7 @@ class COM(object):
 	@property
 	def x(self):
 		expr = sum(self.without_nans([particle.x * particle.m for particle in self.particles])) / self.M
-		return 0 if self.M._has(oo) else simplify(expr)
+		return 0 if self.M._has(oo) else simplify(factor(expr))
 
 	@property
 	def y(self):
@@ -352,16 +388,20 @@ class COM(object):
 	@property
 	def z(self):
 		expr = sum(self.without_nans([particle.z * particle.m for particle in self.particles])) / self.M
-		return 0 if self.M._has(oo) else simplify(expr)
+		return 0 if self.M._has(oo) else simplify(factor(expr))
 
 	def __str__(self):
 		return '--- COM ---.\nX: {0};\nY: {1};\nZ: {2};'.format(self.x, self.y, self.z)
 
+	def simplification(self, expr):
+		return simplify(factor(expand(expr)))
+		#print 'expr: {0}; complexity: {1}'.format(expr1, complexity1)
+
 	def recalculate_to_com_frame(self):
 		for particle in self.particles:
-			particle.x = particle.x - self.x
+			particle.x = self.simplification(particle.x - self.x)
 			particle.y = particle.y - self.y
-			particle.z = particle.z - self.z
+			particle.z = self.simplification(particle.z - self.z)
 
 class LatexOutput(object):
 	def __init__(self, lagrangian = None, hamiltonian = None, name = 'output'):
