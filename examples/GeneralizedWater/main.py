@@ -1,6 +1,7 @@
 import sys
 sys.path.append('/Users/mac/repos/sympy_project/sympy/')  # path on mac
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/') # path on ubuntu
+sys.path.append('/home/ubuntu/sympy-project/sympy/') # path on M4-server
 
 from lib.main import Particle, COM, Lagrange, Hamilton, LatexOutput
 

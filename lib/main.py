@@ -243,7 +243,7 @@ class Hamilton(object):
 		print 'Evaluating G-matrices...'
 
 		print 'inv to a: ...'
-		print self.lagrange.a_matrix.inv()
+		print self.lagrange.a_matrix.inv(method = "LU")
 		
 		print 'G11...'
 		self.G11 = (self.lagrange.inertia_tensor - self.lagrange.A_matrix * self.lagrange.a_matrix.inv() * self.lagrange.A_matrix.transpose()).inv()
