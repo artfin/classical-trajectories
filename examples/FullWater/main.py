@@ -14,9 +14,9 @@ m, M, t = symbols('m M t')
 q, r1, r2 = dynamicsymbols('q r1 r2')
 p, p1, p2 = dynamicsymbols('p p1 p2')
 
-particle1 = Particle(m = m, x = -r1 * cos(q * Rational(1, 2)), y = 0, z = - r1 * sin(q * Rational(1, 2)))
-particle2 = Particle(m = m, x = -r2 * cos(q * Rational(1, 2)), y = 0, z = r2 * sin(q * Rational(1, 2)))
-particle3 = Particle(m = M, x = 0, y = 0, z = 0)
+particle1 = Particle(m = 1, x = -r1 * cos(q * Rational(1, 2)), y = 0, z = - r1 * sin(q * Rational(1, 2)))
+particle2 = Particle(m = 1, x = -r2 * cos(q * Rational(1, 2)), y = 0, z = r2 * sin(q * Rational(1, 2)))
+particle3 = Particle(m = 1, x = 0, y = 0, z = 0)
 particles = [particle1, particle2, particle3]
 
 # list of freedom degrees

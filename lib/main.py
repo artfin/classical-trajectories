@@ -1,5 +1,6 @@
 from __future__ import division
 
+import sympy
 from sympy import *
 from sympy import sin, cos, simplify, trigsimp, Matrix, powsimp
 from sympy.simplify.cse_main import tree_cse
@@ -279,7 +280,7 @@ class Hamilton(object):
 	def simplify_coefficients(self, coeffs):
 		coeffs = [simplify(trigsimp(coeff, method = 'old')) for coeff in coeffs]
 
-		simplified_coeffs = []
+		simplified_coeffs = coeffs
 
 		for coeff in coeffs:
 			# current complexity of coefficient
@@ -355,7 +356,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in angular_combinations]
 
 		# simplifying coefficients
-		coeffs = self.simplify_coefficients(coeffs = coeffs)
+		#coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all angular terms
 		self.show_coefficients(combinations = angular_combinations, coeffs = coeffs)
@@ -382,8 +383,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in coriolis_combinations]
 
 		# simplifying coefficients
-		print 'Simplifying coefficients...'
-		coeffs = self.simplify_coefficients(coeffs = coeffs)
+		#coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all coriolis terms
 		self.show_coefficients(combinations = coriolis_combinations, coeffs = coeffs)
@@ -410,7 +410,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in kinetic_combinations]
 
 		# simplifying coefficients
-		coeffs = self.simplify_coefficients(coeffs = coeffs)
+		#coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all kinetic terms
 		self.show_coefficients(combinations = kinetic_combinations, coeffs = coeffs)
@@ -459,17 +459,29 @@ class COM(object):
 	@property
 	def x(self):
 		expr = sum(self.without_nans([particle.x * particle.m for particle in self.particles])) / self.M
-		return 0 if self.M._has(oo) else simplify(factor(expr))
+		# check if self.M is a sympy expression
+		if not isinstance(self.M, tuple(sympy.core.all_classes)):
+			return simplify(factor(expr))
+		else:
+			return 0 if self.M._has(oo) else simplify(factor(expr))
 
 	@property
 	def y(self):
 		expr = sum(self.without_nans([particle.y * particle.m for particle in self.particles])) / self.M
-		return 0 if self.M._has(oo) else simplify(expr)
+		# check if self.M is a sympy expression
+		if not isinstance(self.M, tuple(sympy.core.all_classes)):
+			return simplify(factor(expr))
+		else:
+			return 0 if self.M._has(oo) else simplify(factor(expr))
 
 	@property
 	def z(self):
 		expr = sum(self.without_nans([particle.z * particle.m for particle in self.particles])) / self.M
-		return 0 if self.M._has(oo) else simplify(factor(expr))
+		# check if self.M is a sympy expression
+		if not isinstance(self.M, tuple(sympy.core.all_classes)):
+			return simplify(factor(expr))
+		else:
+			return 0 if self.M._has(oo) else simplify(factor(expr))
 
 	def __str__(self):
 		return '--- COM ---.\nX: {0};\nY: {1};\nZ: {2};'.format(self.x, self.y, self.z)

@@ -15,9 +15,10 @@ p1, p2, p3, p4 = dynamicsymbols('p1 p2 p3 p4')
 
 # q1 == theta1, q2 == phi, q3 == theta2, q4 == R
 
-particle1 = Particle(m = mu1, x = l1 * sin(q1), y = 0, z = l1 * cos(q1))
-particle2 = Particle(m = mu2, x = l2 * cos(q2) * sin(q3), y = l2 * sin(q2) * sin(q3), z = l2 * cos(q3))
-particle3 = Particle(m = mu3, x = 0, y = 0, z = q4)
+# x = l1 * sin(q1)
+particle1 = Particle(m = 1, x = sin(q1), y = 0, z = cos(q1)) # x = l1 * sin(q1), z = l1 * cos(q1)
+particle2 = Particle(m = 1, x = cos(q2) * sin(q3), y = sin(q2) * sin(q3), z = cos(q3)) # x = l2 *, z = l2 * 
+particle3 = Particle(m = 1, x = 0, y = 0, z = q4)
 
 particles = [particle1, particle2, particle3]
 
