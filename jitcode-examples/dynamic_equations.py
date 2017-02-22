@@ -39,7 +39,7 @@ class DynamicEquations(object):
 
 
 		init = [.555, 0, 1.766, 14.8]
-		t = np.linspace(0, 10000, 100)
+		t = np.linspace(0, 500, 10)
 		sol = odeint(self.g, init, t)
 
 		plt.plot(t, sol[:,2], 'b', label = 'q(t)')
@@ -50,6 +50,7 @@ class DynamicEquations(object):
 		plt.show()
 
 	def g(self, y, t):
+		print 'here you are: {0}'.format(t)
 		theta, varphi, q, p = y
 		res = []
 		vals = {'theta': theta, 'varphi': varphi, 'q': q, 'p': p}

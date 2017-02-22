@@ -18,19 +18,6 @@ from pylatex.utils import italic, NoEscape
 import logging
 from time import time
 
-class __simp__(object):
-	@staticmethod
-	def sly_apply(coeffs, *methods):
-		_coeffs = []
-		for coeff in coeffs:
-			for method in methods:
-				_coeff = method(coeff)
-			if count_ops(_coeff) < count_ops(coeff):
-				_coeffs.append(_coeff)
-			else:
-				_coeffs.append(coeff)
-		return _coeffs
-
 class __msimp__(object):
 	def __init__(self, matrix, freedom_degrees):
 		self.matrix = matrix
@@ -38,6 +25,8 @@ class __msimp__(object):
 
 		for i, j in product(range(self.matrix.rows), range(self.matrix.cols)):
 			_coeffs = self.factor_matrix_element(self.matrix[i, j])
+			print '_coeffs: '
+			pprint(_coeffs)
 			_coeffs = self.simplify_coefficients(_coeffs)
 			
 			_expr = self.reconstruct_element(self.degree_combinations, _coeffs)
@@ -55,18 +44,37 @@ class __msimp__(object):
 				self.matrix[i,j] += simplify(check[1])
 
 	@staticmethod
+	def sly_apply(coeffs, *methods):
+		_coeffs = []
+		for coeff in coeffs:
+			for method in methods:
+				_coeff = method(coeff)
+			if count_ops(_coeff) < count_ops(coeff):
+				_coeffs.append(_coeff)
+			else:
+				_coeffs.append(coeff)
+		return _coeffs
+
+	@staticmethod
 	def check_equality(expr1, expr2):
-		difference = simplify(trigsimp(expr1 - expr2))
+		difference = simplify(trigsimp(expr2 - expr1))
 		return [True] if difference == 0 else [False, difference]
 
 	@staticmethod
 	def reconstruct_element(combinations, coeffs):
 		return simplify(sum([combination * coeff for combination, coeff in zip(combinations, coeffs)]))
 
-	@staticmethod
-	def simplify_coefficients(coeffs):
-		return [powsimp(simplify(factor(coeff))) for coeff in coeffs]
+	def simplify_coefficients(self, coeffs):
+		coeffs = [expand(coeff) for coeff in coeffs]
 
+		coeffs = self.sly_apply(coeffs, trigsimp)
+		coeffs = self.sly_apply(coeffs, powsimp)
+		coeffs = self.sly_apply(coeffs, factor)
+		coeffs = self.sly_apply(coeffs, cancel)
+		coeffs = self.sly_apply(coeffs, simplify)
+		coeffs = self.sly_apply(coeffs, trigsimp)
+		return coeffs
+		
 	@staticmethod
 	def show_coefficients(combinations, coeffs):
 		print '\n' + '=' * 30 + '\n'
@@ -78,7 +86,8 @@ class __msimp__(object):
 		"""
 		returns list of coefficients for degree combinations
 		"""
-		element = expand(element)
+		element = expand(cancel(factor(element)))
+		print 'element: {0}'.format(element)
 		coeffs = []
 		for combination in self.degree_combinations:
 			coeffs.append(element.coeff(combination))
@@ -86,7 +95,7 @@ class __msimp__(object):
 		
 	@property
 	def degree_combinations(self):
-		l = [degree **2 for degree in self.freedom_degrees]
+		l = [degree ** 2 for degree in self.freedom_degrees]
 		for i,j in combinations(self.freedom_degrees, 2):
 			l.append(i * j)
 		return l
@@ -110,7 +119,7 @@ class Particle(object):
 	def __str__(self):
 		return 'm: {0}; x: {1}; y: {2}; z: {3}'.format(self.m, self.x, self.y, self.z)
 
-class Lagrange(__simp__):
+class Lagrange(object):
 	"""
 	Lagrange class inherits from __simp__ the simplification function.
 	"""
@@ -277,42 +286,6 @@ class Hamilton(object):
 		self.hamiltonian = self.create_hamiltonian()
 		print 'hamiltonian: {0}'.format(self.hamiltonian)
 
-	def simplify_coefficients(self, coeffs):
-		coeffs = [simplify(trigsimp(coeff, method = 'old')) for coeff in coeffs]
-
-		simplified_coeffs = coeffs
-
-		for coeff in coeffs:
-			# current complexity of coefficient
-			current_complexity = count_ops(coeff)
-
-			possible_simple_coeffs = []
-			
-			for degree in self.freedom_degrees:
-				# implementing apart on coefficient and calculating complexity
-				expr1 = apart(coeff, degree)
-				complexity1 = count_ops(expr1)
-
-				# implementing simplify on result of apart and calculating complexity
-				expr2 = simplify(expr1)
-				complexity2 = count_ops(expr2)
-
-				# implementing trigsimp on result of apart and calculating complexity
-				expr3 = trigsimp(expr1)
-				complexity3 = count_ops(expr3)
-
-				possible_simple_coeffs.append({'expression': coeff, 'complexity': current_complexity})
-				possible_simple_coeffs.append({'expression': expr1, 'complexity': complexity1})
-				possible_simple_coeffs.append({'expression': expr2, 'complexity': complexity2})
-				possible_simple_coeffs.append({'expression': expr3, 'complexity': complexity3})
-				
-			# sorting all proposed simplifications in increasing order of complexity
-			possible_simple_coeffs = sorted(possible_simple_coeffs, key = itemgetter('complexity'), reverse = False)
-			
-			# getting the best proposed simplification
-			simplified_coeffs.append(possible_simple_coeffs[0]['expression']) 
-
-		return simplified_coeffs
 
 	@staticmethod
 	def show_coefficients(combinations, coeffs):
@@ -343,6 +316,45 @@ class Hamilton(object):
 		stats = sorted(stats, key = itemgetter('counts'), reverse = True)
 		pprint(stats)
 
+	def simplify_coefficients(self, coeffs):
+		print 'in simplify_coefficients...'
+		coeffs = [simplify(trigsimp(coeff)) for coeff in coeffs]
+
+		simplified_coeffs = coeffs
+
+		print 'iterating over coefficients..'
+		for coeff in coeffs:
+			# current complexity of coefficient
+			current_complexity = count_ops(coeff)
+
+			possible_simple_coeffs = []
+			
+			# for degree in self.freedom_degrees:
+				# implementing apart on coefficient and calculating complexity
+				#expr1 = apart(coeff, degree)
+				#complexity1 = count_ops(expr1)
+
+				# implementing simplify on result of apart and calculating complexity
+			expr2 = simplify(coeff)
+			complexity2 = count_ops(expr2)
+
+			# implementing trigsimp on result of apart and calculating complexity
+			expr3 = trigsimp(expr2)
+			complexity3 = count_ops(expr3)
+
+			possible_simple_coeffs.append({'expression': coeff, 'complexity': current_complexity})
+			#possible_simple_coeffs.append({'expression': expr1, 'complexity': complexity1})
+			possible_simple_coeffs.append({'expression': expr2, 'complexity': complexity2})
+			possible_simple_coeffs.append({'expression': expr3, 'complexity': complexity3})
+			
+			# sorting all proposed simplifications in increasing order of complexity
+			possible_simple_coeffs = sorted(possible_simple_coeffs, key = itemgetter('complexity'), reverse = False)
+			
+			# getting the best proposed simplification
+			simplified_coeffs.append(possible_simple_coeffs[0]['expression']) 
+
+		return simplified_coeffs
+
 	def simplify_angular_term(self, expr):
 		# expanding given angular term
 		expr = expand(expr)
@@ -356,7 +368,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in angular_combinations]
 
 		# simplifying coefficients
-		#coeffs = self.simplify_coefficients(coeffs = coeffs)
+		coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all angular terms
 		self.show_coefficients(combinations = angular_combinations, coeffs = coeffs)
@@ -383,7 +395,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in coriolis_combinations]
 
 		# simplifying coefficients
-		#coeffs = self.simplify_coefficients(coeffs = coeffs)
+		coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all coriolis terms
 		self.show_coefficients(combinations = coriolis_combinations, coeffs = coeffs)
@@ -410,7 +422,7 @@ class Hamilton(object):
 		coeffs = [expr.coeff(term) for term in kinetic_combinations]
 
 		# simplifying coefficients
-		#coeffs = self.simplify_coefficients(coeffs = coeffs)
+		coeffs = self.simplify_coefficients(coeffs = coeffs)
 
 		# printing coefficients for all kinetic terms
 		self.show_coefficients(combinations = kinetic_combinations, coeffs = coeffs)
@@ -486,15 +498,11 @@ class COM(object):
 	def __str__(self):
 		return '--- COM ---.\nX: {0};\nY: {1};\nZ: {2};'.format(self.x, self.y, self.z)
 
-	def simplification(self, expr):
-		return simplify(factor(expand(expr)))
-		#print 'expr: {0}; complexity: {1}'.format(expr1, complexity1)
-
 	def recalculate_to_com_frame(self):
 		for particle in self.particles:
-			particle.x = self.simplification(particle.x - self.x)
-			particle.y = particle.y - self.y
-			particle.z = self.simplification(particle.z - self.z)
+			particle.x = simplify(particle.x - self.x)
+			particle.y = simplify(particle.y - self.y)
+			particle.z = simplify(particle.z - self.z)
 
 class LatexOutput(object):
 	def __init__(self, lagrangian = None, hamiltonian = None, name = 'output'):

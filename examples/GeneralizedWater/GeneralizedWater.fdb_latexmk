@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1487615590 "GeneralizedWater.tex" "GeneralizedWater.pdf" "GeneralizedWater" 1487615590
+["pdflatex"] 1487765106 "GeneralizedWater.tex" "GeneralizedWater.pdf" "GeneralizedWater" 1487765106
   "/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1254269338 2375 baa924870cfb487815765f9094cf3728 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc" 1202520719 3486 c7eadf5dcc57b3b2d11736679f6636ba ""
   "/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc" 1202520719 2405 5dcf2c1b967ee25cc46c58cd52244aed ""
@@ -61,8 +61,8 @@
   "/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1432479641 1764542 91654ba72bdb667e84ea24f076ae16d8 ""
   "/usr/local/texlive/2015/texmf-var/web2c/pdftex/pdflatex.fmt" 1464041451 3849859 f247bb30f13da4281743d4852214175a ""
   "/usr/local/texlive/2015/texmf.cnf" 1432479636 577 0d611272082f3cdb8e80e09a3c69cf07 ""
-  "GeneralizedWater.aux" 1487615590 8 a94a2480d3289e625eea47cd1b285758 ""
-  "GeneralizedWater.tex" 1487615590 1784 bcc27d8a02550df46266a551e0e3c653 ""
+  "GeneralizedWater.aux" 1487764190 90 112e6d019038bd1addde73f110fdf9ab ""
+  "GeneralizedWater.tex" 1487765106 3754 7713baadb7854996bb038353baebfad9 ""
   (generated)
   "GeneralizedWater.log"
   "GeneralizedWater.pdf"
