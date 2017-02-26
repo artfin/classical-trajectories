@@ -1,11 +1,26 @@
 import sys
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/lib') # path on ubuntu
+sys.path.append('/Users/mac/repos/sympy_project/sympy/lib') # path on mac
+
+from pprint import pprint
+
 from __particle__ import __particle__
 
 import autograd.numpy as np
 from autograd import grad, grad_named
 
-from scipy.integrate import odeint
+# from scipy.integrate import odeint
+import scipy.integrate as spi
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
+def extract_column(data, column):
+	res = []
+	for row in data:
+		res.append(row[column])
+	return res
 
 # np.dot() instead of np.array().dot(np.array()) !
 
@@ -38,14 +53,17 @@ def hamiltonian(q = None, p = None, varphi = None, theta = None, effective_poten
 			   			 J * np.cos(theta)])
 	p_vector = np.array([p])
 
-	Ixx = sum([particle.m * particle.__y__(q)**2 + particle.__z__(q)**2 for particle in particles])
-	Iyy = sum([particle.m * particle.__x__(q)**2 + particle.__z__(q)**2 for particle in particles])
-	Izz = sum([particle.m * particle.__x__(q)**2 + particle.__y__(q)**2 for particle in particles])
-	Ixy = - sum([particle.m * particle.__x__(q) * particle.__y__(q)])
-	Ixz = - sum([particle.m * particle.__x__(q) * particle.__z__(q)])
-	Iyz = - sum([particle.m * particle.__y__(q) * particle.__z__(q)])
+	Ixx = sum([particle.m * (particle.__y__(q)**2 + particle.__z__(q)**2) for particle in particles])
+	Iyy = sum([particle.m * (particle.__x__(q)**2 + particle.__z__(q)**2) for particle in particles])
+	Izz = sum([particle.m * (particle.__x__(q)**2 + particle.__y__(q)**2) for particle in particles])
+	Ixy = - sum([particle.m * particle.__x__(q) * particle.__y__(q) for particle in particles])
+	Ixz = - sum([particle.m * particle.__x__(q) * particle.__z__(q) for particle in particles])
+	Iyz = - sum([particle.m * particle.__y__(q) * particle.__z__(q) for particle in particles])
 	
 	inertia_tensor = np.array([[Ixx, Ixy, Ixz], [Ixy, Iyy, Iyz], [Ixz, Iyz, Izz]])
+
+	# print 'inertia_tensor:'
+	# pprint(inertia_tensor)
 	
 	a = np.array([sum([particle.m * (particle.__dx__(q)**2 + particle.__dy__(q)**2 + particle.__dz__(q)**2) for particle in particles])])
 
@@ -58,7 +76,9 @@ def hamiltonian(q = None, p = None, varphi = None, theta = None, effective_poten
 	# print 'G22: {0}'.format(G22)
 
 	angular_component = 0.5 * np.dot(np.dot(J_vector, G11), J_vector)
-	potential = Vm / (1 - np.cos(q)) / I0 + Vp / (1 + np.cos(q)) / I0
+	potential = Vm / (2 * I0 * (1 - np.cos(q))) + Vp / (2 * I0 * (1 + np.cos(q)))
+
+	# print 'potential: {0}'.format(potential)
 	
 	if not effective_potential:
 		kinetic_component = 0.5 * p_vector * G22 * p_vector 
@@ -69,8 +89,8 @@ def hamiltonian(q = None, p = None, varphi = None, theta = None, effective_poten
 
 ######################################################################
 
-Vm = 1./4 * I0**2 * omega0**2 * (1 + np.cos(q0))**2 
-Vp = 1./4 * I0**2 * omega0**2 * (1 - np.cos(q0))**2
+Vp = 1./4 * I0**2 * omega0**2 * (1 + np.cos(q0))**2 
+Vm = 1./4 * I0**2 * omega0**2 * (1 - np.cos(q0))**2
 print 'Vm: {0}; Vp: {1}'.format(Vm, Vp)
 
 varphi0 = 0.01
@@ -88,6 +108,9 @@ qe = 1.503583924
 
 effective_potential = hamiltonian(q = qe, theta = theta0, varphi = varphi0, effective_potential = True)
 print 'effective_potential: {0}'.format(effective_potential)
+
+pini = np.sqrt(I0 * (E - effective_potential))
+print 'pini: {0}'.format(pini)
 
 # print hamiltonian(q = 2.0, p = 0.5, varphi = 0.1, theta = 0.2)
 dham_dq = grad_named(hamiltonian, argname = 'q')
@@ -123,13 +146,63 @@ rhs = [lambda q, p, theta, varphi:  dham_dp(q, p, theta, varphi),
 
 # y = [q, p, theta, varphi]
 # rhs should return derivatives in the same order: q_dot, p_dot, theta_dot, varphi_dot
-def derivatives(y, t):
-	print y, t
+def derivatives(t, y):
+	print t, y
 	return [eq(y[0], y[1], y[2], y[3]) for eq in rhs]
 
-init = [1., 0.01, 0.1, 0.5]
-t = np.linspace(0, 1)
-# sol = odeint(derivatives, init, t)
+init = [qe, pini, theta0, varphi0]
+# t = np.linspace(0, 500, 500)
+# sol = odeint(derivatives, init, t, atol = 10**(-6))
+
+t_start = 1.
+t_end = 500.
+t_step = 10.
+
+ode = spi.ode(derivatives)
+
+ode.set_integrator('lsoda', nsteps = 500, method = 'adams', atol = 1e-6)
+ode.set_initial_value(init, t_start)
+
+sol = []
+t = []
+while ode.successful() and ode.t < t_end:
+	ode.integrate(ode.t + t_step)
+	t.append(ode.t)
+	sol.append(ode.y)
+
+
+# saving it just in case
+np.savetxt("simple-water.dat", sol)
+
+q_list = extract_column(data = sol, column = 0)
+p_list = extract_column(data = sol, column = 1)
+# theta_list = extract_column(data = sol, column = 2)
+# varphi_list = extract_column(data = sol, column = 3)
+
+plt.plot(t, q_list, 'b', label = 'q(t)')
+# # plt.plot(t, p_list, 'g', label = 'p(t)')
+plt.legend(loc = 'best')
+plt.xlabel('t')
+plt.grid()
+plt.show()
+
+# phi = np.linspace(0, 2 * np.pi, 100)
+# theta = np.linspace(0, np.pi, 100)
+# xm = r * np.outer(np.cos(phi), np.sin(theta))
+# ym = r * np.outer(np.sin(phi), np.sin(theta))
+# zm = r * np.outer(np.ones(np.size(phi)), np.cos(theta))
+
+# xx = J * np.cos(varphi_list) * np.sin(theta_list)
+# yy = J * np.sin(varphi_list) * np.sin(theta_list)
+# zz = J * np.cos(theta_list)
+
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
+
+# ax.plot(xx, yy, zz, '-b')
+# plt.tight_layout()
+# plt.show()
+
 
 
 
