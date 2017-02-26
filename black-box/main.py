@@ -1,73 +1,93 @@
+import sys
+sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/lib') # path on ubuntu
+from __particle__ import __particle__
+
 import autograd.numpy as np
 from autograd import grad, grad_named
 
 from scipy.integrate import odeint
 
-r0 = 1.
-m1 = 1.2
-m2 = 1.2
+# np.dot() instead of np.array().dot(np.array()) !
 
-Vm = 624. 
-Vp = 224.
+h = 1.
+n = 0.
+print 'Deformational Energy level: {0}'.format(n)
 
-J = 30.
+q0 = 1.82387
+omega0 = 0.00663829
+I0 = 6021.0735
+ 
+r0 = 1.810357468
+m = m = I0 / r0**2
 
-# particle1
-def __x1__(q):
-	return - r0 * np.cos(q/2)
+J = 25.
 
-def __y1__(q):
-	return 0 * q
+####################################################################
 
-def __z1__(q):
-	return - r0 * np.sin(q/2)
+particle_1 = __particle__(m = m, __x__ = lambda q: -r0 * np.cos(q/2), 
+								 __y__ = lambda q: 0*q, 
+								 __z__ = lambda q: -r0 * np.sin(q/2))
+particle_2 = __particle__(m = m, __x__ = lambda q: -r0 * np.cos(q/2),
+								 __y__ = lambda q: 0*q,
+								 __z__ = lambda q:  r0 * np.sin(q/2))
+particles = [particle_1, particle_2]
 
-# particle2
-def __x2__(q):
-	return - r0 * np.cos(q/2)
-
-def __y2__(q):
-	return 0 * q
-
-def __z2__(q):
-	return r0 / 2 * np.cos(q/2)
-
-__dx1__ = grad(__x1__)
-__dy1__ = grad(__y1__)
-__dz1__ = grad(__z1__)
-
-__dx2__ = grad(__x2__)
-__dy2__ = grad(__y2__)
-__dz2__ = grad(__z2__)
-
-def hamiltonian(q, p, varphi, theta):
+def hamiltonian(q = None, p = None, varphi = None, theta = None, effective_potential = False):
 	J_vector = np.array([J * np.sin(theta) * np.cos(varphi), 
 			    		 J * np.sin(theta) * np.sin(varphi), 
 			   			 J * np.cos(theta)])
 	p_vector = np.array([p])
 
-	Ixx = m1 * (__y1__(q) ** 2 + __z1__(q) ** 2) + m2 * (__y2__(q) ** 2 + __z2__(q) ** 2)
-	Iyy = m1 * (__x1__(q) ** 2 + __z1__(q) ** 2) + m2 * (__x2__(q) ** 2 + __z2__(q) ** 2)
-	Izz = m1 * (__x1__(q) ** 2 + __y1__(q) ** 2) + m2 * (__x2__(q) ** 2 + __y2__(q) ** 2)
-	Ixy = - m1 * __x1__(q) * __y1__(q) - m2 * __x2__(q) * __y2__(q)
-	Ixz = - m1 * __x1__(q) * __z1__(q) - m2 * __x2__(q) * __z2__(q)
-	Iyz = - m1 * __y1__(q) * __z1__(q) - m2 * __y2__(q) * __z2__(q)
-
+	Ixx = sum([particle.m * particle.__y__(q)**2 + particle.__z__(q)**2 for particle in particles])
+	Iyy = sum([particle.m * particle.__x__(q)**2 + particle.__z__(q)**2 for particle in particles])
+	Izz = sum([particle.m * particle.__x__(q)**2 + particle.__y__(q)**2 for particle in particles])
+	Ixy = - sum([particle.m * particle.__x__(q) * particle.__y__(q)])
+	Ixz = - sum([particle.m * particle.__x__(q) * particle.__z__(q)])
+	Iyz = - sum([particle.m * particle.__y__(q) * particle.__z__(q)])
+	
 	inertia_tensor = np.array([[Ixx, Ixy, Ixz], [Ixy, Iyy, Iyz], [Ixz, Iyz, Izz]])
-
-	a = np.array([m1 * (__dx1__(q) * __dx1__(q) + __dy1__(q) * __dy1__(q) + __dz1__(q) * __dz1__(q)) + \
-				  m2 * (__dx2__(q) * __dx2__(q) + __dy2__(q) * __dy2__(q) + __dz2__(q) * __dz2__(q))])
+	
+	a = np.array([sum([particle.m * (particle.__dx__(q)**2 + particle.__dy__(q)**2 + particle.__dz__(q)**2) for particle in particles])])
 
 	G11 = np.linalg.inv(inertia_tensor)
 	G22 = 1/a
 	G12 = 0
 	G21 = 0
 
+	# print 'G11: {0}'.format(G11)
+	# print 'G22: {0}'.format(G22)
+
 	angular_component = 0.5 * np.dot(np.dot(J_vector, G11), J_vector)
-	potential = Vm / (1 - np.cos(q)) + Vp / (1 + np.cos(q))
-	kinetic_component = 0.5 * p_vector * G22 * p_vector 
+	potential = Vm / (1 - np.cos(q)) / I0 + Vp / (1 + np.cos(q)) / I0
 	
-	return angular_component + kinetic_component + potential
+	if not effective_potential:
+		kinetic_component = 0.5 * p_vector * G22 * p_vector 
+		return angular_component + kinetic_component + potential
+	else:
+		return angular_component + potential
+
+
+######################################################################
+
+Vm = 1./4 * I0**2 * omega0**2 * (1 + np.cos(q0))**2 
+Vp = 1./4 * I0**2 * omega0**2 * (1 - np.cos(q0))**2
+print 'Vm: {0}; Vp: {1}'.format(Vm, Vp)
+
+varphi0 = 0.01
+theta0 = 0.15
+Jx0 = J * np.cos(varphi0) * np.sin(theta0)
+Jy0 = J * np.sin(varphi0) * np.sin(theta0)
+Jz0 = J * np.cos(theta0)
+print 'Jx0: {0}; Jy0: {1}; Jz0: {2}'.format(Jx0, Jy0, Jz0)
+
+E = h**2 * (n + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) * \
+		   (n + 1 + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) / I0
+print 'Energy: {0}'.format(E)
+
+qe = 1.503583924
+
+effective_potential = hamiltonian(q = qe, theta = theta0, varphi = varphi0, effective_potential = True)
+print 'effective_potential: {0}'.format(effective_potential)
 
 # print hamiltonian(q = 2.0, p = 0.5, varphi = 0.1, theta = 0.2)
 dham_dq = grad_named(hamiltonian, argname = 'q')
@@ -93,22 +113,23 @@ def dham_djy(q, p, theta, varphi):
 def dham_djz(q, p, theta, varphi):
 	return - 1/(J * np.sin(theta)) * dham_dtheta(q, p, theta, varphi)
 
-rhs = [lambda q, p, theta, varphi:  dham_djx(q, p, theta, varphi) * np.cos(varphi) + \
+rhs = [lambda q, p, theta, varphi:  dham_dp(q, p, theta, varphi),
+	   lambda q, p, theta, varphi: -dham_dq(q, p, theta, varphi),
+	   lambda q, p, theta, varphi:  dham_djx(q, p, theta, varphi) * np.cos(varphi) + \
 									dham_djy(q, p, theta, varphi) * np.sin(varphi) * np.tan(theta) - \
 									dham_djz(q, p, theta, varphi),
 	   lambda q, p, theta, varphi:  dham_djx(q, p, theta, varphi) * np.sin(varphi) - \
-		   							dham_djy(q, p, theta, varphi) * np.cos(varphi),
-	   lambda q, p, theta, varphi:  dham_dp(q, p, theta, varphi),
-	   lambda q, p, theta, varphi: -dham_dq(q, p, theta, varphi)]
+		   							dham_djy(q, p, theta, varphi) * np.cos(varphi)]
 
 # y = [q, p, theta, varphi]
+# rhs should return derivatives in the same order: q_dot, p_dot, theta_dot, varphi_dot
 def derivatives(y, t):
 	print y, t
 	return [eq(y[0], y[1], y[2], y[3]) for eq in rhs]
 
 init = [1., 0.01, 0.1, 0.5]
 t = np.linspace(0, 1)
-sol = odeint(derivatives, init, t)
+# sol = odeint(derivatives, init, t)
 
 
 

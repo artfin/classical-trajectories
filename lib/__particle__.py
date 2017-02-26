@@ -1,20 +1,16 @@
+from autograd import grad
+
 class __particle__(object):
 
-	def __init__(self, m, x, y, z, dx, dy, dz):
+	def __init__(self, m, __x__, __y__, __z__):
 		self.m = m
-		self.x = x
-		self.y = y
-		self.z = z
+		self.__x__ = __x__
+		self.__y__ = __y__
+		self.__z__ = __z__
 
-		self.dx = dx
-		self.dy = dy
-		self.dz = dz
-
-	def __vec__(self, q):
-		return [self.x(q), self.y(q), self.z(q)]
-
-	def __dvec__(self, q):
-		return [self.dx(q), self.dy(q), self.dz(q)]
+		self.__dx__ = grad(__x__)
+		self.__dy__ = grad(__y__)
+		self.__dz__ = grad(__z__)
 
 	def __repr__(self):
 		return 'mass: {0}; x: {1}; y: {2}; z: {3}'.format(self.m, self.x, self.y, self.z)
