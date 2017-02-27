@@ -126,41 +126,43 @@ dham_dp = grad_named(hamiltonian, argname = 'p')
 rhs = []
 
 def dham_djx(q, p, theta, varphi):
-	return 1/J * ((1/(np.cos(theta) * np.cos(varphi))) * dham_dtheta(q, p, theta, varphi) - \
-				   1/(np.sin(theta) * np.sin(varphi))  * dham_dvarphi(q, p, theta, varphi)) 
+	return 1/J * ( (1/(np.cos(theta) * np.cos(varphi))) * dham_dtheta(q, p, theta, varphi) - \
+				    1/(np.sin(theta) * np.sin(varphi))  * dham_dvarphi(q, p, theta, varphi)) 
 
 def dham_djy(q, p, theta, varphi):
-	return 1/J * ((1/(np.cos(theta) * np.sin(varphi)) * dham_dtheta(q, p, theta, varphi) - \
-				   1/(np.sin(theta) * np.sin(varphi)) * dham_dvarphi(q, p, theta, varphi)))
+	return 1/J * ( (1/(np.cos(theta) * np.sin(varphi)) * dham_dtheta(q, p, theta, varphi) + \
+				    1/(np.sin(theta) * np.sin(varphi)) * dham_dvarphi(q, p, theta, varphi)))
 
 def dham_djz(q, p, theta, varphi):
 	return - 1/(J * np.sin(theta)) * dham_dtheta(q, p, theta, varphi)
 
-rhs = [lambda q, p, theta, varphi:  dham_dp(q, p, theta, varphi),
-	   lambda q, p, theta, varphi: -dham_dq(q, p, theta, varphi),
-	   lambda q, p, theta, varphi:  dham_djx(q, p, theta, varphi) * np.cos(varphi) + \
-									dham_djy(q, p, theta, varphi) * np.sin(varphi) * np.tan(theta) - \
-									dham_djz(q, p, theta, varphi),
-	   lambda q, p, theta, varphi:  dham_djx(q, p, theta, varphi) * np.sin(varphi) - \
-		   							dham_djy(q, p, theta, varphi) * np.cos(varphi)]
+rhs = [lambda q, p, theta, varphi:   dham_dp(q, p, theta, varphi),
+	   lambda q, p, theta, varphi: - dham_dq(q, p, theta, varphi),
+	   lambda q, p, theta, varphi:   dham_djx(q, p, theta, varphi) * np.sin(varphi) - \
+		   							 dham_djy(q, p, theta, varphi) * np.cos(varphi),
+	   lambda q, p, theta, varphi:  (dham_djx(q, p, theta, varphi) * np.cos(varphi) + \
+									 dham_djy(q, p, theta, varphi) * np.sin(varphi)) * np.tan(theta) - \
+									 dham_djz(q, p, theta, varphi),
+	   ]
 
 # y = [q, p, theta, varphi]
 # rhs should return derivatives in the same order: q_dot, p_dot, theta_dot, varphi_dot
 def derivatives(t, y):
-	print t, y
+	#print t, y
+	print t, dham_djy(y[0], y[1], y[2], y[3])
 	return [eq(y[0], y[1], y[2], y[3]) for eq in rhs]
 
 init = [qe, pini, theta0, varphi0]
 # t = np.linspace(0, 500, 500)
 # sol = odeint(derivatives, init, t, atol = 10**(-6))
 
-t_start = 1.
-t_end = 500.
-t_step = 10.
+t_start = 0.
+t_end = 200.
+t_step = 1.
 
 ode = spi.ode(derivatives)
 
-ode.set_integrator('lsoda', nsteps = 500, method = 'adams', atol = 1e-6)
+ode.set_integrator('lsoda', nsteps = 500, method = 'bdf', atol = 1e-6)
 ode.set_initial_value(init, t_start)
 
 sol = []
@@ -176,10 +178,10 @@ np.savetxt("simple-water.dat", sol)
 
 q_list = extract_column(data = sol, column = 0)
 p_list = extract_column(data = sol, column = 1)
-# theta_list = extract_column(data = sol, column = 2)
-# varphi_list = extract_column(data = sol, column = 3)
+theta_list = extract_column(data = sol, column = 2)
+varphi_list = extract_column(data = sol, column = 3)
 
-plt.plot(t, q_list, 'b', label = 'q(t)')
+plt.plot(t, theta_list, 'b', label = 'theta(t)')
 # # plt.plot(t, p_list, 'g', label = 'p(t)')
 plt.legend(loc = 'best')
 plt.xlabel('t')
