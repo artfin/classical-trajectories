@@ -33,7 +33,7 @@ omega0 = 0.00663829
 I0 = 6021.0735
  
 r0 = 1.810357468
-m = m = I0 / r0**2
+m = I0 / r0**2
 
 J = 25.
 
@@ -47,7 +47,7 @@ particle_2 = __particle__(m = m, __x__ = lambda q: -r0 * np.cos(q/2),
 								 __z__ = lambda q:  r0 * np.sin(q/2))
 particles = [particle_1, particle_2]
 
-def hamiltonian(q = None, p = None, varphi = None, theta = None, effective_potential = False):
+def hamiltonian(q = None, p = None, theta = None, varphi = None, effective_potential = False):
 	J_vector = np.array([J * np.sin(theta) * np.cos(varphi), 
 			    		 J * np.sin(theta) * np.sin(varphi), 
 			   			 J * np.cos(theta)])
@@ -118,16 +118,29 @@ dham_dtheta = grad_named(hamiltonian, argname = 'theta')
 dham_dvarphi = grad_named(hamiltonian, argname = 'varphi')
 dham_dp = grad_named(hamiltonian, argname = 'p')
 
-# print dham_dq(2.0, 0.5, 0.1, 0.2)
-# print dham_dp(2.0, 0.5, 0.1, 0.2)
-# print dham_dvarphi(2.0, 0.5, 0.1, 0.2)
-# print dham_dtheta(2.0, 0.5, 0.1, 0.2)
+def fcdiff(func, vals, argnum, step = 0.01):
+	_vals_p, _vals_m = vals[:], vals[:]
+	_vals_p[argnum] = _vals_p[argnum] + step
+	_vals_m[argnum] = _vals_m[argnum] - step
+	return (func(*_vals_p) - func(*_vals_m)) / (2 * step)
+
+# print 'automatic dH/dq: {0}'.format(dham_dq(qe, pini, theta0, varphi0))
+# print 'numeric dH/dq: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, theta0, varphi0], argnum = 0))
+
+# print 'automatic dH/dp: {0}'.format(dham_dp(qe, pini, theta0, varphi0))
+# print 'numeric dH/dp: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, theta0, varphi0], argnum = 1))
+
+# print 'automatic dH/dtheta: {0}'.format(dham_dtheta(qe, pini, theta0, varphi0))
+# print 'numeric dH/dtheta: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, theta0, varphi0], argnum = 2))
+
+# print 'automatic dH/dvarphi: {0}'.format(dham_dvarphi(qe, pini, theta0, varphi0))
+# print 'numeric dH/dvarphi: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, theta0, varphi0], argnum = 3))
 
 rhs = []
 
 def dham_djx(q, p, theta, varphi):
 	return 1/J * ( (1/(np.cos(theta) * np.cos(varphi))) * dham_dtheta(q, p, theta, varphi) - \
-				    1/(np.sin(theta) * np.sin(varphi))  * dham_dvarphi(q, p, theta, varphi)) 
+				    1/(np.sin(theta) * np.sin(varphi))  * dham_dvarphi(q, p, theta, varphi))
 
 def dham_djy(q, p, theta, varphi):
 	return 1/J * ( (1/(np.cos(theta) * np.sin(varphi)) * dham_dtheta(q, p, theta, varphi) + \
@@ -148,8 +161,7 @@ rhs = [lambda q, p, theta, varphi:   dham_dp(q, p, theta, varphi),
 # y = [q, p, theta, varphi]
 # rhs should return derivatives in the same order: q_dot, p_dot, theta_dot, varphi_dot
 def derivatives(t, y):
-	#print t, y
-	print t, dham_djy(y[0], y[1], y[2], y[3])
+	print t, y
 	return [eq(y[0], y[1], y[2], y[3]) for eq in rhs]
 
 init = [qe, pini, theta0, varphi0]
@@ -157,7 +169,7 @@ init = [qe, pini, theta0, varphi0]
 # sol = odeint(derivatives, init, t, atol = 10**(-6))
 
 t_start = 0.
-t_end = 200.
+t_end = 100.
 t_step = 1.
 
 ode = spi.ode(derivatives)

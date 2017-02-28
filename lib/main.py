@@ -33,10 +33,10 @@ class __msimp__(object):
 						
 			check = self.check_equality(_expr, self.matrix[i, j])
 			
-			if len(check) == 1:
-				print 'check: {0}'.format(check[0])
-			else:
-				print 'check: {0}; added terms: {1}'.format(check[0], check[1])
+			# if len(check) == 1:
+			# 	print 'check: {0}'.format(check[0])
+			# else:
+			# 	print 'check: {0}; added terms: {1}'.format(check[0], check[1])
 
 			self.matrix[i, j] = _expr
 
@@ -199,7 +199,7 @@ class Lagrange(object):
 		return A
 
 	@staticmethod
-	def calculate_a_element(particle, coord1, coord2):
+	def calculate3_a_element(particle, coord1, coord2):
 		"""
 		Input: particle and two generalized coordinates
 		Output: simplified dot product of two derivatives (by coord1 and by coord2)
@@ -231,16 +231,28 @@ class Lagrange(object):
 		print 'Calculating inertia term...'
 		self.inertia_tensor = __msimp__(matrix = self.inertia_tensor, freedom_degrees = self.freedom_degrees).matrix
 		inertia_term = Rational(1, 2) * Matrix(self.angular_velocity).transpose() * self.inertia_tensor * Matrix(self.angular_velocity)
-		
+		pprint(self.inertia_tensor)
+		print 'inertia_term: {0}'.format(inertia_term)
+
 		print 'Calculating coriolis term...'
 		self.A_matrix = __msimp__(matrix = self.A_matrix, freedom_degrees = self.freedom_degrees).matrix
-		coriolis_term = Matrix(self.angular_velocity).transpose() * self.A_matrix * Matrix(self.freedom_degrees_derivatives)
-		
+		if self.freedom_degrees_derivatives:
+			coriolis_term = Matrix(self.angular_velocity).transpose() * self.A_matrix * Matrix(self.freedom_degrees_derivatives)
+			coriolis_term = coriolis_term[0]
+			print 'Coriolis term: {0}'.format(coriolis_term)
+		else:
+			coriolis_term = 0
+
 		print 'Calculating kinetic term...'
 		self.a_matrix = __msimp__(matrix = self.a_matrix, freedom_degrees = self.freedom_degrees).matrix
-		kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
-		
-		lagrangian = inertia_term[0] + coriolis_term[0] + kinetic_term[0]
+		if self.freedom_degrees_derivatives:
+			kinetic_term = Rational(1, 2) * Matrix(self.freedom_degrees_derivatives).transpose() * self.a_matrix * Matrix(self.freedom_degrees_derivatives)
+			kinetic_term = kinetic_term[0]
+			print 'Kinetic term: {0}'.format(kinetic_term)
+		else:
+			kinetic_term = 0
+
+		lagrangian = inertia_term[0] + coriolis_term + kinetic_term
 		return lagrangian
 
 class Hamilton(object):
