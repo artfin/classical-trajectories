@@ -129,7 +129,7 @@ class Lagrange(object):
 		self.particles = particles
 		self.freedom_degrees = freedom_degrees
 		self.freedom_degrees_derivatives = freedom_degrees_derivatives
-		self.angular_velocity = angular_velocity if angular_velocity is not None else [Symbol('omega_x'), Symbol('omega_y'), Symbol('omega_z')]
+		self.angular_velocity = angular_velocity
 
 		self.inertia_transform = inertia_transform
 		self.kinetic_transform = kinetic_transform
@@ -199,7 +199,7 @@ class Lagrange(object):
 		return A
 
 	@staticmethod
-	def calculate3_a_element(particle, coord1, coord2):
+	def calculate_a_element(particle, coord1, coord2):
 		"""
 		Input: particle and two generalized coordinates
 		Output: simplified dot product of two derivatives (by coord1 and by coord2)
@@ -267,6 +267,7 @@ class Hamilton(object):
 
 		print 'inv to a: ...'
 		start = time()
+		print 'a_matrix: {0}'.format(self.lagrange.a_matrix)
 		a_inverse = self.lagrange.a_matrix.inv()
 		print 'time needed to inverse a: {0}s'.format(time() - start)
 
@@ -470,7 +471,7 @@ class COM(object):
 		self.particles = particles
 		self.freedom_degrees = freedom_degrees
 
-		self.recalculate_to_com_frame()
+		# self.recalculate_to_com_frame()
 
 	@staticmethod
 	def without_nans(l):
@@ -510,11 +511,15 @@ class COM(object):
 	def __str__(self):
 		return '--- COM ---.\nX: {0};\nY: {1};\nZ: {2};'.format(self.x, self.y, self.z)
 
-	def recalculate_to_com_frame(self):
-		for particle in self.particles:
-			particle.x = simplify(particle.x - self.x)
-			particle.y = simplify(particle.y - self.y)
-			particle.z = simplify(particle.z - self.z)
+	# def recalculate_to_com_frame(self):
+	# 	for particle in self.particles:
+	# 		_x = particle.x - self.x
+	# 		_y = particle.y - self.y
+	# 		_z = particle.z - self.z
+
+	# 		particle.x = _x
+	# 		particle.y = _y
+	# 		particle.z = _z
 
 class LatexOutput(object):
 	def __init__(self, lagrangian = None, hamiltonian = None, name = 'output'):
