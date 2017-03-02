@@ -42,10 +42,12 @@ J = 25.
 
 particle_1 = __particle__(m = m, __x__ = lambda q: -r0 * np.cos(q/2), 
 								 __y__ = lambda q: 0*q, 
-								 __z__ = lambda q: -r0 * np.sin(q/2))
+								 __z__ = lambda q: -r0 * np.sin(q/2),
+								 vars = 'q')
 particle_2 = __particle__(m = m, __x__ = lambda q: -r0 * np.cos(q/2),
 								 __y__ = lambda q: 0*q,
-								 __z__ = lambda q:  r0 * np.sin(q/2))
+								 __z__ = lambda q:  r0 * np.sin(q/2),
+								 vars = 'q')
 particles = [particle_1, particle_2]
 
 def hamiltonian(q = None, p = None, jx = None, jy = None, jz = None, effective_potential = False):
@@ -55,26 +57,31 @@ def hamiltonian(q = None, p = None, jx = None, jy = None, jz = None, effective_p
 	"""
 
 	J_vector = np.array([jx, jy, jz])
-	p_vector = np.array([p])
 
-	Ixx = sum([particle.m * (particle.__y__(_deg)**2 + particle.__z__(_deg)**2) for _deg in q for particle in particles])
-	Iyy = sum([particle.m * (particle.__x__(_deg)**2 + particle.__z__(_deg)**2) for _deg in q for particle in particles])
-	Izz = sum([particle.m * (particle.__x__(_deg)**2 + particle.__y__(_deg)**2) for _deg in q for particle in particles])
-	Ixy = - sum([particle.m * particle.__x__(_deg) * particle.__y__(_deg) for _deg in q for particle in particles])
-	Ixz = - sum([particle.m * particle.__x__(_deg) * particle.__z__(_deg) for _deg in q for particle in particles])
-	Iyz = - sum([particle.m * particle.__y__(_deg) * particle.__z__(_deg) for _deg in q for particle in particles])
+	Ixx = sum([particle.m * (particle.__y__(*q)**2 + particle.__z__(*q)**2) for particle in particles])
+	Iyy = sum([particle.m * (particle.__x__(*q)**2 + particle.__z__(*q)**2) for particle in particles])
+	Izz = sum([particle.m * (particle.__x__(*q)**2 + particle.__y__(*q)**2) for particle in particles])
+	Ixy = - sum([particle.m * particle.__x__(*q) * particle.__y__(*q) for particle in particles])
+	Ixz = - sum([particle.m * particle.__x__(*q) * particle.__z__(*q) for particle in particles])
+	Iyz = - sum([particle.m * particle.__y__(*q) * particle.__z__(*q) for particle in particles])
 	
 	inertia_tensor = np.array([[Ixx, Ixy, Ixz], [Ixy, Iyy, Iyz], [Ixz, Iyz, Izz]])
+	inertia_tensor = inertia_tensor.reshape((3, 3))
 
-	pprint(inertia_tensor)
+	# pprint(inertia_tensor)
+	print 'shape of I: {0}'.format(inertia_tensor.shape)
 
 	# a = np.zeros((q.shape[0], q.shape[0]))
 	# for j, k in product(range(q.shape[0]), range(q.shape[0])):
 	# 	a[j, k] = sum([particle.m * (particle.__dx__(q[j]) * particle.__dx__(q[k]) + \
 	# 							 	 particle.__dy__(q[j]) * particle.__dy__(q[k]) + \
 	# 								 particle.__dz__(q[j]) * particle.__dz__(q[k])) for particle in particles])
+	
+	# a = np.array([])
+	# for q1, q2 in product(q, q):
+	# 	a = np.append(a, [particle.m * (particle.__dx__))
 
-	a = np.array([sum([particle.m * (particle.__dx__(q)**2 + particle.__dy__(q)**2 + particle.__dz__(q)**2) for particle in particles])])
+	a = np.array([sum([particle.m * (particle.__dx__[0](q)**2 + particle.__dy__(q)**2 + particle.__dz__(q)**2) for particle in particles])])
 
 	pprint(a)
 
@@ -87,7 +94,7 @@ def hamiltonian(q = None, p = None, jx = None, jy = None, jz = None, effective_p
 	potential = Vm / (2 * I0 * (1 - np.cos(q))) + Vp / (2 * I0 * (1 + np.cos(q)))
 	
 	if not effective_potential:
-		kinetic_component = 0.5 * p_vector * G22 * p_vector 
+		kinetic_component = 0.5 * p * G22 * p 
 		return angular_component + kinetic_component + potential
 	else:
 		return angular_component + potential
@@ -112,13 +119,19 @@ print 'Energy: {0}'.format(E)
 
 qe = 1.503583924
 
-effective_potential = hamiltonian(q = np.array([qe]), jx = Jx0, jy = Jy0, jz = Jz0, effective_potential = True)
+q = np.array([qe])
+q = np.atleast_2d(q)
+
+effective_potential = hamiltonian(q = q, jx = Jx0, jy = Jy0, jz = Jz0, effective_potential = True)
 print 'effective_potential: {0}'.format(effective_potential)
 
 pini = np.sqrt(I0 * (E - effective_potential))
 print 'pini: {0}'.format(pini)
 
-print 'hamiltonian: {0}'.format(hamiltonian(q = np.array([qe]), p = pini, jx = Jx0, jy = Jy0, jz = Jz0))
+p = np.array([pini])
+p = np.atleast_2d(p)
+
+print 'hamiltonian: {0}'.format(hamiltonian(q = q, p = p, jx = Jx0, jy = Jy0, jz = Jz0))
 
 dham_dq = grad_named(hamiltonian, argname = 'q')
 dham_dp = grad_named(hamiltonian, argname = 'p')
@@ -132,20 +145,20 @@ def fcdiff(func, vals, argnum, step = 0.00001):
 	_vals_m[argnum] = _vals_m[argnum] - step
 	return (func(*_vals_p) - func(*_vals_m)) / (2 * step)
 
-print 'automatic dH/dq: {0}'.format(dham_dq(np.array([qe]), pini, Jx0, Jy0, Jz0))
-print 'numeric dH/dq: {0}'.format(fcdiff(func = hamiltonian, vals = [np.array([qe]), pini, Jx0, Jy0, Jz0], argnum = 0))
+print 'automatic dH/dq: {0}'.format(dham_dq(q, p, Jx0, Jy0, Jz0))
+print 'numeric dH/dq: {0}'.format(fcdiff(func = hamiltonian, vals = [q, p, Jx0, Jy0, Jz0], argnum = 0))
 
-print 'automatic dH/dp: {0}'.format(dham_dp(qe, pini, Jx0, Jy0, Jz0))
-print 'numeric dH/dp: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, Jx0, Jy0, Jz0], argnum = 1))
+print 'automatic dH/dp: {0}'.format(dham_dp(q, p, Jx0, Jy0, Jz0))
+print 'numeric dH/dp: {0}'.format(fcdiff(func = hamiltonian, vals = [q, p, Jx0, Jy0, Jz0], argnum = 1))
 
-print 'automatic dH/djx: {0}'.format(dham_djx(qe, pini, Jx0, Jy0, Jz0))
-print 'numeric dH/djx: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, Jx0, Jy0, Jz0], argnum = 2))
+print 'automatic dH/djx: {0}'.format(dham_djx(q, p, Jx0, Jy0, Jz0))
+print 'numeric dH/djx: {0}'.format(fcdiff(func = hamiltonian, vals = [q, p, Jx0, Jy0, Jz0], argnum = 2))
 
-print 'automatic dH/djy: {0}'.format(dham_djy(qe, pini, Jx0, Jy0, Jz0))
-print 'numeric dH/djy: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, Jx0, Jy0, Jz0], argnum = 3))
+print 'automatic dH/djy: {0}'.format(dham_djy(q, p, Jx0, Jy0, Jz0))
+print 'numeric dH/djy: {0}'.format(fcdiff(func = hamiltonian, vals = [q, p, Jx0, Jy0, Jz0], argnum = 3))
 
-print 'automatic dH/djz: {0}'.format(dham_djz(qe, pini, Jx0, Jy0, Jz0))
-print 'numeric dH/djz: {0}'.format(fcdiff(func = hamiltonian, vals = [qe, pini, Jx0, Jy0, Jz0], argnum = 4))
+print 'automatic dH/djz: {0}'.format(dham_djz(q, p, Jx0, Jy0, Jz0))
+print 'numeric dH/djz: {0}'.format(fcdiff(func = hamiltonian, vals = [q, p, Jx0, Jy0, Jz0], argnum = 4))
 
 rhs = []
 
