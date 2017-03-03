@@ -76,11 +76,11 @@ def hamiltonian(q = None, p = None, jx = None, jy = None, jz = None, effective_p
 	G12 = - np.dot(np.dot(G11, A), inv(a))
 
 	angular_component = 0.5 * np.dot(np.dot(J_vector, G11), J_vector)
-	potential = Vm / (2 * I0 * (1 - np.cos(q))) + Vp / (2 * I0 * (1 + np.cos(q)))
+	potential = Vm / (2 * I0 * (1 - np.cos(q[0]))) + Vp / (2 * I0 * (1 + np.cos(q[0])))
 	
 	if not effective_potential:
-		kinetic_component = 0.5 * p * G22 * p 
-		coriolis_component = np.dot(J_vector, G12)
+		kinetic_component = 0.5 * np.dot(np.dot(p.transpose(), G22), p) 
+		coriolis_component = np.dot(np.dot(J_vector, G12), p)
 		return angular_component + kinetic_component + potential
 	else:
 		return angular_component + potential
