@@ -1,3 +1,5 @@
+$x^2 + ax + b$
+
 $$
 \left\{
 \begin{aligned}

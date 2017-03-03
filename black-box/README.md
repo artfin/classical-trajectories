@@ -1,3 +1,5 @@
+<img src="https://rawgit.com/artfin/sympy/master/svgs/ebee963c5956b56329da96b3dbc2edd6.svg?invert_in_darkmode" align=middle width=81.866235pt height=26.70657pt/>
+
 <p align="center"><img src="https://rawgit.com/artfin/sympy/master/svgs/8a2672a9d198c16c13f914a7f57abb14.svg?invert_in_darkmode" align=middle width=139.28805pt height=68.9865pt/></p>
 
 
