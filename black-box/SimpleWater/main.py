@@ -48,12 +48,14 @@ __builtin__.particles = particles
 __builtin__.Vm = Vm
 __builtin__.Vp = Vp
 __builtin__.I0 = I0
+__builtin__.J = J
 from black_box import hamiltonian, extract_column
 
 __degrees__ = 1
 
 varphi0 = 0.01
 theta0 = 0.15
+
 Jx0 = np.array([J * np.cos(varphi0) * np.sin(theta0)]).reshape((1,1))
 Jy0 = np.array([J * np.sin(varphi0) * np.sin(theta0)]).reshape((1,1))
 Jz0 = np.array([J * np.cos(theta0)]).reshape((1,1))
@@ -67,7 +69,7 @@ qe = 1.503583924
 
 q = np.array([qe]).reshape((1,1))
 
-effective_potential = hamiltonian(q = q, jx = Jx0, jy = Jy0, jz = Jz0, effective_potential = True)
+effective_potential = hamiltonian(q = q, theta = theta0, varphi = varphi0, effective_potential = True)
 print 'effective_potential: {0}'.format(effective_potential)
 
 pini = np.sqrt(I0 * (E - effective_potential))
@@ -75,67 +77,64 @@ print 'pini: {0}'.format(pini)
 
 p = np.array([pini]).reshape((1,1))
 
-print 'hamiltonian: {0}'.format(hamiltonian(q = q, p = p, jx = Jx0, jy = Jy0, jz = Jz0))
+print 'hamiltonian: {0}'.format(hamiltonian(q = q, p = p, theta = theta0, varphi = varphi0))
 
 dham_dq = grad_named(hamiltonian, argname = 'q')
 dham_dp = grad_named(hamiltonian, argname = 'p')
-dham_djx = grad_named(hamiltonian, argname = 'jx')
-dham_djy = grad_named(hamiltonian, argname = 'jy')
-dham_djz = grad_named(hamiltonian, argname = 'jz')
+dham_dtheta = grad_named(hamiltonian, argname = 'theta')
+dham_dvarphi = grad_named(hamiltonian, argname = 'varphi')
+
+def dham_djx(q, p, theta, varphi):
+	return (1. / J) * np.cos(theta) * np.cos(varphi) * dham_dtheta(q, p, theta, varphi) - \
+		   (1. / J) * np.sin(varphi) / np.sin(theta) * dham_dvarphi(q, p, theta, varphi)
+
+def dham_djy(q, p, theta, varphi):
+	return (1. / J) * np.sin(varphi) * np.cos(theta) * dham_dtheta(q, p, theta, varphi) + \
+		   (1. / J) * np.cos(varphi) / np.sin(theta) * dham_dvarphi(q, p, theta, varphi)
+
+def dham_djz(q, p, theta, varphi):
+	return - (1. / J) * np.sin(theta) * dham_dtheta(q, p, theta, varphi) 
 
 def rhs(t, y):
 	print t, y
+
 	eqs = [
-	   lambda q, p, jx, jy, jz:   dham_dp(np.array([q]).reshape((__degrees__, 1)), 
-										  np.array([p]).reshape((__degrees__, 1)), 
-										  np.array([jx]).reshape((1, 1)), 
-										  np.array([jy]).reshape((1, 1)), 
-										  np.array([jz]).reshape((1, 1))),
+	   lambda q, p, theta, varphi:  dham_dp(np.array([q]).reshape((__degrees__, 1)), 
+										   np.array([p]).reshape((__degrees__, 1)), 
+										   theta, 
+										   varphi),
 
-	   lambda q, p, jx, jy, jz: - dham_dq(np.array([q]).reshape((__degrees__, 1)), 
+	   lambda q, p, theta, varphi: - dham_dq(np.array([q]).reshape((__degrees__, 1)), 
 	   									  np.array([p]).reshape((__degrees__, 1)), 
-	   									  np.array([jx]).reshape((1, 1)), 
-	   									  np.array([jy]).reshape((1, 1)), 
-	   									  np.array([jz]).reshape((1, 1))),
+	   									  theta, 
+	   									  varphi),
 
-	   lambda q, p, jx, jy, jz:  dham_djz(np.array([q]).reshape((__degrees__, 1)), 
-	   									  np.array([p]).reshape((__degrees__, 1)), 
-	   									  np.array([jx]).reshape((1, 1)), 
-	   									  np.array([jy]).reshape((1, 1)), 
-	   									  np.array([jz])) * jy - \
-	   							 dham_djy(np.array([q]).reshape((__degrees__, 1)), 
-	   							  		  np.array([p]).reshape((__degrees__, 1)), 
-	   							  		  np.array([jx]).reshape((1, 1)), 
-	   							  		  np.array([jy]).reshape((1, 1)), 
-	   							  		  np.array([jz]).reshape((1, 1))) * jz,
+	   lambda q, p, theta, varphi: dham_djx(np.array([q]).reshape((__degrees__, 1)),
+	   										np.array([p]).reshape((__degrees__, 1)),
+	   										theta, 
+	   										varphi) * np.sin(varphi) - \
+	   							   dham_djy(np.array([q]).reshape((__degrees__, 1)),
+	   							   			np.array([p]).reshape((__degrees__, 1)),
+	   							   			theta, 
+	   							   			varphi) * np.cos(varphi),
 
-	   lambda q, p, jx, jy, jz:  dham_djx(np.array([q]).reshape((__degrees__, 1)), 
-	   							 		  np.array([p]).reshape((__degrees__, 1)), 
-	   							  		  np.array([jx]).reshape((1, 1)), 
-	   							  		  np.array([jy]).reshape((1, 1)), 
-	   							  		  np.array([jz]).reshape((1, 1))) * jz - \
-	   							 dham_djz(np.array([q]).reshape((__degrees__, 1)), 
-	   							  		  np.array([p]).reshape((__degrees__, 1)), 
-	   							  		  np.array([jx]).reshape((1, 1)), 
-	   							  		  np.array([jy]).reshape((1, 1)), 
-	   							  		  np.array([jz]).reshape((1, 1))) * jx,
-
-	   lambda q, p, jx, jy, jz:  dham_djy(np.array([q]).reshape((__degrees__, 1)), 
-	   							  		  np.array([p]).reshape((__degrees__, 1)), 
-	   							  		  np.array([jx]).reshape((1, 1)), 
-	   							  		  np.array([jy]).reshape((1, 1)), 
-	   							  		  np.array([jz]).reshape((1, 1))) * jx - \
-	   							 dham_djx(np.array([q]).reshape((__degrees__, 1)), 
-	   							  		  np.array([p]).reshape((__degrees__, 1)), 
-	   							  		  np.array([jx]).reshape((1, 1)), 
-	   							  		  np.array([jy]).reshape((1, 1)), 
-	   							  		  np.array([jz]).reshape((1, 1))) * jy,
+	   lambda q, p, theta, varphi: (dham_djx(np.array([q]).reshape((__degrees__, 1)), 
+	   									  	 np.array([p]).reshape((__degrees__, 1)), 
+	   									  	 theta, 
+	   									  	 varphi) * np.cos(varphi) + \
+	   								dham_djy(np.array([q]).reshape((__degrees__, 1)),
+	   										 np.array([p]).reshape((__degrees__, 1)),
+	   										 theta, 
+	   										 varphi) * np.sin(varphi)) * (1. / np.tan(theta)) - \
+	   								dham_djz(np.array([q]).reshape((__degrees__, 1)), 
+	   										 np.array([p]).reshape((__degrees__, 1)),
+	   										 theta, varphi),
 	 ]
 	return [eq(*y) for eq in eqs]
 
 start = time()
 
-init = [q, p, Jx0, Jy0, Jz0]
+init = [q, p, theta0, varphi0]
 
 t_start = 0.
 t_end = 100.
@@ -157,29 +156,32 @@ print 'needed: {0}s'.format(time() - start)
 
 q_list = extract_column(data = sol, column = 0)
 p_list = extract_column(data = sol, column = 1)
-jx_list = extract_column(data = sol, column = 2)
-jy_list = extract_column(data = sol, column = 3)
-jz_list = extract_column(data = sol, column = 4)
+theta_list = extract_column(data = sol, column = 2)
+varphi_list = extract_column(data = sol, column = 3)
 
 q_list = [val.reshape((__degrees__,)) for val in q_list]
 p_list = [val.reshape((__degrees__,)) for val in p_list]
-jx_list = [val.reshape((1,)) for val in jx_list]
-jy_list = [val.reshape((1,)) for val in jy_list]
-jz_list = [val.reshape((1,)) for val in jz_list]
+theta_list = [val.reshape((1,)) for val in theta_list]
+varphi_list = [val.reshape((1,)) for val in varphi_list]
 
-np.savetxt("simple-water.dat", (q_list, p_list, jx_list, jy_list, jz_list))
+jx_list = J * np.cos(varphi_list) * np.sin(theta_list)
+jy_list = J * np.sin(varphi_list) * np.sin(theta_list)
+jz_list = J * np.cos(theta_list)
 
-# plt.plot(t, q_list, 'b', label = 'q(t)')
+np.savetxt("simple-water.dat", (jy_list))
+
+# plt.plot(t, J_list, 'b', label = 'q(t)')
 # plt.plot(t, p_list, 'g', label = 'p(t)')
-# plt.legend(loc = 'best')
-# plt.xlabel('t')
-# plt.grid()
-# plt.show()
+plt.plot(t, jy_list, 'g', label = 'jx(t)')
+plt.legend(loc = 'best')
+plt.xlabel('t')
+plt.grid()
+plt.show()
 
 
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-ax.plot(jx_list, jy_list, jz_list, '-r')
-plt.tight_layout()
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
+# ax.plot(jx_list, jy_list, jz_list, '-r')
+# plt.tight_layout()
 # plt.savefig('n=0,J=25,theta=0.15.png', facecolor = 'w', edgecolor = 'b', orientation = 'portrait',
 			# transparent = False, bbox_inches = None, pad_inches = 0.1, frameon = None)
