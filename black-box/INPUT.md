@@ -1,7 +1,11 @@
 $$
+\left\{
+\begin{aligned}
 J_x = J \cos \varphi \sin \theta \\
 J_y = J \sin \varphi \sin \theta \\
 J_z = J \cos \theta
+\end{aligned}
+\right.
 $$
 
 

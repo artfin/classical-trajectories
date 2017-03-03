@@ -1,4 +1,4 @@
-<p align="center"><img src="https://rawgit.com/artfin/sympy/master/svgs/d42b6b1f08f39484012571e4c7722b1b.svg?invert_in_darkmode" align=middle width=326.41455pt height=16.0677pt/></p>
+<p align="center"><img src="https://rawgit.com/artfin/sympy/master/svgs/8a2672a9d198c16c13f914a7f57abb14.svg?invert_in_darkmode" align=middle width=139.28805pt height=68.9865pt/></p>
 
 
 Для определения производных гамильтониана <img src="https://rawgit.com/artfin/sympy/master/svgs/5ab89f0a8095aee9c118de6f5ad7da4c.svg?invert_in_darkmode" align=middle width=92.300505pt height=24.56553pt/> по углам, определяющим направление углового момента, используем цепное правило:
