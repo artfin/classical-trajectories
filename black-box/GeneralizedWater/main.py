@@ -39,6 +39,7 @@ q0 = 1.82387
 omega0 = 0.00663829
 Vp = 1./4 * I0**2 * omega0**2 * (1 + np.cos(q0))**2 
 Vm = 1./4 * I0**2 * omega0**2 * (1 - np.cos(q0))**2
+harmonic_constant = 0.524
 
 J = 25.
 
@@ -48,6 +49,8 @@ __builtin__.Vm = Vm
 __builtin__.Vp = Vp
 __builtin__.I0 = I0
 __builtin__.J = J
+__builtin__.harmonic_constant = harmonic_constant
+__builtin__.r0 = r0
 from black_box import hamiltonian, extract_column
 
 h = 1.
@@ -57,17 +60,16 @@ n2 = 0.
 print 'Deformational Energy level: {0}'.format(n)
 print 'Vibrational energy levels: {0}'.format(n1, n2)
 
-k = 0.524
-omega1 = np.sqrt(k / m)
+omega1 = np.sqrt(harmonic_constant / m)
 
 qe = 1.503583924
-r1ini = r0 + np.sqrt(h * omega1 * (n1 + 0.5) / k)
-r2ini = r0 + np.sqrt(h * omega1 * (n2 + 0.5) / k)
+r1ini = r0 + np.sqrt(h * omega1 * (n1 + 0.5) / harmonic_constant)
+r2ini = r0 + np.sqrt(h * omega1 * (n2 + 0.5) / harmonic_constant)
 p1ini = 0.
 p2ini = 0.
 q = np.array([qe, r1ini, r2ini]).reshape((3,1))
 
-varphi0 = 0.01
+varphi0 = 0.001
 theta0 = 0.15
 Jx0 = np.array([J * np.cos(varphi0) * np.sin(theta0)]).reshape((1,1))
 Jy0 = np.array([J * np.sin(varphi0) * np.sin(theta0)]).reshape((1,1))
@@ -82,7 +84,8 @@ print 'Energy: {0}'.format(E)
 effective_potential = hamiltonian(q = q, theta = theta0, varphi = varphi0, effective_potential = True)
 print 'effective_potential: {0}'.format(effective_potential)
 
-pini = np.sqrt(I0 * (E - effective_potential)).flatten()[0]
+I_modified = 6895.093374
+pini = np.sqrt(I_modified * (E - effective_potential)).flatten()[0]
 print 'pini shape: {0}'.format(pini.shape)
 print 'pini: {0}'.format(pini)
 
@@ -173,7 +176,7 @@ print 'init: {0}'.format(init)
 init_flatten = flatten_nested_array(init)
 
 t_start = 0.
-t_end = 100.
+t_end = 500.
 t_step = 1.
 
 ode = spi.ode(rhs)
@@ -190,26 +193,21 @@ while ode.successful() and ode.t < t_end:
 
 print 'needed: {0}s'.format(time() - start)
 
-# q_list = extract_column(data = sol, column = 0)
-# p_list = extract_column(data = sol, column = 1)
-# jx_list = extract_column(data = sol, column = 2)
-# jy_list = extract_column(data = sol, column = 3)
-# jz_list = extract_column(data = sol, column = 4)
+q_list = np.array([extract_column(data = sol, column = i) for i in range(__degrees__)])
+p_list = np.array([extract_column(data = sol, column = i) for i in range(__degrees__, 2 * __degrees__)])
+theta_list = [extract_column(data = sol, column = 2 * __degrees__)][0]
+varphi_list = [extract_column(data = sol, column = 2 * __degrees__ + 1)][0]
 
-# q_list = [val.reshape((__degrees__,)) for val in q_list]
-# p_list = [val.reshape((__degrees__,)) for val in p_list]
-# jx_list = [val.reshape((1,)) for val in jx_list]
-# jy_list = [val.reshape((1,)) for val in jy_list]
-# jz_list = [val.reshape((1,)) for val in jz_list]
-
-# np.savetxt("simple-water.dat", (q_list, p_list, jx_list, jy_list, jz_list))
+# np.savetxt("generalized-water.dat", (theta_list))
 
 # plt.plot(t, q_list, 'b', label = 'q(t)')
 # plt.plot(t, p_list, 'g', label = 'p(t)')
-# plt.legend(loc = 'best')
-# plt.xlabel('t')
-# plt.grid()
-# plt.show()
+plt.plot(t, theta_list, 'g', label = 'theta(t)')
+plt.plot(t, varphi_list, 'g', label = 'varphi(t)')
+plt.legend(loc = 'best')
+plt.xlabel('t')
+plt.grid()
+plt.show()
 
 
 # fig = plt.figure()
