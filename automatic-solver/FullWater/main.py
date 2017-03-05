@@ -102,7 +102,7 @@ for J in range(28, 32):
 
 	init = [q, p, theta0, varphi0]
 	t_start = 0.
-	t_end = 100.
+	t_end = 5000.
 	t_step = 1.
 	t = np.linspace(t_start, t_end, t_end / t_step)
 
