@@ -1,4 +1,5 @@
 import sys
+sys.path.append('/home/ubuntu/classical-trajectories/classical-trajectories/automatic-solver')
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/automatic-solver') # ubuntu
 sys.path.append('/Users/mac/repos/sympy_project/sympy/automatic-solver') # path on mac
 
