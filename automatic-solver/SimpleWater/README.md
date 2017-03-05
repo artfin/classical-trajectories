@@ -1,7 +1,12 @@
+### Model
+
+![simple](https://cloud.githubusercontent.com/assets/15310535/23587650/0fb4eca2-01c2-11e7-8da6-b3a79284d769.jpg)
+![simple2](https://cloud.githubusercontent.com/assets/15310535/23587651/0fb513a8-01c2-11e7-97c3-885926816a06.jpg)
+
 ### Speed test without multiprocessing 
 
-| Number of time steps <!-- .element: style="text-align:center;" -->| _MacBook Pro (Early 2011, 2.3GHz dual-core Intel Core i5)_ <!-- .element: style="text-align:center;" -->| _Amazon M4 Ubuntu Server_ <!-- .element: style="text-align:center;" -->|
+| Number of time steps | _MacBook Pro (Early 2011, 2.3GHz dual-core Intel Core i5)_ | _Amazon M4 Ubuntu Server_ |
 | ------------- | ------------- | --------- |
-|  5.000 <!-- .element: style="text-align:center;" -->| 52.24s <!-- .element: style="text-align:center;" -->| 32.39s  <!-- .element: style="text-align:center;" -->|
-| 10.000 <!-- .element: style="text-align:center;" -->| 91.41s <!-- .element: style="text-align:center;" -->| 65.85s  <!-- .element: style="text-align:center;" -->|
-| 50.000 <!-- .element: style="text-align:center;" -->|  -<!-- .element: style="text-align:center;" -->    | 344.31s <!-- .element: style="text-align:center;" -->|
+|  5.000 | 52.24s | 32.39s |
+| 10.000 | 91.41s | 65.85s |
+| 50.000 |   -    | 344.31s |

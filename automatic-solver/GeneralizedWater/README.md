@@ -1,7 +1,6 @@
 ### Model
 
 ![gen1](https://cloud.githubusercontent.com/assets/15310535/23587575/baa0e636-01c0-11e7-824c-a214f8bf71fe.jpg)
-
 ![gen2](https://cloud.githubusercontent.com/assets/15310535/23587574/baa04064-01c0-11e7-88a0-fea6896de87c.jpg)
 
 
