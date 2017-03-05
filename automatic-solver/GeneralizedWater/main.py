@@ -1,24 +1,20 @@
 import sys
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/lib') # path on ubuntu
+sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/automatic-solver') # ubuntu
 sys.path.append('/Users/mac/repos/sympy_project/sympy/lib') # path on mac
-sys.path.append('/Users/mac/repos/sympy_project/sympy/black-box') # path on mac
+sys.path.append('/Users/mac/repos/sympy_project/sympy/automatic-solver') # path on mac
 
-import __builtin__
 
 from __particle__ import __particle__
-
+from automatic_solver import AutomaticSolver
 import autograd.numpy as np
-from itertools import chain
-
-from autograd import grad, grad_named
-
-import scipy.integrate as spi
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
+# import matplotlib.pyplot as plt
 from time import time
 
+h = 1.
+q0 = 1.82387
+qe = 1.503583924
+omega0 = 0.00663829
 I0 = 6021.0735
 r0 = 1.810357468
 m = I0 / r0**2
@@ -43,16 +39,6 @@ harmonic_constant = 0.524
 
 J = 25.
 
-# adding variables to builtin scope, so that they could be accessed in hamiltonian function
-__builtin__.particles = particles
-__builtin__.Vm = Vm
-__builtin__.Vp = Vp
-__builtin__.I0 = I0
-__builtin__.J = J
-__builtin__.harmonic_constant = harmonic_constant
-__builtin__.r0 = r0
-from black_box import hamiltonian, extract_column
-
 h = 1.
 n = 0.
 n1 = 0.
@@ -69,19 +55,30 @@ p1ini = 0.
 p2ini = 0.
 q = np.array([qe, r1ini, r2ini]).reshape((3,1))
 
-varphi0 = 0.001
+varphi0 = 0.01
 theta0 = 0.15
 Jx0 = np.array([J * np.cos(varphi0) * np.sin(theta0)]).reshape((1,1))
 Jy0 = np.array([J * np.sin(varphi0) * np.sin(theta0)]).reshape((1,1))
 Jz0 = np.array([J * np.cos(theta0)]).reshape((1,1))
-print 'Jx0: {0}; Jy0: {1}; Jz0: {2}'.format(Jx0, Jy0, Jz0)
 
 E = h**2 * (n + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) * \
 		   (n + 1 + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) / I0 + \
  	+ h * omega1 * (n1 + 0.5) + h * omega1 * (n2 + 0.5)
 print 'Energy: {0}'.format(E)
 
-effective_potential = hamiltonian(q = q, theta = theta0, varphi = varphi0, effective_potential = True)
+q = np.array([qe, r1ini, r2ini]).reshape((3,1))
+
+######################################################################################
+def potential(q):
+	return Vm / 2 / I0 / (1 - np.cos(q[0])) + Vp / 2 / I0 / (1 + np.cos(q[0])) + \
+		   harmonic_constant * (q[1] - r0) ** 2 + harmonic_constant * (q[2] - r0)**2
+######################################################################################
+
+AS = AutomaticSolver(particles = particles, __degrees__ = __degrees__, potential = potential)
+# setting angular momentum in AS!
+AS.J = J
+
+effective_potential = AS.hamiltonian(q = q, theta = theta0, varphi = varphi0, effective_potential = True)
 print 'effective_potential: {0}'.format(effective_potential)
 
 I_modified = 6895.093374
@@ -92,126 +89,35 @@ print 'pini: {0}'.format(pini)
 p = np.array([pini, p1ini, p2ini]).reshape((3,1))
 print 'p: {0}'.format(p)
 
-print 'hamiltonian: {0}'.format(hamiltonian(q = q, p = p, theta = theta0, varphi = varphi0))
+print 'hamiltonian: {0}'.format(AS.hamiltonian(q = q, p = p, theta = theta0, varphi = varphi0))
 
-dham_dq = grad_named(hamiltonian, argname = 'q')
-dham_dp = grad_named(hamiltonian, argname = 'p')
-dham_dtheta = grad_named(hamiltonian, argname = 'theta')
-dham_dvarphi = grad_named(hamiltonian, argname = 'varphi')
-
-print dham_dq(q, p, theta0, varphi0)
-
-def dham_djx(q, p, theta, varphi):
-	return (1. / J) * np.cos(theta) * np.cos(varphi) * dham_dtheta(q, p, theta, varphi) - \
-		   (1. / J) * np.sin(varphi) / np.sin(theta) * dham_dvarphi(q, p, theta, varphi)
-
-def dham_djy(q, p, theta, varphi):
-	return (1. / J) * np.sin(varphi) * np.cos(theta) * dham_dtheta(q, p, theta, varphi) + \
-		   (1. / J) * np.cos(varphi) / np.sin(theta) * dham_dvarphi(q, p, theta, varphi)
-
-def dham_djz(q, p, theta, varphi):
-	return - (1. / J) * np.sin(theta) * dham_dtheta(q, p, theta, varphi) 
-
-def flatten_nested_array(arr):
-	arr_flatten = []
-	for val in arr:
-		if 'array' in str(type(val)):
-			arr_flatten.extend(list(chain(*val.tolist())))
-		else:
-			arr_flatten.append(val)
-	return arr_flatten
-
-def rhs(t, y):
-	print t, y
-
-	eqs = [
-	   lambda q, p, theta, varphi:  dham_dp(np.array([q]).reshape((__degrees__, 1)), 
-										   np.array([p]).reshape((__degrees__, 1)), 
-										   theta, 
-										   varphi),
-
-	   lambda q, p, theta, varphi: - dham_dq(np.array([q]).reshape((__degrees__, 1)), 
-	   									  np.array([p]).reshape((__degrees__, 1)), 
-	   									  theta, 
-	   									  varphi),
-
-	   lambda q, p, theta, varphi: dham_djx(np.array([q]).reshape((__degrees__, 1)),
-	   										np.array([p]).reshape((__degrees__, 1)),
-	   										theta, 
-	   										varphi) * np.sin(varphi) - \
-	   							   dham_djy(np.array([q]).reshape((__degrees__, 1)),
-	   							   			np.array([p]).reshape((__degrees__, 1)),
-	   							   			theta, 
-	   							   			varphi) * np.cos(varphi),
-
-	   lambda q, p, theta, varphi: (dham_djx(np.array([q]).reshape((__degrees__, 1)), 
-	   									  	 np.array([p]).reshape((__degrees__, 1)), 
-	   									  	 theta, 
-	   									  	 varphi) * np.cos(varphi) + \
-	   								dham_djy(np.array([q]).reshape((__degrees__, 1)),
-	   										 np.array([p]).reshape((__degrees__, 1)),
-	   										 theta, 
-	   										 varphi) * np.sin(varphi)) * (1. / np.tan(theta)) - \
-	   								dham_djz(np.array([q]).reshape((__degrees__, 1)), 
-	   										 np.array([p]).reshape((__degrees__, 1)),
-	   										 theta, varphi),
-	 ]
-
-	q = y[0:__degrees__]
-	p = y[__degrees__ : 2 * __degrees__]
-	theta = y[2 * __degrees__]
-	varphi = y[2 * __degrees__ + 1]
-
-	#print 'q: {0}; p: {1}; theta: {2}; varphi: {3}'.format(q, p, theta, varphi)
-
-	derivatives = [eq(q, p, theta, varphi) for eq in eqs]
-
-	return flatten_nested_array(derivatives)
-
-start = time()
+####################################################################################
 
 init = [q, p, theta0, varphi0]
-print 'init: {0}'.format(init)
-init_flatten = flatten_nested_array(init)
-
 t_start = 0.
-t_end = 500.
+t_end = 100.
 t_step = 1.
+t = np.linspace(t_start, t_end, t_end / t_step)
 
-ode = spi.ode(rhs)
+start = time()
+solution = AS.integrate(initial_conditions = init, t_start = t_start, t_end = t_end, t_step = t_step)
+print 'Time needed: {0}s'.format(time() - start)
 
-ode.set_integrator('lsoda', nsteps = 500, method = 'bdf', atol = 1e-6)
-ode.set_initial_value(init_flatten, t_start)
+q_list = AS.extract_column(data = solution, column = 0)
+p_list = AS.extract_column(data = solution, column = 1)
+theta_list = AS.extract_column(data = solution, column = 2)
+varphi_list = AS.extract_column(data = solution, column = 3)
 
-sol = []
-t = []
-while ode.successful() and ode.t < t_end:
-	ode.integrate(ode.t + t_step)
-	t.append(ode.t)
-	sol.append(ode.y)
+jx_list = J * np.cos(varphi_list) * np.sin(theta_list)
+jy_list = J * np.sin(varphi_list) * np.sin(theta_list)
+jz_list = J * np.cos(theta_list)
 
-print 'needed: {0}s'.format(time() - start)
-
-q_list = np.array([extract_column(data = sol, column = i) for i in range(__degrees__)])
-p_list = np.array([extract_column(data = sol, column = i) for i in range(__degrees__, 2 * __degrees__)])
-theta_list = [extract_column(data = sol, column = 2 * __degrees__)][0]
-varphi_list = [extract_column(data = sol, column = 2 * __degrees__ + 1)][0]
-
-# np.savetxt("generalized-water.dat", (theta_list))
+# AS.save_file(filename = 'angular_trajectory.dat', jx = jx_list, jy = jy_list, jz = jz_list)
 
 # plt.plot(t, q_list, 'b', label = 'q(t)')
 # plt.plot(t, p_list, 'g', label = 'p(t)')
-plt.plot(t, theta_list, 'g', label = 'theta(t)')
-plt.plot(t, varphi_list, 'g', label = 'varphi(t)')
-plt.legend(loc = 'best')
-plt.xlabel('t')
-plt.grid()
-plt.show()
-
-
-# fig = plt.figure()
-# ax = plt.axes(projection='3d')
-# ax.plot(jx_list, jy_list, jz_list, '-r')
-# plt.tight_layout()
-# plt.savefig('n=0,J=25,theta=0.15.png', facecolor = 'w', edgecolor = 'b', orientation = 'portrait',
-			# transparent = False, bbox_inches = None, pad_inches = 0.1, frameon = None)
+# plt.legend(loc = 'best')
+# plt.xlabel('t')
+# plt.grid()
+# plt.show()
+		
