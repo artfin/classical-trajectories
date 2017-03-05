@@ -92,7 +92,7 @@ print 'hamiltonian: {0}'.format(AS.hamiltonian(q = q, p = p, theta = theta0, var
 
 init = [q, p, theta0, varphi0]
 t_start = 0.
-t_end = 5000.
+t_end = 10000.
 t_step = 1.
 t = np.linspace(t_start, t_end, t_end / t_step)
 
