@@ -42,7 +42,7 @@ Vp = 1./4 * I0**2 * omega0**2 * (1 + np.cos(q0))**2
 Vm = 1./4 * I0**2 * omega0**2 * (1 - np.cos(q0))**2
 harmonic_constant = 0.524
 
-J = 27.
+#J = 27.
 
 h = 1.
 n = 0.
@@ -71,7 +71,7 @@ def potential(q):
 		   harmonic_constant * (q[1] - r0) ** 2 + harmonic_constant * (q[2] - r0)**2
 ######################################################################################
 
-for J in range(28, 32):
+for J in range(23, 33):
 
 	Jx0 = np.array([J * np.cos(varphi0) * np.sin(theta0)]).reshape((1,1))
 	Jy0 = np.array([J * np.sin(varphi0) * np.sin(theta0)]).reshape((1,1))
@@ -102,7 +102,7 @@ for J in range(28, 32):
 
 	init = [q, p, theta0, varphi0]
 	t_start = 0.
-	t_end = 5000.
+	t_end = 7500.
 	t_step = 1.
 	t = np.linspace(t_start, t_end, t_end / t_step)
 
