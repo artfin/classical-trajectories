@@ -7,6 +7,10 @@
 ### Potential 
 ![potential2](https://cloud.githubusercontent.com/assets/15310535/23588980/8c1f3086-01d6-11e7-932d-7e00595a92d5.jpg)
 
+### Quick preview of angular momentum trajectories
+Angular momentum goes from J = 23 to J = 32.
+
+![animated_cropped](https://cloud.githubusercontent.com/assets/15310535/23591053/8f1b69c4-01fb-11e7-96bc-95d77951232d.gif)
 
 ### Speed Test
 

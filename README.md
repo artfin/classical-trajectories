@@ -1,1 +1,1 @@
-Calculating hamiltonians for some small systems using sympy module. Pretty printing the result to latex.
+Calculating classical trajectories using autograd and scipy
