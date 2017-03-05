@@ -4,6 +4,7 @@ from autograd import grad_named, grad
 from autograd.numpy.linalg import inv
 import scipy.integrate as spi
 import json
+from pprint import pprint
 
 # np.dot() instead of np.array().dot(np.array()) !
 
@@ -29,7 +30,7 @@ class AutomaticSolver(object):
 	def dham_djz(self, q, p, theta, varphi):
 		return - (1. / self.J) * np.sin(theta) * self.dham_dtheta(q, p, theta, varphi) 
 
-	def hamiltonian(self, q = None, p = None, theta = None, varphi = None, effective_potential = False):
+	def hamiltonian(self, q = None, p = None, theta = None, varphi = None, effective_potential = False, g22 = False):
 		"""
 		q -- np.array object with all degrees of freedom
 		p -- np.array object with conjugate momentum
@@ -75,6 +76,9 @@ class AutomaticSolver(object):
 		G11 = inv(inertia_tensor - np.dot(np.dot(A, inv(a)), A.transpose()))
 		G22 = inv(a - np.dot(np.dot(A.transpose(), inv(inertia_tensor)), A))
 		G12 = - np.dot(np.dot(G11, A), inv(a))
+
+		if g22:
+			return G22
 		
 		if not effective_potential:
 			angular_component = 0.5 * np.dot(np.dot(J_vector, G11), J_vector)
@@ -113,21 +117,22 @@ class AutomaticSolver(object):
 		vals = [q, p, theta, varphi]
 
 		_dham_dp = self.dham_dp(*vals)
-		# print 'dham_dp: {0}'.format(_dham_dp)
-
 		_dham_dq = self.dham_dq(*vals)
-		# print 'dham_dq: {0}'.format(_dham_dq)
+		_dham_dtheta = self.dham_dtheta(*vals)
+		_dham_dvarphi = self.dham_dvarphi(*vals)
 
-		_dham_djx = self.dham_djx(*vals)
-		_dham_djy = self.dham_djy(*vals)
-		_dham_djz = self.dham_djz(*vals)
+		_dham_djx = (1./ self.J) * np.cos(theta) * np.cos(varphi) * _dham_dtheta - \
+					(1./ self.J) * np.sin(varphi)/ np.sin(theta) * _dham_dvarphi
+
+		_dham_djy = (1. / self.J) * np.sin(varphi) * np.cos(theta) * _dham_dtheta + \
+			  		(1. / self.J) * np.cos(varphi) / np.sin(theta) * _dham_dvarphi
+
+		_dham_djz = - (1. / self.J) * np.sin(theta) * _dham_dtheta
 
 		derivatives = [_dham_dp, 
 		 			  -_dham_dq, 
 		 			   _dham_djx * np.sin(varphi) - _dham_djy * np.cos(varphi),
 		 			  (_dham_djx * np.cos(varphi) + _dham_djy * np.sin(varphi)) * (1 / np.tan(theta)) - _dham_djz]
-
-		# print derivatives
 
 		return self.unpack_array(derivatives)
 

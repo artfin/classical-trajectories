@@ -471,8 +471,6 @@ class COM(object):
 		self.particles = particles
 		self.freedom_degrees = freedom_degrees
 
-		# self.recalculate_to_com_frame()
-
 	@staticmethod
 	def without_nans(l):
 		return [element for element in l if str(element) != 'nan']
