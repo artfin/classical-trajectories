@@ -61,14 +61,6 @@ q = np.array([qe, r1ini, r2ini]).reshape((3,1))
 
 varphi0 = 0.01
 theta0 = 0.15
-Jx0 = np.array([J * np.cos(varphi0) * np.sin(theta0)]).reshape((1,1))
-Jy0 = np.array([J * np.sin(varphi0) * np.sin(theta0)]).reshape((1,1))
-Jz0 = np.array([J * np.cos(theta0)]).reshape((1,1))
-
-E = h**2 * (n + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) * \
-		   (n + 1 + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) / I0 + \
- 	+ h * omega1 * (n1 + 0.5) + h * omega1 * (n2 + 0.5)
-print 'Energy: {0}'.format(E)
 
 q = np.array([qe, r1ini, r2ini]).reshape((3,1))
 
@@ -78,47 +70,56 @@ def potential(q):
 		   harmonic_constant * (q[1] - r0) ** 2 + harmonic_constant * (q[2] - r0)**2
 ######################################################################################
 
-AS = AutomaticSolver(particles = particles, __degrees__ = __degrees__, potential = potential)
-# setting angular momentum in AS!
-AS.J = J
+for J in range(28, 32):
 
-effective_potential = AS.hamiltonian(q = q, theta = theta0, varphi = varphi0, effective_potential = True)
-print 'effective_potential: {0}'.format(effective_potential)
+	Jx0 = np.array([J * np.cos(varphi0) * np.sin(theta0)]).reshape((1,1))
+	Jy0 = np.array([J * np.sin(varphi0) * np.sin(theta0)]).reshape((1,1))
+	Jz0 = np.array([J * np.cos(theta0)]).reshape((1,1))
 
-G22 = AS.hamiltonian(q = q, theta = theta0, varphi = varphi0, g22 = True)
-print 'G22[0,0]: {0}'.format(G22[0,0])
- 
-pini = np.sqrt((1./ G22[0, 0]) * (E - effective_potential)).flatten()[0]
-print 'pini: {0}'.format(pini)
+	E = h**2 * (n + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) * \
+			   (n + 1 + (np.sqrt(Jz0**2 + Vp) + np.sqrt(Jx0**2 + Vm))/(2 * h)) / I0 + \
+	 	+ h * omega1 * (n1 + 0.5) + h * omega1 * (n2 + 0.5)
+	print 'Energy: {0}'.format(E)
 
-p = np.array([pini, p1ini, p2ini]).reshape((3,1))
-print 'p: {0}'.format(p)
+	AS = AutomaticSolver(particles = particles, __degrees__ = __degrees__, potential = potential)
+	# setting angular momentum in AS!
+	AS.J = J
 
-print 'hamiltonian: {0}'.format(AS.hamiltonian(q = q, p = p, theta = theta0, varphi = varphi0))
+	effective_potential = AS.hamiltonian(q = q, theta = theta0, varphi = varphi0, effective_potential = True)
+	print 'effective_potential: {0}'.format(effective_potential)
 
-####################################################################################
+	G22 = AS.hamiltonian(q = q, theta = theta0, varphi = varphi0, g22 = True)
+	print 'G22[0,0]: {0}'.format(G22[0,0])
+	 
+	pini = np.sqrt((1./ G22[0, 0]) * (E - effective_potential)).flatten()[0]
+	print 'pini: {0}'.format(pini)
 
-init = [q, p, theta0, varphi0]
-t_start = 0.
-t_end = 5000.
-t_step = 1.
-t = np.linspace(t_start, t_end, t_end / t_step)
+	p = np.array([pini, p1ini, p2ini]).reshape((3,1))
+	print 'p: {0}'.format(p)
 
-start = time()
-solution = AS.integrate(initial_conditions = init, t_start = t_start, t_end = t_end, t_step = t_step)
-print 'Time needed: {0}s'.format(time() - start)
+	print 'hamiltonian: {0}'.format(AS.hamiltonian(q = q, p = p, theta = theta0, varphi = varphi0))
 
-q_list = AS.extract_column(data = solution, column = 0)
-p_list = AS.extract_column(data = solution, column = 1)
-theta_list = AS.extract_column(data = solution, column = 2 * __degrees__)
-varphi_list = AS.extract_column(data = solution, column = 2 * __degrees__ + 1)
+	init = [q, p, theta0, varphi0]
+	t_start = 0.
+	t_end = 100.
+	t_step = 1.
+	t = np.linspace(t_start, t_end, t_end / t_step)
 
-jx_list = J * np.cos(varphi_list) * np.sin(theta_list)
-jy_list = J * np.sin(varphi_list) * np.sin(theta_list)
-jz_list = J * np.cos(theta_list)
+	start = time()
+	solution = AS.integrate(initial_conditions = init, t_start = t_start, t_end = t_end, t_step = t_step)
+	print 'Time needed: {0}s'.format(time() - start)
 
-filename = 'angular_trajectory_J=' + str(J) + '.dat'
-AS.save_file(filename = filename, jx = jx_list, jy = jy_list, jz = jz_list)
+	q_list = AS.extract_column(data = solution, column = 0)
+	p_list = AS.extract_column(data = solution, column = 1)
+	theta_list = AS.extract_column(data = solution, column = 2 * __degrees__)
+	varphi_list = AS.extract_column(data = solution, column = 2 * __degrees__ + 1)
+
+	jx_list = J * np.cos(varphi_list) * np.sin(theta_list)
+	jy_list = J * np.sin(varphi_list) * np.sin(theta_list)
+	jz_list = J * np.cos(theta_list)
+
+	filename = 'angular_trajectory_J=' + str(J) + '.dat'
+	AS.save_file(filename = filename, jx = jx_list, jy = jy_list, jz = jz_list)
 
 # plt.plot(t, theta_list, 'b', label = 'q(t)')
 # plt.plot(t, p_list, 'g', label = 'p(t)')
