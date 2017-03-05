@@ -1,9 +1,6 @@
 import sys
-sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/lib') # path on ubuntu
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/automatic-solver') # ubuntu
-sys.path.append('/Users/mac/repos/sympy_project/sympy/lib') # path on mac
 sys.path.append('/Users/mac/repos/sympy_project/sympy/automatic-solver') # path on mac
-
 
 from __particle__ import __particle__
 from automatic_solver import AutomaticSolver
@@ -95,7 +92,7 @@ print 'hamiltonian: {0}'.format(AS.hamiltonian(q = q, p = p, theta = theta0, var
 
 init = [q, p, theta0, varphi0]
 t_start = 0.
-t_end = 100.
+t_end = 20000.
 t_step = 1.
 t = np.linspace(t_start, t_end, t_end / t_step)
 
@@ -103,18 +100,18 @@ start = time()
 solution = AS.integrate(initial_conditions = init, t_start = t_start, t_end = t_end, t_step = t_step)
 print 'Time needed: {0}s'.format(time() - start)
 
-q_list = AS.extract_column(data = solution, column = 0)
-p_list = AS.extract_column(data = solution, column = 1)
-theta_list = AS.extract_column(data = solution, column = 2)
-varphi_list = AS.extract_column(data = solution, column = 3)
+# q_list = AS.extract_column(data = solution, column = 0)
+# p_list = AS.extract_column(data = solution, column = 1)
+theta_list = AS.extract_column(data = solution, column = 2 * __degrees__)
+varphi_list = AS.extract_column(data = solution, column = 2 * __degrees__ + 1)
 
 jx_list = J * np.cos(varphi_list) * np.sin(theta_list)
 jy_list = J * np.sin(varphi_list) * np.sin(theta_list)
 jz_list = J * np.cos(theta_list)
 
-# AS.save_file(filename = 'angular_trajectory.dat', jx = jx_list, jy = jy_list, jz = jz_list)
+AS.save_file(filename = 'angular_trajectory_J=25.dat', jx = jx_list, jy = jy_list, jz = jz_list)
 
-# plt.plot(t, q_list, 'b', label = 'q(t)')
+# plt.plot(t, theta_list, 'b', label = 'q(t)')
 # plt.plot(t, p_list, 'g', label = 'p(t)')
 # plt.legend(loc = 'best')
 # plt.xlabel('t')

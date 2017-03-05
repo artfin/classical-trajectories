@@ -110,13 +110,14 @@ class AutomaticSolver(object):
 		print t, y
 
 		q, p, theta, varphi = self.pack_array(y)
-
-		# print 'q: {0}, p: {1}, theta: {2}; varphi: {3}'.format(q, p, theta, varphi)
-
 		vals = [q, p, theta, varphi]
 
 		_dham_dp = self.dham_dp(*vals)
+		# print 'dham_dp: {0}'.format(_dham_dp)
+
 		_dham_dq = self.dham_dq(*vals)
+		# print 'dham_dq: {0}'.format(_dham_dq)
+
 		_dham_djx = self.dham_djx(*vals)
 		_dham_djy = self.dham_djy(*vals)
 		_dham_djz = self.dham_djz(*vals)

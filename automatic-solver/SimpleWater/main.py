@@ -1,6 +1,5 @@
 import sys
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/lib') # path on ubuntu
-sys.path.append('/Users/mac/repos/sympy_project/sympy/lib') # path on mac
 sys.path.append('/Users/mac/repos/sympy_project/sympy/automatic-solver') # path on mac
 
 from __particle__ import __particle__
