@@ -3,7 +3,7 @@ import scipy.special as sp
 import vegas
 from time import time
 # from mpl_toolkits.mplot3d import Axes3D
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 A_n1 = [.224247*10**2, .635744*10**2, .991128*10**2, .318652*10**3, .332826*10**3, .435837*10**3]
 A_n2 = [-.716288*10**0, -.811806*10**0, -.117577*10, -.188135*10, -.214596*10, -.244616*10] 
@@ -36,35 +36,43 @@ L = [sp.legendre(2 * k) for k in range(6)]
 def potential(R, theta):
 	return sum([v(R, number = n) * L[n](np.cos(theta)) for n in range(6)])
 
-T = 300 # K
+temperatures = [200 + 10 * i for i in range(0, 11)] # K
 k = 1.38064852 * 10**(-23)
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
 avogadro = 1. #6.022 * 10**(23)
 R = 8.314
 
-def integrand(x):
-	# x = [R, theta]
-	potential_value = potential(x[0], x[1]) * htoj
-	if potential_value < 0:
-		return sp.gammainc(2.5, - potential_value / (k * T)) * np.exp(- potential_value / (k * T)) * x[0]**2
-	else:
-		return 0.0
+def cycle(T):
+	def integrand(x):
+		# x = [R, theta]
+		potential_value = potential(x[0], x[1]) * htoj
+		if potential_value < 0:
+			return sp.gammainc(2.5, - potential_value / (k * T)) * np.exp(- potential_value / (k * T)) * x[0]**2
+		else:
+			return 0.0
 
-integ = vegas.Integrator([[4., 100.], [0., np.pi]])
+	integ = vegas.Integrator([[4., 20.], [0., np.pi]])
 
-# result = integ(integrand, nitn = 10, neval = 1000)
-# print result.summary()
-# print 'result = %s Q = %.2f' % (result, result.Q)
+	result = integ(integrand, nitn = 100, neval = 1000)
+	print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 
-result = integ(integrand, nitn = 100, neval = 1000)
-print 'First integration. result = %s Q = %.2f' % (result, result.Q)
-
-for neval in [10**4, 10**5, 10**6]:
-	start = time()
-	result = integ(integrand, nitn = 10, neval = neval)
-	print 'result = %s Q = %.2f time = %.2f' % (result, result.Q, time() - start)
+	result = integ(integrand, nitn = 10, neval = 10**4)
+	print 'result = %s Q = %.2f' % (result, result.Q)
 	constant = 4. * np.pi * avogadro / (R * T) * result.mean
 	print 'Constant %.3f' % constant
+	return constant
+
+def save_constants(temperatures, constants):
+	with open('constants.dat', mode = 'w') as out:
+		for temperature, constant in zip(temperatures, constants):
+			out.write(str(temperature) + ' ' + str(constant) + '\n')
+
+constants = [cycle(temperature) for temperature in temperatures]
+
+save_constants(temperatures, constants)
+
+plt.plot(temperatures, constants, 'r')
+plt.show()
 
 # axes = plt.gca()
 # axes.set_xlim([3, 12])
