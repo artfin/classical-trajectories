@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/Users/mac/repos/sympy_project/sympy/')  # path on mac
+sys.path.append('/Users/mac/repos/sympy_project/sympy/sympy-and-stuff')  # path on mac
 sys.path.append('/home/artfin/Desktop/repos/sympy-project/sympy/') # path on ubuntu
 sys.path.append('/home/ubuntu/sympy-project/sympy/') # path on M4-server
 
@@ -25,6 +25,7 @@ freedom_degrees_derivatives = [diff(degree, t) for degree in freedom_degrees]
 conjugate_momentum = [p, p1, p2]
 
 com = COM(particles, freedom_degrees = freedom_degrees)
+print com
 x_com = com.x
 y_com = com.y
 z_com = com.z
