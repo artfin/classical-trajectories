@@ -65,7 +65,7 @@ p = np.array([pini]).reshape((1,1))
 
 init = [q, p, theta0, varphi0]
 t_start = 0.
-t_end = 50000.
+t_end = 500.
 t_step = 1.
 t = np.linspace(t_start, t_end, t_end / t_step)
 

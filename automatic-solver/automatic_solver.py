@@ -85,8 +85,9 @@ class AutomaticSolver(object):
 			kinetic_component = 0.5 * np.dot(np.dot(p.transpose(), G22), p) 
 			coriolis_component = np.dot(np.dot(J_vector, G12), p)
 
-			return angular_component + kinetic_component + self.potential(q)
+			return angular_component + kinetic_component + coriolis_component + self.potential(q)
 		else:
+			# calculating effective potential as described in course work
 			angular_component = 0.5 * np.dot(np.dot(J_vector, inv(inertia_tensor)), J_vector)
 			return angular_component + self.potential(q)
 
@@ -121,18 +122,11 @@ class AutomaticSolver(object):
 		_dham_dtheta = self.dham_dtheta(*vals)
 		_dham_dvarphi = self.dham_dvarphi(*vals)
 
-		_dham_djx = (1./ self.J) * np.cos(theta) * np.cos(varphi) * _dham_dtheta - \
-					(1./ self.J) * np.sin(varphi)/ np.sin(theta) * _dham_dvarphi
-
-		_dham_djy = (1. / self.J) * np.sin(varphi) * np.cos(theta) * _dham_dtheta + \
-			  		(1. / self.J) * np.cos(varphi) / np.sin(theta) * _dham_dvarphi
-
-		_dham_djz = - (1. / self.J) * np.sin(theta) * _dham_dtheta
-
-		derivatives = [_dham_dp, 
-		 			  -_dham_dq, 
-		 			   _dham_djx * np.sin(varphi) - _dham_djy * np.cos(varphi),
-		 			  (_dham_djx * np.cos(varphi) + _dham_djy * np.sin(varphi)) * (1 / np.tan(theta)) - _dham_djz]
+		# NEW VERSION OF CALCULATION OF DERIVATIVES
+		derivatives = [_dham_dp,
+					  -_dham_dq,
+					  -1./(self.J * np.sin(theta)) * _dham_dvarphi,
+					   1./(self.J * np.sin(theta)) * _dham_dtheta]
 
 		return self.unpack_array(derivatives)
 

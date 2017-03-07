@@ -36,7 +36,7 @@ L = [sp.legendre(2 * k) for k in range(6)]
 def potential(R, theta):
 	return sum([v(R, number = n) * L[n](np.cos(theta)) for n in range(6)])
 
-temperatures = [200 + 10 * i for i in range(0, 11)] # K
+temperatures = [250 + 5 * i for i in range(0, 21)] # K
 k = 1.38064852 * 10**(-23)
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
 avogadro = 1. #6.022 * 10**(23)
@@ -51,14 +51,14 @@ def cycle(T):
 		else:
 			return 0.0
 
-	integ = vegas.Integrator([[4., 20.], [0., np.pi]])
+	integ = vegas.Integrator([[2., 50.], [0., 2 * np.pi]])
 
 	result = integ(integrand, nitn = 100, neval = 1000)
 	print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 
 	result = integ(integrand, nitn = 10, neval = 10**4)
 	print 'result = %s Q = %.2f' % (result, result.Q)
-	constant = 4. * np.pi * avogadro / (R * T) * result.mean
+	constant = 2. * np.pi * avogadro / (R * T) * result.mean
 	print 'Constant %.3f' % constant
 	return constant
 
