@@ -4,6 +4,7 @@ import vegas
 from time import time
 # from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 A_n1 = [.224247*10**2, .635744*10**2, .991128*10**2, .318652*10**3, .332826*10**3, .435837*10**3]
 A_n2 = [-.716288*10**0, -.811806*10**0, -.117577*10, -.188135*10, -.214596*10, -.244616*10] 
@@ -37,7 +38,7 @@ def potential(R, theta):
 	return sum([v(R, number = n) * L[n](np.cos(theta)) for n in range(6)])
 
 temperatures = [250 + 5 * i for i in range(0, 21)] # K
-k = 1.38064852 * 10**(-23)
+k = 1.38064852 * 10**(-23) # J/k
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
 avogadro = 1. #6.022 * 10**(23)
 R = 8.314
@@ -51,19 +52,18 @@ def cycle(T):
 		else:
 			return 0.0
 
-	integ = vegas.Integrator([[2., 50.], [0., 2 * np.pi]])
-
+	integ = vegas.Integrator([[3., 20.], [0., np.pi]])
 	result = integ(integrand, nitn = 100, neval = 1000)
 	print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 
 	result = integ(integrand, nitn = 10, neval = 10**4)
 	print 'result = %s Q = %.2f' % (result, result.Q)
-	constant = 2. * np.pi * avogadro / (R * T) * result.mean
-	print 'Constant %.3f' % constant
+	constant = 4. * np.pi * avogadro / (R * T) * result.mean
+	print 'Constant %.4f' % constant
 	return constant
 
 def save_constants(temperatures, constants):
-	with open('constants.dat', mode = 'w') as out:
+	with open('data/constants.dat', mode = 'w') as out:
 		for temperature, constant in zip(temperatures, constants):
 			out.write(str(temperature) + ' ' + str(constant) + '\n')
 
@@ -72,7 +72,10 @@ constants = [cycle(temperature) for temperature in temperatures]
 save_constants(temperatures, constants)
 
 plt.plot(temperatures, constants, 'r')
-plt.show()
+patch = mpatches.Patch(color = 'red', label = 'Equilibrium constant')
+plt.legend(handles = [patch])
+plt.grid()
+plt.savefig('EqConstant.png')
 
 # axes = plt.gca()
 # axes.set_xlim([3, 12])
