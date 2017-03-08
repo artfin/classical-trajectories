@@ -1,2 +1,2 @@
-![eq1](https://cloud.githubusercontent.com/assets/15310535/23680156/3caee200-039b-11e7-908e-93980cd7a9b1.png)
-![eq2](https://cloud.githubusercontent.com/assets/15310535/23680155/3c94413e-039b-11e7-84ad-d41e8a0204f1.png)
+![eq1](https://cloud.githubusercontent.com/assets/15310535/23698134/6f6ef300-03fb-11e7-9cb0-1cefe92fdf41.png)
+![eq2](https://cloud.githubusercontent.com/assets/15310535/23698133/6f550e54-03fb-11e7-8b33-67f69c2616e4.png)
