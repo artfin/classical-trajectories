@@ -43,6 +43,8 @@ htoj = 4.35974417 * 10**(-18) # hartree to Joules
 avogadro = 1. #6.022 * 10**(23)
 R = 8.314
 
+print potential(R = 3, theta = 1.5)
+
 def cycle(T):
 	def integrand(x):
 		# x = [R, theta]
@@ -67,15 +69,15 @@ def save_constants(temperatures, constants):
 		for temperature, constant in zip(temperatures, constants):
 			out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-constants = [cycle(temperature) for temperature in temperatures]
+# constants = [cycle(temperature) for temperature in temperatures]
 
-save_constants(temperatures, constants)
+# save_constants(temperatures, constants)
 
-plt.plot(temperatures, constants, 'r')
-patch = mpatches.Patch(color = 'red', label = 'Equilibrium constant')
-plt.legend(handles = [patch])
-plt.grid()
-plt.savefig('EqConstant.png')
+# plt.plot(temperatures, constants, 'r')
+# patch = mpatches.Patch(color = 'red', label = 'Equilibrium constant')
+# plt.legend(handles = [patch])
+# plt.grid()
+# plt.savefig('EqConstant.png')
 
 # axes = plt.gca()
 # axes.set_xlim([3, 12])
