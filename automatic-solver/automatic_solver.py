@@ -85,7 +85,7 @@ class AutomaticSolver(object):
 			kinetic_component = 0.5 * np.dot(np.dot(p.transpose(), G22), p) 
 			coriolis_component = np.dot(np.dot(J_vector, G12), p)
 
-			return angular_component + kinetic_component + coriolis_component + self.potential(q)
+			return angular_component + kinetic_component + coriolis_component + self.potential(*q)
 		else:
 			# calculating effective potential as described in course work
 			angular_component = 0.5 * np.dot(np.dot(J_vector, inv(inertia_tensor)), J_vector)

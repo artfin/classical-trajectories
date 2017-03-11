@@ -2,9 +2,7 @@ import numpy as np
 import scipy.special as sp
 import vegas
 from time import time
-# from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
+from functools import partial
 
 A_n1 = [.224247*10**2, .635744*10**2, .991128*10**2, .318652*10**3, .332826*10**3, .435837*10**3]
 A_n2 = [-.716288*10**0, -.811806*10**0, -.117577*10, -.188135*10, -.214596*10, -.244616*10] 
@@ -37,59 +35,46 @@ L = [sp.legendre(2 * k) for k in range(6)]
 def potential(R, theta):
 	return sum([v(R, number = n) * L[n](np.cos(theta)) for n in range(6)])
 
-temperatures = [250 + 5 * i for i in range(0, 21)] # K
 k = 1.38064852 * 10**(-23) # J/k
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
-avogadro = 1. #6.022 * 10**(23)
+avogadro = 6.022 * 10**(23)
+length_unit = 5.291772 * 10**(-11)
+pressure_coeff = 9.869 * 10**(-6) # between pascals and atmospheres
 R = 8.314
 
-print potential(R = 3, theta = 1.5)
+def integrand(x, Temperature):
+	# x = [R, theta]
+	potential_value = potential(x[0], x[1]) * htoj
+	if potential_value < 0:
+		return sp.gammainc(2.5, - potential_value / (k * Temperature)) * np.exp(- potential_value / \
+			(k * Temperature)) * x[0]**2
+	else:
+		return 0.0
 
-def cycle(T):
-	def integrand(x):
-		# x = [R, theta]
-		potential_value = potential(x[0], x[1]) * htoj
-		if potential_value < 0:
-			return sp.gammainc(2.5, - potential_value / (k * T)) * np.exp(- potential_value / (k * T)) * x[0]**2
-		else:
-			return 0.0
+def initialization(T):
+	_integrand = partial(integrand, Temperature = T)
 
 	integ = vegas.Integrator([[3., 20.], [0., np.pi]])
-	result = integ(integrand, nitn = 100, neval = 1000)
+	result = integ(_integrand, nitn = 100, neval = 1000)
 	print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 
-	result = integ(integrand, nitn = 10, neval = 10**4)
+def cycle(T):
+	_integrand = partial(integrand, Temperature = T)
+
+	integ = vegas.Integrator([[3., 20.], [0., np.pi]])
+	result = integ(_integrand, nitn = 10, neval = 10**4)
 	print 'result = %s Q = %.2f' % (result, result.Q)
-	constant = 4. * np.pi * avogadro / (R * T) * result.mean
-	print 'Constant %.4f' % constant
+	constant = 4. * np.pi * avogadro / (R * T) * result.mean * length_unit**2 * pressure_coeff
+	print 'Constant %.5f' % constant
 	return constant
 
 def save_constants(temperatures, constants):
-	with open('data/constants.dat', mode = 'w') as out:
+	with open('data/parker.dat', mode = 'w') as out:
 		for temperature, constant in zip(temperatures, constants):
 			out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-# constants = [cycle(temperature) for temperature in temperatures]
+initialization(T = 250)
+temperatures = [250 + 5 * i for i in range(0, 21)] # K
+constants = [cycle(temperature) for temperature in temperatures]
 
-# save_constants(temperatures, constants)
-
-# plt.plot(temperatures, constants, 'r')
-# patch = mpatches.Patch(color = 'red', label = 'Equilibrium constant')
-# plt.legend(handles = [patch])
-# plt.grid()
-# plt.savefig('EqConstant.png')
-
-# axes = plt.gca()
-# axes.set_xlim([3, 12])
-# axes.set_ylim([-0.001, 0.001])
-
-# plt.plot(R, [v(r, number = 0) for r in R], 'r')
-# plt.plot(R, [v(r, number = 1) for r in R], 'b')
-# plt.plot(R, [v(r, number = 2) for r in R], 'g')
-# plt.plot(R, [v(r, number = 3) for r in R], 'y')
-# plt.plot(R, [v(r, number = 4) for r in R], 'black')
-# plt.plot(R, [v(r, number = 5) for r in R], 'gray')
-# plt.show()
-
-
-
+save_constants(temperatures, constants)
