@@ -3,6 +3,9 @@ from sympy.physics.vector import dynamicsymbols
 from sympy import sin, cos, Matrix
 from pprint import pprint
 from itertools import product
+from time import time
+import dill
+import pickle
 
 def calculate_inertia_tensor(particles):
 	Ixx = simplify(sum([particle['m'] * (particle['y']**2 + particle['z'] ** 2) for particle in particles]))
@@ -114,32 +117,43 @@ eq3 = diff(lagrangian_alpha_dot, t) - lagrangian_alpha
 eq4 = diff(lagrangian_phi_dot, t) - lagrangian_phi
 eq5 = diff(lagrangian_psi_dot, t) - lagrangian_psi
 
-for eq in eqs:
-	print eq
-print '-'*20
-
+start = time()
 R_2dot = solve(eq1, diff(R, t, t))
-print R_2dot
+print 'R_2dot. Needed: {0}'.format(time() - start)
 print '-'*20
 
+start = time()
 theta_2dot = solve(eq2, diff(theta, t, t))
-print theta_2dot
+print 'theta_2dot. Needed: {0}'.format(time() - start)
 print '-'*20
 
+start = time()
 alpha_2dot = solve(eq3, diff(alpha, t, t))
-print alpha_2dot
+print 'alpha_2dot. Needed: {0}'.format(time() - start)
 print '-'*20
 
-phi_2dot = solve(eqs, diff(phi, t, t))
-print phi_2dot
+start = time()
+phi_2dot = solve(eq4, diff(phi, t, t))
+print 'phi_2dot. Needed: {0}'.format(time() - start)
 print '-'*20
 
-psi_2dot = solve(eqs, diff(psi, t, t))
-print psi_2dot
+start = time()
+psi_2dot = solve(eq5, diff(psi, t, t))
+print 'psi_2dot. Needed: {0}'.format(time() - start)
 print '-'*20
 
+start = time()
+theta_dot = solve([alpha_2dot, phi_2dot, psi_2dot], diff(theta, t))
+print 'theta_dot. Needed: {0}'.format(time() - start)
+print '-'*20
 
+start = time()
+phi_dot = solve([alpha_2dot, phi_2dot, psi_2dot], diff(phi, t))
+print 'phi_dot. Needed: {0}'.format(time() - start)
+print '-'*20
 
-
-
+start = time()
+psi_dot = solve([alpha_2dot, phi_2dot, psi_2dot], diff(psi, t))
+print 'psi_dot. Needed: {0}'.format(time() - start)
+print '-'*20
 
