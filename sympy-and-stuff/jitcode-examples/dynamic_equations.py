@@ -11,6 +11,7 @@ from matplotlib import cm, colors
 from mpl_toolkits.mplot3d import Axes3D
 
 from pprint import pprint 
+from time import time
 
 class DynamicEquations(object):
 	def __init__(self, hamiltonian, angular_momentum, angles, freedom_degrees, conjugate_momentum):
@@ -50,15 +51,17 @@ class DynamicEquations(object):
 		# varphi, theta, q, p
 		init = [.1, 0.1, 3, 1]
 
-		t = np.linspace(1, 1000, 1000)
+		t = np.linspace(1, 10000, 10000)
 
 		ODE = jitcode(self.rhs_w_angles)
 		ODE.set_integrator("dopri5", nsteps = 10000)
 		ODE.set_initial_value(init, 0.0)
 
+		start = time()
 		data = []
 		for time in t:
 			data.append(ODE.integrate(time))
+		print 'Time needed: {0}'.format(time() - start)
 
 		# q_list = self.extract_column(data, column = 2)
 		# p_list = self.extract_column(data, column = 3)
