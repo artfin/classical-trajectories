@@ -47,8 +47,8 @@ def save_constants(temperatures, constants):
 		for temperature, constant in zip(temperatures, constants):
 			out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-initialization(T = 250)
-temperatures = [250 + 5 * i for i in range(0, 21)] # K
+initialization(T = 50)
+temperatures = [50 + 5 * i for i in range(0, 61)] # K
 constants = [cycle(temperature) for temperature in temperatures]
 
 save_constants(temperatures, constants)

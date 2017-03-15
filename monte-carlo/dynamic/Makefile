@@ -1,0 +1,1 @@
+default: hello_static_pass hello_pass hello_realloc hello_dynamic
