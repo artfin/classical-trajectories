@@ -1,6 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
 #include "legendre_polynomial.h"
 
 double* create_double_array(int length) {
@@ -16,11 +19,11 @@ double* create_double_array(int length) {
     return a;
 }
 
-double* populate_array(double* a, int length, double start, double step) {
-   // accepts a pointer, an array length, a start value and step 
-   // and populates given array with values  
+double* populate_array(double* a, int SIZE, double start, double end) {
+  
+    double step = (end - start) / (SIZE - 1);
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < SIZE; i++) {
         a[i] = start + step * i;
     }
 
@@ -34,43 +37,56 @@ void print_double_array(double* a, int length) {
     }
 }
 
+double* sample_legendre_polynomial(double* x, int SIZE, int n) {
+  
+   int m = 0; 
+   double _x[1];
+   double *vals;
+
+   double *y = create_double_array(SIZE);
+
+   for ( int i = 0; i < SIZE; i++ ) {
+       _x[0] = x[i];
+       vals = pm_polynomial_value ( 1, n, m, _x ); 
+       y[i] = vals[n];
+       free(vals);
+   }
+
+   return y;
+}
+
+void save_values(double* x, double* y, int SIZE, char* filename) {
+    FILE *tfile = fopen(filename, "w");
+
+    for ( int i = 0; i < SIZE; i++ ) {
+        fprintf(tfile, "%lf %lf\n", x[i], y[i]);
+    } 
+}
+
 int main() {
     
-    double start = 0.0;
-    double end = 1.0;
-    double step = 0.01;
-    int x_size = (end - start) / step;
-    
+    double start = -1.0;
+    double end   =  1.0;
+    int SIZE = 100;
+      
     // here we have a pointer pointing to a newly dynamically allocated  array
-    double *x = create_double_array(x_size);
+    double *x_vec = create_double_array(SIZE);
+    double *y_vec;
 
-    x = populate_array(x, x_size, start, step);
+    int i = 5;
 
-    for (int i = 0; i < 10; i++) {
-        // pm_polynomial():
-        // int MM -- the number of evaluation points
-        // int N -- the maximum first index of the Legendre function
-        // int M -- the second index; 0 for simple Legednre functions
-        // double x[MM] -- the points at which the function is to be evaluated
-
-        value = pm_polynomial_value(1, i, 0, x);
-        printf("N: %d \t\t X: %lf \t\t value: %lf", i, x[0], value);
-    } 
-
-    int n = 0;
-    int m = 0;
-    double x = 1.0;
-    double x_vec[1];
-    double *fx2_vec;
-
-    // pm_polynomial_values ( &n_data, &n, &m, &x, &fx1 );
+    x_vec = populate_array(x_vec, SIZE, start, end);
+    y_vec = sample_legendre_polynomial(x_vec, SIZE, i);
     
-    x_vec[0] = x;
-    fx2_vec = pm_polynomial_value (1, n, m, x_vec );
+    /*for ( int i = 0; i < SIZE; i++ ) {*/
+    /*printf("x: %lf; y: %lf\n", x_vec[i], y_vec[i]);*/
+    /*}*/
+    
+    char filename[15];
+    sprintf(filename, "legendre_%d.dat", i);
+    printf("filename: %s\n", filename);
 
-    printf("n: %d\n", n, m);
-    printf("x: %lf\n", x);
-    printf("fx2_vec: %lf\n", *fx2_vec); 
+    save_values(x_vec, y_vec, SIZE, filename);
 
     return 0;
 }
