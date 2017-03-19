@@ -59,14 +59,14 @@ def integrand(x, Temperature):
     # x = [R, theta]
     u = parker_potential(x[0], x[1]) * htoj
     du_dr = parker_potential_dr(x[0], x[1]) * htoj / length_unit
-    return np.exp( -u / (k * Temperature)) * (du_dr)**2 * x[0]**2 * np.sin(x[1])
+    return np.exp( -u / (k * Temperature)) * (du_dr)**2 * x[0]**2 * np.sin(x[1]) * htoj**2
 
 def initialization(T):
     _integrand = partial(integrand, Temperature = T)
 
     integ = vegas.Integrator([[3., 20.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 20, neval = 10000)
+    result = integ(_integrand, nitn = 20, neval = 40000)
     print 'Time needed: {0}'.format(time() - start)
     print 'First integration, result = %s Q = %.2f' % (result, result.Q)
 
@@ -75,10 +75,25 @@ def cycle(T):
 
     integ = vegas.Integrator([[3., 30.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 10, neval = 10000)
+    result = integ(_integrand, nitn = 20, neval = 40000)
+	
+    print 'result = %s Q = %.2f' % (result, result.Q)
 
+    SVC_correction = np.pi * avogadro / 12 / (k * T)**3
+    print 'Temperature: %d; SVC correction: %.8f' % (T, SVC_correction)
+    
+    return SVC_correction
+
+def save_data(temperatures, svc_corrections):
+    with open('data/SVC1_t_parker.dat', mode = 'w') as out:
+        for temperature, svc_correction in zip(temperatures, svc_corrections):
+            out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 initialization(200)
+temperatures = [200]
+svc_corrections = [cycle(temperature) for temperature in temperatures]
+
+save_data(temperatures, svc_corrections)
 
 
 

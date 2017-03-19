@@ -11,7 +11,7 @@ from matplotlib import cm, colors
 from mpl_toolkits.mplot3d import Axes3D
 
 from pprint import pprint 
-from time import time
+from time import time as _time
 
 class DynamicEquations(object):
 	def __init__(self, hamiltonian, angular_momentum, angles, freedom_degrees, conjugate_momentum):
@@ -57,11 +57,11 @@ class DynamicEquations(object):
 		ODE.set_integrator("dopri5", nsteps = 10000)
 		ODE.set_initial_value(init, 0.0)
 
-		start = time()
+		start = _time()
 		data = []
 		for time in t:
 			data.append(ODE.integrate(time))
-		print 'Time needed: {0}'.format(time() - start)
+		print 'Time needed: {0}'.format(_time() - start)
 
 		# q_list = self.extract_column(data, column = 2)
 		# p_list = self.extract_column(data, column = 3)
