@@ -66,9 +66,17 @@ def initialization(T):
 
     integ = vegas.Integrator([[3., 20.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 10, neval = 10000)
+    result = integ(_integrand, nitn = 20, neval = 10000)
     print 'Time needed: {0}'.format(time() - start)
     print 'First integration, result = %s Q = %.2f' % (result, result.Q)
+
+def cycle(T):
+    _integrand = partial(integrand, Temperature = T)
+
+    integ = vegas.Integrator([[3., 30.], [0., np.pi]])
+    start = time()
+    result = integ(_integrand, nitn = 10, neval = 10000)
+
 
 initialization(200)
 
