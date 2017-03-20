@@ -58,7 +58,7 @@ length_unit = 5.291772 * 10**(-11) # atomic units to m
 def integrand(x, Temperature):
     # x = [R, theta]
     u = parker_potential(x[0], x[1]) * htoj
-    du_dr = parker_potential_dr(x[0], x[1]) * htoj / length_unit
+    du_dr = parker_potential_dr(x[0], x[1])
     return np.exp( -u / (k * Temperature)) * (du_dr)**2 * x[0]**2 * np.sin(x[1]) * htoj**2
 
 def initialization(T):
@@ -81,6 +81,7 @@ def cycle(T):
 
     SVC_correction = np.pi * avogadro / 12 / (k * T)**3
     print 'Temperature: %d; SVC correction: %.8f' % (T, SVC_correction)
+    print 'Time needed: {0}'.format(time() - start)
     
     return SVC_correction
 
@@ -89,8 +90,8 @@ def save_data(temperatures, svc_corrections):
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
-initialization(200)
-temperatures = [200]
+# initialization(200)
+temperatures = [150 + 10 * i for i in range(10)]
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)
