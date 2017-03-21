@@ -1,16 +1,15 @@
 import sys
-sys.path.append('/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/potentials/')
+sys.path.append('/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/potential_wrappers')
 
-import hutson
+from hutson import potdat4, extpot
 import numpy as np
 import vegas
-import scipy.special as sp
 from functools import partial
 
 from time import time
 
 # loading parameters in potdat4 subroutine
-hutson.potdat4()
+potdat4()
 
 k = 1.38064852 * 10**(-23) # J/k
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
@@ -22,14 +21,14 @@ energy_coeff = 1. / 4184. # J to kcal
 
 def integrand(x, Temperature):
     # x = [R, theta]
-    potential_value = hutson.extpot(x[0], np.cos(x[1])) * htoj
+    potential_value = extpot(x[0], np.cos(x[1])) * htoj
     return (1 - np.exp(- potential_value / (k * Temperature))) * np.sin(x[1]) * x[0]**2
 
 def initialization(T):
     _integrand = partial(integrand, Temperature = T)
 
     integ = vegas.Integrator([[3., 100.], [0., np.pi]])
-    result = integ(_integrand, nitn = 100, neval = 1000)
+    result = integ(_integrand, nitn = 50, neval = 10**4)
     print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 
 def cycle(T):
@@ -46,7 +45,8 @@ def cycle(T):
     return SVC
 
 def save_data(temperatures, svcs):
-    with open('data/SVC_hutson.dat', mode = 'w') as out:
+    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC.dat'
+    with open(filename, mode = 'w') as out:
         for temperature, svc in zip(temperatures, svcs):
             out.write(str(temperature) + ' ' + str(svc) + '\n')
 

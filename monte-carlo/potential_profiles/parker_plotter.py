@@ -45,9 +45,5 @@ axes.set_ylim([-1e-2,1e-2])
 
 plt.plot(x, potential_values)
 plt.grid()
-#plt.show()
-#plt.savefig('parker_potential.png')
-
-for _x, _y in zip(x, potential_values):
-    print 'x: {0}; value: {1}'.format(_x, _y)
-
+plt.show()
+plt.savefig('parker_potential.png')

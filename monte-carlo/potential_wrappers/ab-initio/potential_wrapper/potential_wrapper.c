@@ -763,7 +763,7 @@ static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_theta[] = "theta";
 static const char __pyx_k_potential[] = "potential";
 static const char __pyx_k_potential_wrapper[] = "potential_wrapper";
-static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/NewPES/potential_wrapper/potential_wrapper.pyx";
+static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/potential_wrappers/ab-initio/potential_wrapper/potential_wrapper.pyx";
 static PyObject *__pyx_n_s_R;
 static PyObject *__pyx_kp_s_home_artfin_Desktop_repos_class;
 static PyObject *__pyx_n_s_main;
@@ -779,7 +779,7 @@ static PyObject *__pyx_codeobj__2;
  *     double ab_initio_pot(double R, double Theta)
  * 
  * def potential(R, theta):             # <<<<<<<<<<<<<<
- *     return ab_initio_pot(R, theta)
+ *     return ab_initio_pot(R, theta) /  2.1947 / 10**(5) # from cm^(-1) to hartree
  */
 
 /* Python wrapper */
@@ -852,12 +852,12 @@ static PyObject *__pyx_pf_17potential_wrapper_potential(CYTHON_UNUSED PyObject *
   /* "potential_wrapper.pyx":5
  * 
  * def potential(R, theta):
- *     return ab_initio_pot(R, theta)             # <<<<<<<<<<<<<<
+ *     return ab_initio_pot(R, theta) /  2.1947 / 10**(5) # from cm^(-1) to hartree             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_R); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L1_error)
   __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_v_theta); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L1_error)
-  __pyx_t_3 = PyFloat_FromDouble(ab_initio_pot(__pyx_t_1, __pyx_t_2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(((ab_initio_pot(__pyx_t_1, __pyx_t_2) / 2.1947) / 100000.0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -867,7 +867,7 @@ static PyObject *__pyx_pf_17potential_wrapper_potential(CYTHON_UNUSED PyObject *
  *     double ab_initio_pot(double R, double Theta)
  * 
  * def potential(R, theta):             # <<<<<<<<<<<<<<
- *     return ab_initio_pot(R, theta)
+ *     return ab_initio_pot(R, theta) /  2.1947 / 10**(5) # from cm^(-1) to hartree
  */
 
   /* function exit code */
@@ -925,7 +925,7 @@ static int __Pyx_InitCachedConstants(void) {
  *     double ab_initio_pot(double R, double Theta)
  * 
  * def potential(R, theta):             # <<<<<<<<<<<<<<
- *     return ab_initio_pot(R, theta)
+ *     return ab_initio_pot(R, theta) /  2.1947 / 10**(5) # from cm^(-1) to hartree
  */
   __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_R, __pyx_n_s_theta); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
@@ -1041,7 +1041,7 @@ PyMODINIT_FUNC PyInit_potential_wrapper(void)
  *     double ab_initio_pot(double R, double Theta)
  * 
  * def potential(R, theta):             # <<<<<<<<<<<<<<
- *     return ab_initio_pot(R, theta)
+ *     return ab_initio_pot(R, theta) /  2.1947 / 10**(5) # from cm^(-1) to hartree
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_17potential_wrapper_1potential, NULL, __pyx_n_s_potential_wrapper); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

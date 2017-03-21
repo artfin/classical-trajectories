@@ -764,7 +764,7 @@ static const char __pyx_k_theta[] = "theta";
 static const char __pyx_k_derivative_R[] = "derivative_R";
 static const char __pyx_k_derivative_Theta[] = "derivative_Theta";
 static const char __pyx_k_derivatives_wrapper[] = "derivatives_wrapper";
-static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/NewPES/derivative_wrapper/derivatives_wrapper.pyx";
+static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/potential_wrappers/ab-initio/derivative_wrapper/derivatives_wrapper.pyx";
 static PyObject *__pyx_n_s_R;
 static PyObject *__pyx_n_s_derivative_R;
 static PyObject *__pyx_n_s_derivative_Theta;
@@ -784,7 +784,7 @@ static PyObject *__pyx_codeobj__4;
  *     double arco2_pes_derivR(double R, double Theta)
  * 
  * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  */
 
@@ -858,14 +858,14 @@ static PyObject *__pyx_pf_19derivatives_wrapper_derivative_R(CYTHON_UNUSED PyObj
   /* "derivatives_wrapper.pyx":6
  * 
  * def derivative_R(R, theta):
- *     return arco2_pes_derivR(R, theta)             # <<<<<<<<<<<<<<
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree             # <<<<<<<<<<<<<<
  * 
  * def derivative_Theta(R, theta):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_R); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 6, __pyx_L1_error)
   __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_v_theta); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 6, __pyx_L1_error)
-  __pyx_t_3 = PyFloat_FromDouble(arco2_pes_derivR(__pyx_t_1, __pyx_t_2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(((arco2_pes_derivR(__pyx_t_1, __pyx_t_2) / 2.1947) / 100000.0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -875,7 +875,7 @@ static PyObject *__pyx_pf_19derivatives_wrapper_derivative_R(CYTHON_UNUSED PyObj
  *     double arco2_pes_derivR(double R, double Theta)
  * 
  * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  */
 
@@ -891,10 +891,10 @@ static PyObject *__pyx_pf_19derivatives_wrapper_derivative_R(CYTHON_UNUSED PyObj
 }
 
 /* "derivatives_wrapper.pyx":8
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
+ *     return arco2_pes_derivTheta(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  */
 
 /* Python wrapper */
@@ -967,22 +967,22 @@ static PyObject *__pyx_pf_19derivatives_wrapper_2derivative_Theta(CYTHON_UNUSED 
   /* "derivatives_wrapper.pyx":9
  * 
  * def derivative_Theta(R, theta):
- *     return arco2_pes_derivTheta(R, theta)             # <<<<<<<<<<<<<<
+ *     return arco2_pes_derivTheta(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_R); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L1_error)
   __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_v_theta); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L1_error)
-  __pyx_t_3 = PyFloat_FromDouble(arco2_pes_derivTheta(__pyx_t_1, __pyx_t_2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(((arco2_pes_derivTheta(__pyx_t_1, __pyx_t_2) / 2.1947) / 100000.0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
   /* "derivatives_wrapper.pyx":8
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
+ *     return arco2_pes_derivTheta(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  */
 
   /* function exit code */
@@ -1041,7 +1041,7 @@ static int __Pyx_InitCachedConstants(void) {
  *     double arco2_pes_derivR(double R, double Theta)
  * 
  * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  */
   __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_R, __pyx_n_s_theta); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 5, __pyx_L1_error)
@@ -1050,10 +1050,10 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_derivative_R, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 5, __pyx_L1_error)
 
   /* "derivatives_wrapper.pyx":8
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
+ *     return arco2_pes_derivTheta(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  */
   __pyx_tuple__3 = PyTuple_Pack(2, __pyx_n_s_R, __pyx_n_s_theta); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
@@ -1169,7 +1169,7 @@ PyMODINIT_FUNC PyInit_derivatives_wrapper(void)
  *     double arco2_pes_derivR(double R, double Theta)
  * 
  * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_19derivatives_wrapper_1derivative_R, NULL, __pyx_n_s_derivatives_wrapper); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
@@ -1178,10 +1178,10 @@ PyMODINIT_FUNC PyInit_derivatives_wrapper(void)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "derivatives_wrapper.pyx":8
- *     return arco2_pes_derivR(R, theta)
+ *     return arco2_pes_derivR(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  * 
  * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
+ *     return arco2_pes_derivTheta(R, theta) / 2.1947 / 10**(5) # cm^-1 to hartree
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_19derivatives_wrapper_3derivative_Theta, NULL, __pyx_n_s_derivatives_wrapper); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
