@@ -1,4 +1,4 @@
-cdef extern from "ar_co2_pes_deriv.h":
+cdef extern from "derivatives.h":
     double arco2_pes_derivTheta(double R, double Theta)
     double arco2_pes_derivR(double R, double Theta)
 

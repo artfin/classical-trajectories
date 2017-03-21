@@ -3,11 +3,9 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
-        "depends": [
-            "ar_co2_pes_deriv.h"
-        ]
+        "depends": []
     }, 
-    "module_name": "new_pes_cython"
+    "module_name": "len_extern"
 }
 END: Cython Metadata */
 
@@ -438,9 +436,9 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__new_pes_cython
-#define __PYX_HAVE_API__new_pes_cython
-#include "ar_co2_pes_deriv.h"
+#define __PYX_HAVE__len_extern
+#define __PYX_HAVE_API__len_extern
+#include "string.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -636,7 +634,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "new_pes_cython.pyx",
+  "len_extern.pyx",
 };
 
 /*--- Type declarations ---*/
@@ -705,18 +703,6 @@ static const char *__pyx_f[] = {
 #define __Pyx_CLEAR(r)    do { PyObject* tmp = ((PyObject*)(r)); r = NULL; __Pyx_DECREF(tmp);} while(0)
 #define __Pyx_XCLEAR(r)   do { if((r) != NULL) {PyObject* tmp = ((PyObject*)(r)); r = NULL; __Pyx_DECREF(tmp);}} while(0)
 
-/* RaiseArgTupleInvalid.proto */
-static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
-    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
-
-/* RaiseDoubleKeywords.proto */
-static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
-
-/* ParseKeywords.proto */
-static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
-    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
-    const char* function_name);
-
 /* CodeObjectCache.proto */
 typedef struct {
     PyCodeObject* code_object;
@@ -737,6 +723,9 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
                                int py_line, const char *filename);
 
 /* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
+
+/* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
 
 /* CIntFromPy.proto */
@@ -752,243 +741,89 @@ static int __Pyx_check_binary_version(void);
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 
-/* Module declarations from 'new_pes_cython' */
-#define __Pyx_MODULE_NAME "new_pes_cython"
-int __pyx_module_is_main_new_pes_cython = 0;
+/* Module declarations from 'len_extern' */
+#define __Pyx_MODULE_NAME "len_extern"
+int __pyx_module_is_main_len_extern = 0;
 
-/* Implementation of 'new_pes_cython' */
-static const char __pyx_k_R[] = "R";
+/* Implementation of 'len_extern' */
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_test[] = "__test__";
-static const char __pyx_k_theta[] = "theta";
-static const char __pyx_k_derivative_R[] = "derivative_R";
-static const char __pyx_k_new_pes_cython[] = "new_pes_cython";
-static const char __pyx_k_derivative_Theta[] = "derivative_Theta";
-static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/NewPES/new_pes_cython.pyx";
-static PyObject *__pyx_n_s_R;
-static PyObject *__pyx_n_s_derivative_R;
-static PyObject *__pyx_n_s_derivative_Theta;
+static const char __pyx_k_get_len[] = "get_len";
+static const char __pyx_k_message[] = "message";
+static const char __pyx_k_len_extern[] = "len_extern";
+static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/wrapping_example/len_extern.pyx";
+static PyObject *__pyx_n_s_get_len;
 static PyObject *__pyx_kp_s_home_artfin_Desktop_repos_class;
+static PyObject *__pyx_n_s_len_extern;
 static PyObject *__pyx_n_s_main;
-static PyObject *__pyx_n_s_new_pes_cython;
+static PyObject *__pyx_n_s_message;
 static PyObject *__pyx_n_s_test;
-static PyObject *__pyx_n_s_theta;
-static PyObject *__pyx_pf_14new_pes_cython_derivative_R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_R, PyObject *__pyx_v_theta); /* proto */
-static PyObject *__pyx_pf_14new_pes_cython_2derivative_Theta(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_R, PyObject *__pyx_v_theta); /* proto */
+static PyObject *__pyx_pf_10len_extern_get_len(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_message); /* proto */
 static PyObject *__pyx_tuple_;
-static PyObject *__pyx_tuple__3;
 static PyObject *__pyx_codeobj__2;
-static PyObject *__pyx_codeobj__4;
 
-/* "new_pes_cython.pyx":5
- *     double arco2_pes_derivR(double R, double Theta)
+/* "len_extern.pyx":5
+ *     int strlen(char*c )
  * 
- * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
- * 
+ * def get_len(char* message):             # <<<<<<<<<<<<<<
+ *     # strlen can now be used from cython code
+ *     return strlen(message)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14new_pes_cython_1derivative_R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_14new_pes_cython_1derivative_R = {"derivative_R", (PyCFunction)__pyx_pw_14new_pes_cython_1derivative_R, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_14new_pes_cython_1derivative_R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyObject *__pyx_v_R = 0;
-  PyObject *__pyx_v_theta = 0;
+static PyObject *__pyx_pw_10len_extern_1get_len(PyObject *__pyx_self, PyObject *__pyx_arg_message); /*proto*/
+static PyMethodDef __pyx_mdef_10len_extern_1get_len = {"get_len", (PyCFunction)__pyx_pw_10len_extern_1get_len, METH_O, 0};
+static PyObject *__pyx_pw_10len_extern_1get_len(PyObject *__pyx_self, PyObject *__pyx_arg_message) {
+  char *__pyx_v_message;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("derivative_R (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_R,&__pyx_n_s_theta,0};
-    PyObject* values[2] = {0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_R)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        case  1:
-        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_theta)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("derivative_R", 1, 2, 2, 1); __PYX_ERR(0, 5, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "derivative_R") < 0)) __PYX_ERR(0, 5, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-    }
-    __pyx_v_R = values[0];
-    __pyx_v_theta = values[1];
+  __Pyx_RefNannySetupContext("get_len (wrapper)", 0);
+  assert(__pyx_arg_message); {
+    __pyx_v_message = __Pyx_PyObject_AsString(__pyx_arg_message); if (unlikely((!__pyx_v_message) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("derivative_R", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 5, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("new_pes_cython.derivative_R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("len_extern.get_len", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14new_pes_cython_derivative_R(__pyx_self, __pyx_v_R, __pyx_v_theta);
+  __pyx_r = __pyx_pf_10len_extern_get_len(__pyx_self, ((char *)__pyx_v_message));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14new_pes_cython_derivative_R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_R, PyObject *__pyx_v_theta) {
+static PyObject *__pyx_pf_10len_extern_get_len(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_message) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  double __pyx_t_1;
-  double __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
-  __Pyx_RefNannySetupContext("derivative_R", 0);
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("get_len", 0);
 
-  /* "new_pes_cython.pyx":6
- * 
- * def derivative_R(R, theta):
- *     return arco2_pes_derivR(R, theta)             # <<<<<<<<<<<<<<
- * 
- * def derivative_Theta(R, theta):
+  /* "len_extern.pyx":7
+ * def get_len(char* message):
+ *     # strlen can now be used from cython code
+ *     return strlen(message)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_R); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 6, __pyx_L1_error)
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_v_theta); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 6, __pyx_L1_error)
-  __pyx_t_3 = PyFloat_FromDouble(arco2_pes_derivR(__pyx_t_1, __pyx_t_2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 6, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_r = __pyx_t_3;
-  __pyx_t_3 = 0;
+  __pyx_t_1 = __Pyx_PyInt_From_int(strlen(__pyx_v_message)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "new_pes_cython.pyx":5
- *     double arco2_pes_derivR(double R, double Theta)
+  /* "len_extern.pyx":5
+ *     int strlen(char*c )
  * 
- * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
- * 
+ * def get_len(char* message):             # <<<<<<<<<<<<<<
+ *     # strlen can now be used from cython code
+ *     return strlen(message)
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("new_pes_cython.derivative_R", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "new_pes_cython.pyx":8
- *     return arco2_pes_derivR(R, theta)
- * 
- * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_14new_pes_cython_3derivative_Theta(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_14new_pes_cython_3derivative_Theta = {"derivative_Theta", (PyCFunction)__pyx_pw_14new_pes_cython_3derivative_Theta, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_14new_pes_cython_3derivative_Theta(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyObject *__pyx_v_R = 0;
-  PyObject *__pyx_v_theta = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("derivative_Theta (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_R,&__pyx_n_s_theta,0};
-    PyObject* values[2] = {0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_R)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        case  1:
-        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_theta)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("derivative_Theta", 1, 2, 2, 1); __PYX_ERR(0, 8, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "derivative_Theta") < 0)) __PYX_ERR(0, 8, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-    }
-    __pyx_v_R = values[0];
-    __pyx_v_theta = values[1];
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("derivative_Theta", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 8, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("new_pes_cython.derivative_Theta", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14new_pes_cython_2derivative_Theta(__pyx_self, __pyx_v_R, __pyx_v_theta);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_14new_pes_cython_2derivative_Theta(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_R, PyObject *__pyx_v_theta) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  double __pyx_t_1;
-  double __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
-  __Pyx_RefNannySetupContext("derivative_Theta", 0);
-
-  /* "new_pes_cython.pyx":9
- * 
- * def derivative_Theta(R, theta):
- *     return arco2_pes_derivTheta(R, theta)             # <<<<<<<<<<<<<<
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_R); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L1_error)
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_v_theta); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L1_error)
-  __pyx_t_3 = PyFloat_FromDouble(arco2_pes_derivTheta(__pyx_t_1, __pyx_t_2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 9, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_r = __pyx_t_3;
-  __pyx_t_3 = 0;
-  goto __pyx_L0;
-
-  /* "new_pes_cython.pyx":8
- *     return arco2_pes_derivR(R, theta)
- * 
- * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("new_pes_cython.derivative_Theta", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("len_extern.get_len", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1007,7 +842,7 @@ static struct PyModuleDef __pyx_moduledef = {
   #else
     PyModuleDef_HEAD_INIT,
   #endif
-    "new_pes_cython",
+    "len_extern",
     0, /* m_doc */
     -1, /* m_size */
     __pyx_methods /* m_methods */,
@@ -1019,14 +854,12 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
-  {&__pyx_n_s_R, __pyx_k_R, sizeof(__pyx_k_R), 0, 0, 1, 1},
-  {&__pyx_n_s_derivative_R, __pyx_k_derivative_R, sizeof(__pyx_k_derivative_R), 0, 0, 1, 1},
-  {&__pyx_n_s_derivative_Theta, __pyx_k_derivative_Theta, sizeof(__pyx_k_derivative_Theta), 0, 0, 1, 1},
+  {&__pyx_n_s_get_len, __pyx_k_get_len, sizeof(__pyx_k_get_len), 0, 0, 1, 1},
   {&__pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_k_home_artfin_Desktop_repos_class, sizeof(__pyx_k_home_artfin_Desktop_repos_class), 0, 0, 1, 0},
+  {&__pyx_n_s_len_extern, __pyx_k_len_extern, sizeof(__pyx_k_len_extern), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
-  {&__pyx_n_s_new_pes_cython, __pyx_k_new_pes_cython, sizeof(__pyx_k_new_pes_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_message, __pyx_k_message, sizeof(__pyx_k_message), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
-  {&__pyx_n_s_theta, __pyx_k_theta, sizeof(__pyx_k_theta), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
@@ -1037,28 +870,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "new_pes_cython.pyx":5
- *     double arco2_pes_derivR(double R, double Theta)
+  /* "len_extern.pyx":5
+ *     int strlen(char*c )
  * 
- * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
- * 
+ * def get_len(char* message):             # <<<<<<<<<<<<<<
+ *     # strlen can now be used from cython code
+ *     return strlen(message)
  */
-  __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_R, __pyx_n_s_theta); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_message, __pyx_n_s_message); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_derivative_R, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 5, __pyx_L1_error)
-
-  /* "new_pes_cython.pyx":8
- *     return arco2_pes_derivR(R, theta)
- * 
- * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
- */
-  __pyx_tuple__3 = PyTuple_Pack(2, __pyx_n_s_R, __pyx_n_s_theta); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 8, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__3);
-  __Pyx_GIVEREF(__pyx_tuple__3);
-  __pyx_codeobj__4 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__3, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_derivative_Theta, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__4)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_get_len, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -1074,11 +896,11 @@ static int __Pyx_InitGlobals(void) {
 }
 
 #if PY_MAJOR_VERSION < 3
-PyMODINIT_FUNC initnew_pes_cython(void); /*proto*/
-PyMODINIT_FUNC initnew_pes_cython(void)
+PyMODINIT_FUNC initlen_extern(void); /*proto*/
+PyMODINIT_FUNC initlen_extern(void)
 #else
-PyMODINIT_FUNC PyInit_new_pes_cython(void); /*proto*/
-PyMODINIT_FUNC PyInit_new_pes_cython(void)
+PyMODINIT_FUNC PyInit_len_extern(void); /*proto*/
+PyMODINIT_FUNC PyInit_len_extern(void)
 #endif
 {
   PyObject *__pyx_t_1 = NULL;
@@ -1092,7 +914,7 @@ PyMODINIT_FUNC PyInit_new_pes_cython(void)
           Py_FatalError("failed to import 'refnanny' module");
   }
   #endif
-  __Pyx_RefNannySetupContext("PyMODINIT_FUNC PyInit_new_pes_cython(void)", 0);
+  __Pyx_RefNannySetupContext("PyMODINIT_FUNC PyInit_len_extern(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -1121,7 +943,7 @@ PyMODINIT_FUNC PyInit_new_pes_cython(void)
   #endif
   /*--- Module creation code ---*/
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("new_pes_cython", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("len_extern", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -1138,14 +960,14 @@ PyMODINIT_FUNC PyInit_new_pes_cython(void)
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_new_pes_cython) {
+  if (__pyx_module_is_main_len_extern) {
     if (PyObject_SetAttrString(__pyx_m, "__name__", __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "new_pes_cython")) {
-      if (unlikely(PyDict_SetItemString(modules, "new_pes_cython", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "len_extern")) {
+      if (unlikely(PyDict_SetItemString(modules, "len_extern", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -1165,33 +987,22 @@ PyMODINIT_FUNC PyInit_new_pes_cython(void)
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "new_pes_cython.pyx":5
- *     double arco2_pes_derivR(double R, double Theta)
+  /* "len_extern.pyx":5
+ *     int strlen(char*c )
  * 
- * def derivative_R(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivR(R, theta)
- * 
+ * def get_len(char* message):             # <<<<<<<<<<<<<<
+ *     # strlen can now be used from cython code
+ *     return strlen(message)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_14new_pes_cython_1derivative_R, NULL, __pyx_n_s_new_pes_cython); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_10len_extern_1get_len, NULL, __pyx_n_s_len_extern); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_derivative_R, __pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_len, __pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "new_pes_cython.pyx":8
- *     return arco2_pes_derivR(R, theta)
- * 
- * def derivative_Theta(R, theta):             # <<<<<<<<<<<<<<
- *     return arco2_pes_derivTheta(R, theta)
- */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_14new_pes_cython_3derivative_Theta, NULL, __pyx_n_s_new_pes_cython); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_derivative_Theta, __pyx_t_1) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "new_pes_cython.pyx":1
- * cdef extern from "ar_co2_pes_deriv.h":             # <<<<<<<<<<<<<<
- *     double arco2_pes_derivTheta(double R, double Theta)
- *     double arco2_pes_derivR(double R, double Theta)
+  /* "len_extern.pyx":1
+ * cdef extern from "string.h":             # <<<<<<<<<<<<<<
+ *     # describe the interface for the functions used
+ *     int strlen(char*c )
  */
   __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -1205,11 +1016,11 @@ PyMODINIT_FUNC PyInit_new_pes_cython(void)
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init new_pes_cython", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init len_extern", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_DECREF(__pyx_m); __pyx_m = 0;
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init new_pes_cython");
+    PyErr_SetString(PyExc_ImportError, "init len_extern");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -1237,148 +1048,6 @@ end:
     return (__Pyx_RefNannyAPIStruct *)r;
 }
 #endif
-
-/* RaiseArgTupleInvalid */
-static void __Pyx_RaiseArgtupleInvalid(
-    const char* func_name,
-    int exact,
-    Py_ssize_t num_min,
-    Py_ssize_t num_max,
-    Py_ssize_t num_found)
-{
-    Py_ssize_t num_expected;
-    const char *more_or_less;
-    if (num_found < num_min) {
-        num_expected = num_min;
-        more_or_less = "at least";
-    } else {
-        num_expected = num_max;
-        more_or_less = "at most";
-    }
-    if (exact) {
-        more_or_less = "exactly";
-    }
-    PyErr_Format(PyExc_TypeError,
-                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
-                 func_name, more_or_less, num_expected,
-                 (num_expected == 1) ? "" : "s", num_found);
-}
-
-/* RaiseDoubleKeywords */
-static void __Pyx_RaiseDoubleKeywordsError(
-    const char* func_name,
-    PyObject* kw_name)
-{
-    PyErr_Format(PyExc_TypeError,
-        #if PY_MAJOR_VERSION >= 3
-        "%s() got multiple values for keyword argument '%U'", func_name, kw_name);
-        #else
-        "%s() got multiple values for keyword argument '%s'", func_name,
-        PyString_AsString(kw_name));
-        #endif
-}
-
-/* ParseKeywords */
-static int __Pyx_ParseOptionalKeywords(
-    PyObject *kwds,
-    PyObject **argnames[],
-    PyObject *kwds2,
-    PyObject *values[],
-    Py_ssize_t num_pos_args,
-    const char* function_name)
-{
-    PyObject *key = 0, *value = 0;
-    Py_ssize_t pos = 0;
-    PyObject*** name;
-    PyObject*** first_kw_arg = argnames + num_pos_args;
-    while (PyDict_Next(kwds, &pos, &key, &value)) {
-        name = first_kw_arg;
-        while (*name && (**name != key)) name++;
-        if (*name) {
-            values[name-argnames] = value;
-            continue;
-        }
-        name = first_kw_arg;
-        #if PY_MAJOR_VERSION < 3
-        if (likely(PyString_CheckExact(key)) || likely(PyString_Check(key))) {
-            while (*name) {
-                if ((CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**name) == PyString_GET_SIZE(key))
-                        && _PyString_Eq(**name, key)) {
-                    values[name-argnames] = value;
-                    break;
-                }
-                name++;
-            }
-            if (*name) continue;
-            else {
-                PyObject*** argname = argnames;
-                while (argname != first_kw_arg) {
-                    if ((**argname == key) || (
-                            (CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**argname) == PyString_GET_SIZE(key))
-                             && _PyString_Eq(**argname, key))) {
-                        goto arg_passed_twice;
-                    }
-                    argname++;
-                }
-            }
-        } else
-        #endif
-        if (likely(PyUnicode_Check(key))) {
-            while (*name) {
-                int cmp = (**name == key) ? 0 :
-                #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
-                    (PyUnicode_GET_SIZE(**name) != PyUnicode_GET_SIZE(key)) ? 1 :
-                #endif
-                    PyUnicode_Compare(**name, key);
-                if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
-                if (cmp == 0) {
-                    values[name-argnames] = value;
-                    break;
-                }
-                name++;
-            }
-            if (*name) continue;
-            else {
-                PyObject*** argname = argnames;
-                while (argname != first_kw_arg) {
-                    int cmp = (**argname == key) ? 0 :
-                    #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
-                        (PyUnicode_GET_SIZE(**argname) != PyUnicode_GET_SIZE(key)) ? 1 :
-                    #endif
-                        PyUnicode_Compare(**argname, key);
-                    if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
-                    if (cmp == 0) goto arg_passed_twice;
-                    argname++;
-                }
-            }
-        } else
-            goto invalid_keyword_type;
-        if (kwds2) {
-            if (unlikely(PyDict_SetItem(kwds2, key, value))) goto bad;
-        } else {
-            goto invalid_keyword;
-        }
-    }
-    return 0;
-arg_passed_twice:
-    __Pyx_RaiseDoubleKeywordsError(function_name, key);
-    goto bad;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    goto bad;
-invalid_keyword:
-    PyErr_Format(PyExc_TypeError,
-    #if PY_MAJOR_VERSION < 3
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-bad:
-    return -1;
-}
 
 /* CodeObjectCache */
 static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
@@ -1539,6 +1208,37 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 bad:
     Py_XDECREF(py_code);
     Py_XDECREF(py_frame);
+}
+
+/* CIntToPy */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
+    const int neg_one = (int) -1, const_zero = (int) 0;
+    const int is_unsigned = neg_one > const_zero;
+    if (is_unsigned) {
+        if (sizeof(int) < sizeof(long)) {
+            return PyInt_FromLong((long) value);
+        } else if (sizeof(int) <= sizeof(unsigned long)) {
+            return PyLong_FromUnsignedLong((unsigned long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(int) <= sizeof(unsigned PY_LONG_LONG)) {
+            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+#endif
+        }
+    } else {
+        if (sizeof(int) <= sizeof(long)) {
+            return PyInt_FromLong((long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(int) <= sizeof(PY_LONG_LONG)) {
+            return PyLong_FromLongLong((PY_LONG_LONG) value);
+#endif
+        }
+    }
+    {
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        unsigned char *bytes = (unsigned char *)&value;
+        return _PyLong_FromByteArray(bytes, sizeof(int),
+                                     little, !is_unsigned);
+    }
 }
 
 /* CIntToPy */
