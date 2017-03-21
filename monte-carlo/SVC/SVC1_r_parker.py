@@ -100,7 +100,7 @@ def save_data(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-temperatures = [100 + 10 * i for i in range(71)]
+temperatures = [100 + 10 * i for i in range(31)]
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)

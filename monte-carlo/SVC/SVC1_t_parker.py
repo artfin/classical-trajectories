@@ -92,7 +92,8 @@ def cycle(T):
     print 'Time needed: {0}'.format(time() - start)
     
     return SVC_correction
-f save_data(temperatures, svc_corrections):
+
+def save_data(temperatures, svc_corrections):
     with open('data/SVC1_t_parker.dat', mode = 'w') as out:
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
