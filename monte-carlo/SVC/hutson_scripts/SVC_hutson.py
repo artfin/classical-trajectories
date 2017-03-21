@@ -45,14 +45,14 @@ def cycle(T):
     return SVC
 
 def save_data(temperatures, svcs):
-    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC.dat'
+    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC_long.dat'
     with open(filename, mode = 'w') as out:
         for temperature, svc in zip(temperatures, svcs):
             out.write(str(temperature) + ' ' + str(svc) + '\n')
 
 initialization(T = 100)
 
-temperatures = [100 + i * 10 for i in range(71)]
+temperatures = [100 + i for i in range(200)]
 svcs = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svcs)

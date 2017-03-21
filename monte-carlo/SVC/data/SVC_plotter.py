@@ -38,16 +38,16 @@ print 'len(temperatures1): {0}'.format(len(temperatures1))
 print 'len(temperatures2): {0}'.format(len(temperatures2))
 print 'len(temperatures3): {0}'.format(len(temperatures3))
 
-temperatures1, parker_svc = cut_data(temperatures1, parker_svc, 300)
-temperatures2, hutson_svc = cut_data(temperatures2, hutson_svc, 300)
-temperatures3, ab_initio_svc = cut_data(temperatures3, ab_initio_svc, 300)
+temperatures1, parker_svc = cut_data(temperatures1, parker_svc, 800)
+temperatures2, hutson_svc = cut_data(temperatures2, hutson_svc, 800)
+temperatures3, ab_initio_svc = cut_data(temperatures3, ab_initio_svc, 800)
 
 plt.plot(temperatures1, parker_svc, color = 'green')
 plt.plot(temperatures2, hutson_svc, color = 'orange')
 plt.plot(temperatures3, ab_initio_svc, color = 'blue')
 
 green_patch = mpatches.Patch(color = 'green', label = 'Parker potential')
-orange_patch = mpatches.Patch(color = 'orange', label = 'Huston potential')
+orange_patch = mpatches.Patch(color = 'orange', label = 'Hutson potential')
 blue_patch = mpatches.Patch(color = 'blue', label = 'New Ab-Initio potential')
 
 plt.legend(handles = [green_patch, orange_patch, blue_patch])
@@ -55,4 +55,4 @@ plt.legend(handles = [green_patch, orange_patch, blue_patch])
 plt.grid()
 #plt.show()
 
-plt.savefig('SVCs: 100-300.png')
+plt.savefig('SVCs: 100-800.png')
