@@ -26,9 +26,9 @@ def cut_data(temperatures, svcs, boundary_value):
             break
     return temperatures_temp, svcs_temp
 
-temperatures1, svc = load_data('SVC_hutson.dat')
-temperatures2, rotational_correction = load_data('SVC1_r_hutson.dat')
-temperatures3, translational_correction = load_data('SVC1_t_hutson.dat')
+temperatures1, svc = load_data('SVC_ab_initio.dat')
+temperatures2, rotational_correction = load_data('SVC1_r_ab_initio.dat')
+temperatures3, translational_correction = load_data('SVC1_t_ab_initio.dat')
 
 print 'temperatures1 len: {0}'.format(len(temperatures1))
 print 'temperatures2 len: {0}'.format(len(temperatures2))
@@ -60,4 +60,6 @@ cyan_patch = mpatches.Patch(color = 'cyan', label = 'Both corrections')
 plt.legend(handles = [red_patch, blue_patch, magenta_patch, cyan_patch])
 
 plt.grid()
-plt.show()
+plt.savefig('Corrections.png')
+
+#plt.show()
