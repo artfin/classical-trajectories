@@ -3,14 +3,16 @@ from autograd import grad, grad_named
 import vegas
 from time import time
 from functools import partial
+import matplotlib.pyplot as plt
+
 
 def parker_potential(R, theta):
-
-    V0 = 22.4247 * np.exp(-0.716288 * R - 0.0869136 * R**2)
+    
+    V0= 22.4247 * np.exp(-0.716288 * R - 0.0869136 * R**2)
     if ( R >= 6.32925 ):
-        V0 -= -114.5 / R**6 + 2380. / R**8
+        V0 -= 114.5 / R**6 + 2380. / R**8
     else:
-         V0 += -0.599056 * np.exp(-0.650479 * R + 0.0320299 * R**2)
+         V0 += -0.599056 * np.exp(-0.650479 * R - 0.0320299 * R**2)
    
     V2 = 63.5744 * np.exp(-0.811806 * R - 0.075313 * R**2)
     if ( R >= 6.90026 ):
@@ -42,15 +44,20 @@ def parker_potential(R, theta):
     L6 = (231. * cosine6 - 315. * cosine4 + 105. * cosine2 - 5.) / 16.
     L8 = (6435. * cosine8 - 12012. * cosine6 + 6930. * cosine4 - 1260. * cosine2 + 35.) / 128.
     L10 = (46189. * cosine10 - 109395. * cosine8 + 90090. * cosine6 - 30030. * cosine4 + 3465. * cosine2 - 63.) / 256.
+   
     L = [L0, L2, L4, L6, L8, L10]
-
+        
     potential_value = sum([v * l for v, l in zip(V, L)])
     return potential_value
 
 parker_potential_dr = grad(parker_potential, argnum = 0)
 parker_potential_dtheta = grad(parker_potential, argnum = 1)
 
-k = 1.38064852 * 10**(-23) # J/k
+atomic_mass_unit = 1.660539040 * 10**(-27) # kg
+complex_mass = (40. * 12.) / 52. * atomic_mass_unit # kg
+
+planck_constant = 1.054571800 * 10**(-34) # joules * s
+k = 1.38064852 * 10**(-23) # J / k
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
 avogadro = 6.022 * 10**(23)
 length_unit = 5.291772 * 10**(-11) # atomic units to m
@@ -59,7 +66,10 @@ def integrand(x, Temperature):
     # x = [R, theta]
     u = parker_potential(x[0], x[1]) * htoj
     du_dr = parker_potential_dr(x[0], x[1])
-    return np.exp( -u / (k * Temperature)) * (du_dr)**2 * x[0]**2 * np.sin(x[1]) * htoj**2
+    
+    value = np.exp(-u / (k * Temperature)) * (du_dr)**2 * x[0]**2 * np.sin(x[1])
+
+    return value
 
 def initialization(T):
     _integrand = partial(integrand, Temperature = T)
@@ -75,11 +85,11 @@ def cycle(T):
 
     integ = vegas.Integrator([[3., 30.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 20, neval = 40000)
+    result = integ(_integrand, nitn = 20, neval = 5000)
 	
     print 'result = %s Q = %.2f' % (result, result.Q)
 
-    SVC_correction = np.pi * avogadro / 12 / (k * T)**3
+    SVC_correction = np.pi * avogadro * result.mean * length_unit / 12 / (k * T)**3 * htoj**2 * planck_constant**2 / complex_mass * 10**6 # 10**6 to convert m3/mol to cm3/mol
     print 'Temperature: %d; SVC correction: %.8f' % (T, SVC_correction)
     print 'Time needed: {0}'.format(time() - start)
     
@@ -91,14 +101,9 @@ def save_data(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-temperatures = [150 + 10 * i for i in range(10)]
+temperatures = [100 + 10 * i for i in range(2)]
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)
-
-
-
-
-
 
 

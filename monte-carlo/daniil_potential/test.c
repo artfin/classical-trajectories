@@ -76,7 +76,7 @@ double potential(double *vars) {
 }
 
 int main() {
-    double vars[2] = {1., M_PI / 2};
+    double vars[2] = {6.5, M_PI / 2};
 
     double val = potential(vars);
     printf("Potential value: %lf\n", val);

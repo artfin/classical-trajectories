@@ -2,6 +2,7 @@ import numpy as np
 import scipy.special as sp
 from time import time
 import matplotlib.pyplot as plt
+from pprint import pprint
 
 A_n1 = [.224247*10**2, .635744*10**2, .991128*10**2, .318652*10**3, .332826*10**3, .435837*10**3]
 A_n2 = [-.716288*10**0, -.811806*10**0, -.117577*10, -.188135*10, -.214596*10, -.244616*10] 
@@ -32,9 +33,11 @@ def v(R, number):
 L = [sp.legendre(2 * k) for k in range(6)] 
 
 def potential(R, theta):
-	return sum([v(R, number = n) * L[n](np.cos(theta)) for n in range(6)])
+    V = [v(R, number = n) for n in range(6)]
+    pprint(V)
+    return sum([v(R, number = n) * L[n](np.cos(theta)) for n in range(6)])
 
-x = np.linspace(1, 10, 500)
+x = np.linspace(3, 10, 1)
 potential_values = [potential(R, np.pi/2) for R in x]
 
 axes = plt.gca()
@@ -42,7 +45,9 @@ axes.set_ylim([-1e-2,1e-2])
 
 plt.plot(x, potential_values)
 plt.grid()
+#plt.show()
+#plt.savefig('parker_potential.png')
 
-plt.savefig('parker_potential.png')
-
+for _x, _y in zip(x, potential_values):
+    print 'x: {0}; value: {1}'.format(_x, _y)
 

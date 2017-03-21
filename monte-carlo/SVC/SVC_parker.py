@@ -44,12 +44,13 @@ energy_coeff = 1. / 4184.
 def integrand(x, Temperature):
     # x = [R, theta]
     potential_value = potential(x[0], x[1]) * htoj
-    return (1 - np.exp(- potential_value / (k * Temperature))) * x[0]**2 * np.sin(x[1])
+    value =  (1 - np.exp(- potential_value / (k * Temperature))) * x[0]**2 * np.sin(x[1])
+    return value
 
 def initialization(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[3., 100.], [0., np.pi]])
+    integ = vegas.Integrator([[3., 20.], [0., np.pi]])
     result = integ(_integrand, nitn = 50, neval = 10**4)
     print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 
@@ -60,7 +61,7 @@ def cycle(T):
     result = integ(_integrand, nitn = 50, neval = 10**4)
     print 'result = %s Q = %.2f' % (result, result.Q)
 
-    SVC = np.pi * avogadro * result.mean * length_unit**2 * energy_coeff
+    SVC = np.pi * avogadro * result.mean * length_unit**3 * 10**6 # 10^6 to convert from m3/mol to cm3/mol
     
     print 'Temperature: %d; SVC: %.5f' % (T, SVC)
     
