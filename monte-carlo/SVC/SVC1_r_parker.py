@@ -95,12 +95,12 @@ def cycle(T):
     return SVC_correction
 
 def save_data(temperatures, svc_corrections):
-    with open('data/SVC1_r_parker.dat', mode = 'w') as out:
+    with open('data/SVC1_r_parker2.dat', mode = 'w') as out:
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-temperatures = [100 + 10 * i for i in range(31)]
+temperatures = [400 + 10 * i for i in range(31)]
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)
