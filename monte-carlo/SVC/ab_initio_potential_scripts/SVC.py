@@ -28,7 +28,8 @@ def initialization(T):
 
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
-
+    
+    start = time()
     integ = vegas.Integrator([[3., 100.], [0., np.pi]])
     result = integ(_integrand, nitn = 50, neval = 10**4)
     print 'result = %s Q = %.2f' % (result, result.Q)
@@ -36,18 +37,19 @@ def cycle(T):
     SVC = np.pi * avogadro * result.mean * length_unit**3 * 10**6 # 10^6 to convert from m3/mol to cm3/mol
     
     print 'Temperature: %d; SVC: %.5f' % (T, SVC)
-    
+    print 'Time needed: {0}'.format(time() - start)
+
     return SVC
 
 def save_data(temperatures, svcs):
-    file_path = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC.dat'
-    with open(filename, mode = 'w') as out:
+    file_path = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC_long.dat'
+    with open(file_path, mode = 'a') as out:
         for temperature, svc in zip(temperatures, svcs):
             out.write(str(temperature) + ' ' + str(svc) + '\n')
 
 initialization(T = 100)
 
-temperatures = [100 + i * 10 for i in range(71)]
+temperatures = [100 + i for i in range(401)]
 svcs = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svcs)

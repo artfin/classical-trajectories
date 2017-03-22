@@ -40,9 +40,9 @@ def initialization(T):
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[3., 30.], [0., np.pi]])
+    integ = vegas.Integrator([[3., 50.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 20, neval = 15000)
+    result = integ(_integrand, nitn = 20, neval = 2*10**4)
 	
     print 'result = %s Q = %.2f' % (result, result.Q)
 
@@ -53,13 +53,13 @@ def cycle(T):
     return SVC_correction
 
 def save_data(temperatures, svc_corrections):
-    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC1_t_long.dat'
+    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC1_t_long.dat'
     with open(filename, mode = 'w') as out:
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-temperatures = [100 + i for i in range(200)]
+temperatures = [100 + i for i in range(201)]
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)
