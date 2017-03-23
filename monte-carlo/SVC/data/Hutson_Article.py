@@ -23,7 +23,7 @@ def cut_data(temperatures, svcs, low_bound, high_bound):
     return temperatures_temp, svcs_temp
 
 
-hutson_svc_path = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC_long.dat'
+hutson_svc_path = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC_from0.dat'
 
 temperatures, hutson_svc = load_data(hutson_svc_path)
 
@@ -57,6 +57,6 @@ red_patch = mpatches.Patch(color = 'red', label = 'Split Repulsion Potential')
 plt.legend(handles = [orange_patch, error_patch, green_patch, red_patch])
 
 plt.grid()
-#plt.show()
+plt.show()
 
-plt.savefig('Hutson_article.png')
+#plt.savefig('Hutson_article.png')

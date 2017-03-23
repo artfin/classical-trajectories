@@ -11,7 +11,7 @@ from time import time
 from functools import partial
 
 atomic_mass_unit = 1.660539040 * 10**(-27) # kg
-complex_mass = (40. * 12.) / 52. * atomic_mass_unit # kg
+complex_mass = (40. * 44.) / 84. * atomic_mass_unit # kg
 
 planck_constant = 1.054571800 * 10**(-34) # joules * s
 k = 1.38064852 * 10**(-23) # J / k
@@ -40,9 +40,9 @@ def initialization(T):
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[3., 50.], [0., np.pi]])
+    integ = vegas.Integrator([[0., 100.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 20, neval = 2*10**4)
+    result = integ(_integrand, nitn = 50, neval = 10**4)
 	
     print 'result = %s Q = %.2f' % (result, result.Q)
 
@@ -53,7 +53,7 @@ def cycle(T):
     return SVC_correction
 
 def save_data(temperatures, svc_corrections):
-    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC1_t_long.dat'
+    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC1t.dat'
     with open(filename, mode = 'w') as out:
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')

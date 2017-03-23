@@ -10,8 +10,8 @@ from functools import partial
 
 k = 1.38064852 * 10**(-23) # J/k
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
-avogadro = 6.022 * 10**(23)
-length_unit = 5.291772 * 10**(-11)
+avogadro = 6.022 # * 10**(23) 
+length_unit = 5.291772 # * 10**(-11)
 
 def integrand(x, Temperature):
     # x = [R, theta]
@@ -30,11 +30,12 @@ def cycle(T):
     _integrand = partial(integrand, Temperature = T)
     
     start = time()
-    integ = vegas.Integrator([[3., 100.], [0., np.pi]])
+    integ = vegas.Integrator([[0., 100.], [0., np.pi]])
     result = integ(_integrand, nitn = 50, neval = 10**4)
     print 'result = %s Q = %.2f' % (result, result.Q)
 
-    SVC = np.pi * avogadro * result.mean * length_unit**3 * 10**6 # 10^6 to convert from m3/mol to cm3/mol
+    SVC = np.pi * avogadro * result.mean * length_unit**3 * 10**(-4) # 10**6 to convert from m3/mol to cm3/mol
+    # 10**23 * (10**(-11)**3 * 10**6 = 10**(-4))
     
     print 'Temperature: %d; SVC: %.5f' % (T, SVC)
     print 'Time needed: {0}'.format(time() - start)
@@ -42,7 +43,7 @@ def cycle(T):
     return SVC
 
 def save_data(temperatures, svcs):
-    file_path = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC_long.dat'
+    file_path = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC_from0.dat'
     with open(file_path, mode = 'a') as out:
         for temperature, svc in zip(temperatures, svcs):
             out.write(str(temperature) + ' ' + str(svc) + '\n')
