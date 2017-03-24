@@ -45,9 +45,9 @@ def integrand(x, Temperature):
 limits = [[0., 100], # J
 	  [0., 2 * np.pi], # alpha (J varphi)
 	  [0, np.pi], # beta (J theta)
-	  [0., 50.], # R 
+	  [0, 100.], # R 
 	  [0, np.pi / 2], # theta 
-	  [-100., 100.], # pR,
+	  [0, 100.], # pR,
 	  [-100., 100.], # pT
 ]
 
@@ -79,7 +79,7 @@ def cycle(T):
     
     # turns out that neval = 3*10**5 is too small
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 3 * 10**5)
+    result = integ(_integrand, nitn = 50, neval = 5 * 10**5)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
     return result.mean
@@ -97,12 +97,16 @@ def eval_constant(Temperature, integral):
     Q_complex = (2 * np.pi * complex_mass * k * Temperature / h**2)**(1.5)
     print 'Q complex: {0}'.format(Q_complex)
 
-    pre_constant = Q_complex / Q_Ar / Q_CO2 / h**4 * atomic_length_unit * atomic_momentum_unit * pR_unit * pT_unit / (R * Temperature)
+    pre_constant = Q_complex / Q_Ar / Q_CO2 / (R * Temperature)
     print 'pre_constant: {0}'.format(pre_constant)
 
     # 8 * np.pi**2 comes from variable change (Jx, Jy, Jz) -> (J, theta, varphi)
+    # (h_bar)**5 comes from expressions in integral
+    # h_bar**5 / h**5 gives 1/(2 * pi)**5
+    # 2 comes from R: [-inf, inf] to [0, inf]
+    # 2 comes from pR: [-inf, inf] to [0, inf]
     # 4 comes from theta: [0, 2 * np.pi] -> [0, np.pi/2]
-    constant = pre_constant * integral * pressure_coeff * 8 * np.pi**2 * 4
+    constant = pre_constant * integral / h / (4 * np.pi**3) * pressure_coeff* 4 * 2 * 2
     print 'Constant: {0}'.format(constant)
 
     # h**2 comes from integrand (J**2 in jacobian)
@@ -115,7 +119,7 @@ def save_constants(temperatures, constants):
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = [280 + 5 * i for i in range(30)]
+temperatures = [200 + 5 * i for i in range(30)]
 constants = []
 
 for temperature in temperatures:
