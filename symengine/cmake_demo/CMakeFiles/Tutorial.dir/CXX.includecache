@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/symengine/cmake_demo/tutorial.cpp
+stdio.h
+-
+stdlib.h
+-
+math.h
+-
+

@@ -1,0 +1,1 @@
+/usr/bin/c++      CMakeFiles/Tutorial.dir/tutorial.o  -o Tutorial -rdynamic 

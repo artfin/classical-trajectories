@@ -1,0 +1,3 @@
+/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/symengine/symengine_add/CMakeFiles/rebuild_cache.dir
+/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/symengine/symengine_add/CMakeFiles/edit_cache.dir
+/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/symengine/symengine_add/CMakeFiles/main.dir

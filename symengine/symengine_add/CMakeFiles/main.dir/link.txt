@@ -1,0 +1,1 @@
+/usr/bin/c++      CMakeFiles/main.dir/main.cpp.o  -o main -rdynamic /usr/lib/libsymengine.so -lgmp -lmpc -lmpfr 

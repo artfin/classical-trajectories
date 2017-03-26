@@ -15,10 +15,12 @@
 #main: main.o add.o
 	#$(CC) -o main main.o add.o -I.
 
+# But we need to all .cpp files to be dependent on certain .h files.
+
 # Makefile 3
 
 CC = g++
-CFLAGS = -I.
+CFLAGS = -std=c++11
 DEPS = add.h
 
 %.o: %.cpp $(DEPS)

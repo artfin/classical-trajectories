@@ -1,5 +1,5 @@
 #include <iostream>
-#include <chrono>
+#include <chrono> 
 
 #include <symengine/basic.h>
 #include <symengine/add.h>
@@ -23,13 +23,33 @@ using SymEngine::rcp_dynamic_cast;
 
 int main(int argc, char *argv[])
 {
-    SymEngine::print_stack_on_segfault();
+    //SymEngine::print_stack_on_segfault();
 
     RCP<const Basic> x = symbol("x");
     RCP<const Basic> a, c;
 
+    int N = 3000;
+    a = x;
+    c = integer(1);
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    for (int i = 0; i < N; i++) {
+        a = add(a, mul(c, pow(x, integer(i))));
+        c = mul(c, integer(-1));
+    }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << "ms" << std::endl;
     return 0;
 }
+                
+
+
+
+
+
 
 
 

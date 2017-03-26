@@ -42,26 +42,20 @@ def integrand(x, Temperature):
     else:
 	return 0.0
 
-limits = [[0., 100], # J
+limits = [[0., 1000], # J
 	  [0., 2 * np.pi], # alpha (J varphi)
 	  [0, np.pi], # beta (J theta)
-	  [0, 100.], # R 
+	  [0, 1000.], # R 
 	  [0, np.pi / 2], # theta 
-	  [0, 100.], # pR,
-	  [-100., 100.], # pT
+	  [0, 1000.], # pR,
+	  [-1000., 1000.], # pT
 ]
 
 h = 6.626070040*10**(-34)
+h_bar = h / (2 * np.pi)
 
 atomic_mass_unit = 9.1093826 * 10**(-31) # kg
-atomic_time_unit = 2.418884326505 * 10**(-17) # s
 atomic_length_unit = 5.291772 * 10**(-11) # m
-atomic_momentum_unit = atomic_mass_unit * atomic_length_unit**2 / atomic_time_unit # kg * m**2 / s equals h/(2 * pi)
-pR_unit = atomic_mass_unit * atomic_length_unit / atomic_time_unit  # kg * m / s
-pT_unit = atomic_mass_unit * atomic_length_unit**2 / atomic_time_unit # kg * m**2 / s
-print 'atomic mometum unit: {0}'.format(atomic_momentum_unit)
-print 'pR_unit: {0}'.format(pR_unit)
-print 'pT_unit: {0}'.format(pT_unit)
 
 amu = 1.66053904 * 10**(-27) # amu to kg
 complex_mass = 84 * amu
@@ -70,7 +64,6 @@ ar_mass = 40 * amu
 m1 = 16 * amu
 r0 = 116.3 * 10**(-12) # c=o distance in m
 pressure_coeff = 9.869 * 10**(-6) # between pascals and atmospheres
-R = 8.314
 
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
@@ -79,7 +72,7 @@ def cycle(T):
     
     # turns out that neval = 3*10**5 is too small
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 5 * 10**5)
+    result = integ(_integrand, nitn = 50, neval = 3 * 10**6)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
     return result.mean
@@ -91,7 +84,7 @@ def eval_constant(Temperature, integral):
     print 'Q Ar: {0}'.format(Q_Ar)
     
     # symmetry number = 2
-    Q_CO2 = 8 * np.pi**2 * k * Temperature / h**2 * m1 * r0**2 * (2 * np.pi * co2_mass * k * Temperature / h**2)**(1.5)
+    Q_CO2 = 16 * np.pi**2 * k * Temperature / h**2 * m1 * r0**2 * (2 * np.pi * co2_mass * k * Temperature / h**2)**(1.5)
     print 'Q_CO2: {0}'.format(Q_CO2)
 
     Q_complex = (2 * np.pi * complex_mass * k * Temperature / h**2)**(1.5)
@@ -106,11 +99,9 @@ def eval_constant(Temperature, integral):
     # 2 comes from R: [-inf, inf] to [0, inf]
     # 2 comes from pR: [-inf, inf] to [0, inf]
     # 4 comes from theta: [0, 2 * np.pi] -> [0, np.pi/2]
-    constant = pre_constant * integral / h / (4 * np.pi**3) * pressure_coeff* 4 * 2 * 2
+    constant = pre_constant * integral / (4 * np.pi**3) * pressure_coeff* 4 * 2 * 2
     print 'Constant: {0}'.format(constant)
 
-    # h**2 comes from integrand (J**2 in jacobian)
-    
     print '*'*30 + '\n'
     return constant
 
