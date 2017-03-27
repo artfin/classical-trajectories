@@ -54,14 +54,15 @@ def cycle(T):
     return SVC_correction
 
 def save_data(temperatures, svc_corrections):
-    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/hutson/SVC1_r_hutson.dat'
+    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC1r_experimental_points.dat'
 
     with open(filename, mode = 'w') as out:
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-temperatures = [100 + 10 * i for i in range(71)]
+# temperatures = [100 + 10 * i for i in range(71)]
+temperatures = [213., 223., 242., 248.2, 262., 273.2, 276., 288.2, 290., 295., 296., 296.15, 300., 303.15, 303.2, 310.0, 313.2, 320.0, 322.85, 323.1, 330.0, 333.15, 363.15, 365., 400., 425., 450., 475.]
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)

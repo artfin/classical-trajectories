@@ -37,7 +37,7 @@ print 'len(temperatures2): {0}'.format(len(temperatures2))
 print 'len(temperatures3): {0}'.format(len(temperatures3))
 
 
-lowest_temperature = 100
+lowest_temperature = 200
 highest_temperature = 500
 #temperatures1, parker_svc = cut_data(temperatures1, parker_svc, 800)
 temperatures2, hutson_svc = cut_data(temperatures2, hutson_svc, lowest_temperature, highest_temperature)
@@ -69,12 +69,13 @@ blue_patch = mpatches.Patch(color = 'blue', label = 'New Ab-Initio potential')
 temperatures = [213., 213., 223., 223.2, 242., 242., 248.2, 262., 273.2, 276., 276., 288.2, 
         290.0, 290.0, 295., 295., 296., 296.15, 300.,
         300.0, 303.15, 303.2, 310., 313.2, 320., 322.85, 323.1, 330., 330., 333.15, 363.15,
-        365., 400., 400., 425., 450., 475.]
+        365., 400., 400., 425., 450., 450., 475.]
 
 svcs = [-86.3, -94.0, -75.5, -74.8, -62.9, -70.0, -58.4, -50.8, -50.6, -43.4, -51.0, -40.3,
         -45.2, -46.4, -37.2, -44.0, -37.0, -44.1, -40.8,
         -41.7, -31.8, -34.2, -38.6, -31.2, -35.3, -30.1, -28.3, -27.3, -35.0, -25.8, -19.6,
         -16.2, -6.0, -13.0, -3.1, 0.5, -7.0, 1.7]
+
 errors = [5., 7., 5.0, 1.0, 5.0, 7.0, 1.0, 5.0, 1.0, 5.0, 6.0, 2.0,
           1.4, 4.0, 5.0, 6.0, 2.0, 5.0, 1.3,
           4.0, 4.6, 2.0, 4.0, 2.0, 1.3, 2.0, 2.0, 5.0, 5.0, 4.2, 4.2,
@@ -83,7 +84,7 @@ errors = [5., 7., 5.0, 1.0, 5.0, 7.0, 1.0, 5.0, 1.0, 5.0, 6.0, 2.0,
 
 for temperature, svc, error in zip(temperatures, svcs, errors):
     plt.scatter(temperature, svc, marker = '*', color = 'k') 
-    plt.errorbar(temperature, svc, error, color = 'k', fmt = "*--")
+    #plt.errorbar(temperature, svc, error, color = 'k', fmt = "*--")
 
 error_patch = mpatches.Patch(color = 'k', label = 'Dymond-Smith Data')
 
@@ -92,4 +93,4 @@ plt.legend(handles = [error_patch, orange_patch, blue_patch])
 plt.grid()
 #plt.show()
 
-plt.savefig('Exp_Hutson_Julia2.png')
+plt.savefig('Exp_Hutson_Julia1.png')

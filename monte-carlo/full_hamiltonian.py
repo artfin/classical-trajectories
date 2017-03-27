@@ -42,13 +42,13 @@ def integrand(x, Temperature):
     else:
 	return 0.0
 
-limits = [[0., 1000], # J
+limits = [[0., 100], # J
 	  [0., 2 * np.pi], # alpha (J varphi)
 	  [0, np.pi], # beta (J theta)
-	  [0, 1000.], # R 
+	  [0, 100.], # R 
 	  [0, np.pi / 2], # theta 
-	  [0, 1000.], # pR,
-	  [-1000., 1000.], # pT
+	  [0, 100.], # pR,
+	  [-100., 100.], # pT
 ]
 
 h = 6.626070040*10**(-34)
@@ -72,7 +72,7 @@ def cycle(T):
     
     # turns out that neval = 3*10**5 is too small
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 3 * 10**6)
+    result = integ(_integrand, nitn = 50, neval = 10**6)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
     return result.mean

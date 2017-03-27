@@ -59,7 +59,9 @@ def save_data(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-temperatures = [100 + i for i in range(201)]
+#temperatures = [100 + i for i in range(101)]
+temperatures = [213., 223., 242., 248.2, 262., 273.2, 276., 288.2, 290., 295., 296., 296.15, 300., 303.15, 303.2, 310.0, 313.2, 320.0, 322.85, 323.1, 330.0, 333.15, 363.15, 365., 400., 425., 450., 475.]
+
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 
 save_data(temperatures, svc_corrections)
