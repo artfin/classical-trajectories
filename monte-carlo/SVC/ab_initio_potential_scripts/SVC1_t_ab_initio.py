@@ -31,7 +31,7 @@ def integrand(x, Temperature):
 def initialization(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[3., 20.], [0., np.pi]])
+    integ = vegas.Integrator([[0., 20.], [0., np.pi]])
     start = time()
     result = integ(_integrand, nitn = 20, neval = 40000)
     print 'Time needed: {0}'.format(time() - start)

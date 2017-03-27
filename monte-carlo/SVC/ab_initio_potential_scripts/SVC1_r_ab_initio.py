@@ -41,7 +41,7 @@ def initialization(T):
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[3., 50.], [0., np.pi]])
+    integ = vegas.Integrator([[0., 50.], [0., np.pi]])
     start = time()
     result = integ(_integrand, nitn = 20, neval = 15000)
 	

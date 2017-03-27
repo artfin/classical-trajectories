@@ -40,7 +40,7 @@ def integrand(x, Temperature):
     if hamiltonian_value < 0:
         return x[0]**2 * np.sin(x[2]) * np.exp(- hamiltonian_value * htoj / (k * Temperature))
     else:
-	return 0.0
+        return 0.0
 
 limits = [[0., 100], # J
 	  [0., 2 * np.pi], # alpha (J varphi)
@@ -72,7 +72,7 @@ def cycle(T):
     
     # turns out that neval = 3*10**5 is too small
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 10**6)
+    result = integ(_integrand, nitn = 50, neval = 5 * 10**5)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
     return result.mean
@@ -98,8 +98,8 @@ def eval_constant(Temperature, integral):
     # h_bar**5 / h**5 gives 1/(2 * pi)**5
     # 2 comes from R: [-inf, inf] to [0, inf]
     # 2 comes from pR: [-inf, inf] to [0, inf]
-    # 4 comes from theta: [0, 2 * np.pi] -> [0, np.pi/2]
-    constant = pre_constant * integral / (4 * np.pi**3) * pressure_coeff* 4 * 2 * 2
+    # 2 comes from theta: [0,  np.pi] -> [0, np.pi/2]
+    constant = pre_constant * integral / (4 * np.pi**3) * pressure_coeff* 2 * 2 * 2
     print 'Constant: {0}'.format(constant)
 
     print '*'*30 + '\n'
