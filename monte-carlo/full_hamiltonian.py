@@ -21,34 +21,42 @@ mu1, mu2 = symbols('mu1 mu2')
 pR, pT = symbols('p_R p_theta')
 l = symbols('l')
 
+pseudo_kinetic_energy = pR**2 / (2 * mu2)
+
 kinetic_energy = pR**2 / (2 * mu2) + (1 / (2 * mu2 * R**2) + 1 / (2 * mu1 * l**2)) * pT**2 - pT * J * sin(alpha) * sin(beta) / (mu2 * R**2) + (J * sin(alpha) * sin(beta))**2 / (2 * mu2 * R**2) + (J * cos(alpha) * sin(beta))**2 / (2 * mu2 * R**2) + (J * cos(beta))**2 / (2 * sin(theta)**2) * (cos(theta)**2 / (mu2 * R**2) + 1 / (mu1 * l**2)) + J * cos(alpha) * sin(beta) * cos(beta) / (mu2 * R**2 * tan(theta))
-
 kinetic_energy = kinetic_energy.subs({'mu1': 14579., 'mu2': 36440., 'l': 4.398})
+_kinetic_energy = lambdify((J, alpha, beta, R, pR, theta, pT), kinetic_energy)
 
-_kinetic_energy = lambdify((J, alpha, beta, R, theta, pR, pT), kinetic_energy)
-hamiltonian = lambda J, alpha, beta, R, theta, pR, pT: \
-    _kinetic_energy(J, alpha, beta, R, theta, pR, pT) + potential(R, theta)
+pseudo_kinetic_energy = pseudo_kinetic_energy.subs({'mu2': 36440.})
+_pseudo_kinetic_energy = lambdify((J, alpha, beta, R, pR, theta, pT), pseudo_kinetic_energy)
+pseudo_hamiltonian = lambda J, alpha, beta, R, pR, theta, pT: \
+        _pseudo_kinetic_energy(J, alpha, beta, R, pR, theta, pT)
+
+hamiltonian = lambda J, alpha, beta, R, pR, theta, pT: \
+    _kinetic_energy(J, alpha, beta, R, pR, theta, pT) + potential(R, theta)
 
 k = 1.38064852 * 10**(-23) # J/K
 htoj = 4.35974417 * 10**(-18) # hartree to Joules
-R = 8.314
+R = 8.314 # J / mol / K
+avogadro = 6.022 * 10**(23) # mol^-1
 
 def integrand(x, Temperature):
-    # x = [J, alpha, beta, R, theta, pR, pT]
+    # x = [J, alpha, beta, R, pR, theta, pT]
     hamiltonian_value = hamiltonian(*x)
+    pseudo_hamiltonian_value = pseudo_hamiltonian(*x)
 
     if hamiltonian_value < 0:
         return x[0]**2 * np.sin(x[2]) * np.exp(- hamiltonian_value * htoj / (k * Temperature))
     else:
         return 0.0
 
-limits = [[0., 100], # J
+limits = [[0., 50], # J
 	  [0., 2 * np.pi], # alpha (J varphi)
 	  [0, np.pi], # beta (J theta)
-	  [0, 100.], # R 
-	  [0, np.pi / 2], # theta 
-	  [0, 100.], # pR,
-	  [-100., 100.], # pT
+	  [0, 50.], # R
+          [-100., 100.], # pR
+	  [0, np.pi], # theta 
+	  [-50., 50.], # pT
 ]
 
 h = 6.626070040*10**(-34)
@@ -70,9 +78,8 @@ def cycle(T):
 
     integ = vegas.Integrator(limits)
     
-    # turns out that neval = 3*10**5 is too small
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 5 * 10**5)
+    result = integ(_integrand, nitn = 50, neval = 2 * 10**5)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
     return result.mean
@@ -80,14 +87,14 @@ def cycle(T):
 def eval_constant(Temperature, integral):
 
     print 'Temperature: {0}'.format(Temperature)
-    Q_Ar = (2 * np.pi * ar_mass * k * Temperature / h**2)**(1.5)
+    Q_Ar = (2 * np.pi * ar_mass * k * Temperature / h**2)**(1.5) / avogadro
     print 'Q Ar: {0}'.format(Q_Ar)
     
     # symmetry number = 2
-    Q_CO2 = 16 * np.pi**2 * k * Temperature / h**2 * m1 * r0**2 * (2 * np.pi * co2_mass * k * Temperature / h**2)**(1.5)
+    Q_CO2 = 16 * np.pi**2 * k * Temperature / h**2 * m1 * r0**2 * (2 * np.pi * co2_mass * k * Temperature / h**2)**(1.5) / avogadro
     print 'Q_CO2: {0}'.format(Q_CO2)
 
-    Q_complex = (2 * np.pi * complex_mass * k * Temperature / h**2)**(1.5)
+    Q_complex = (2 * np.pi * complex_mass * k * Temperature / h**2)**(1.5) / avogadro
     print 'Q complex: {0}'.format(Q_complex)
 
     pre_constant = Q_complex / Q_Ar / Q_CO2 / (R * Temperature)
@@ -96,10 +103,7 @@ def eval_constant(Temperature, integral):
     # 8 * np.pi**2 comes from variable change (Jx, Jy, Jz) -> (J, theta, varphi)
     # (h_bar)**5 comes from expressions in integral
     # h_bar**5 / h**5 gives 1/(2 * pi)**5
-    # 2 comes from R: [-inf, inf] to [0, inf]
-    # 2 comes from pR: [-inf, inf] to [0, inf]
-    # 2 comes from theta: [0,  np.pi] -> [0, np.pi/2]
-    constant = pre_constant * integral / (4 * np.pi**3) * pressure_coeff* 2 * 2 * 2
+    constant = pre_constant * integral / (4 * np.pi**3) * pressure_coeff
     print 'Constant: {0}'.format(constant)
 
     print '*'*30 + '\n'
@@ -110,7 +114,7 @@ def save_constants(temperatures, constants):
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = [200 + 5 * i for i in range(30)]
+temperatures = [200 + 5 * i for i in range(20)]
 constants = []
 
 for temperature in temperatures:

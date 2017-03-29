@@ -27,6 +27,11 @@ class Lagrange(object):
         self.a = self.calculate_a_matrix()
         self.A = self.calculate_A_matrix()
 
+        print 'inertia tensor: {0}'.format(self.I)
+        print 'a: {0}'.format(self.a)
+        print 'A: {0}'.format(self.A)
+
+
     def calculate_inertia_tensor(self):
         Ixx = Add(*[particle['m'] * (particle['y']**2 + particle['z']**2) for particle in self.particles]).simplify()
         Iyy = Add(*[particle['m'] * (particle['x']**2 + particle['z']**2) for particle in self.particles]).simplify()
