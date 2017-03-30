@@ -1,4 +1,4 @@
-#include <chrono>
+// #include <chrono>
 
 #include <iostream>
 #include <math.h>
@@ -83,7 +83,7 @@ void fill_A_matrix(Matrix<double, 3, 2> &A, double &R, double &theta)
     //cout << "A matrix:" << endl << A << endl;
 }
 
-double* hamiltonian(double R, double theta, double pR, double pT, double J, double alpha, double beta)
+void hamiltonian(double* out, double R, double theta, double pR, double pT, double J, double alpha, double beta)
 {
     //declaring angular momentum and its derivatives
     Vector3d j_vector(J * cos(alpha) * sin(beta),
@@ -147,10 +147,10 @@ double* hamiltonian(double R, double theta, double pR, double pT, double J, doub
     //cout << "ang_term: " << ang_term << endl;
     //cout << "kin_term: " << kin_term << endl;
     //cout << "cor_term: " << cor_term << endl;
+    
+    double ham_value = ang_term = kin_term + cor_term;
 
-    double h = ang_term = kin_term + cor_term;
-
-    //cout << "Hamiltonian: " << h << endl;
+    //cout << "Hamiltonian: " << hamiltonian << endl;
 
     Matrix<double, 3, 3> G11_dr;
     Matrix<double, 3, 3> G11_dtheta;
@@ -195,21 +195,14 @@ double* hamiltonian(double R, double theta, double pR, double pT, double J, doub
     double cor_term_dbeta = j_vector_dbeta.transpose() * G12 * p_vector;
 
     double h_dbeta = ang_term_dbeta + cor_term_dbeta;
-
-    //cout << "h_dalpha: " << h_dalpha << endl;
-    //cout << "h_dbeta: " << h_dbeta << endl;
-   
-    double *res = new double[7];
-
-    res[0] = h;
-    res[1] = h_dr;
-    res[2] = h_dtheta;
-    res[3] = h_dp(0);
-    res[4] = h_dp(1);
-    res[5] = h_dalpha;
-    res[6] = h_dbeta;
     
-    return res;
+    out[0] = ham_value;
+    out[1] = h_dr;
+    out[2] = h_dtheta;
+    out[3] = h_dp(0);
+    out[4] = h_dp(1);
+    out[5] = h_dalpha;
+    out[6] = h_dbeta;
 }
 
 int main()
@@ -221,24 +214,24 @@ int main()
     double beta = 0.55;
     double pR = -10.;
     double pT = 0.1;
-    
+
+    double h;
+    double* derivatives = new double[6];
+
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now(); 
-    
+
     for (int i = 0; i < 100000; i++)
     {
-        double* res = hamiltonian(R, theta, pR, pT, J, alpha, beta); 
-        delete[] res;
+        hamiltonian(h, derivatives, R, theta, pR, pT, J, alpha, beta);
+        // printf("hamiltonian: %lf; derivative: %lf\n", h, derivatives[0]); 
     }
 
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "elapsed time: " << elapsed_seconds.count() / 100000 * pow(10, 6) << "microseconds\n";
-    
-    //for (int i = 0; i < 7; i++ ) {
-        //cout << res[i] << endl;
-    //}
 
+    delete[] derivatives;
 
     return 0;
 }
