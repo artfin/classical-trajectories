@@ -1,8 +1,15 @@
-from ham import __ham__ as hamiltonian
+from ham import __rhs__ as rhs
 import numpy as np
+from time import time
 
-out = np.array([0,0,0,0,0,0,0], dtype = 'double')
+# preparing np.array() for right-hand sides to be put in
+out = np.array([0,0,0,0,0,0], dtype = 'double')
 
-hamiltonian(out, 1.0, 0.55, 10.0, 2.0, 10.0, 0.55, 0.1)
+attempts = int(1e5)
 
-print out
+start = time()
+for i in range(attempts):
+    rhs(out, 1.0, 0.55, 10.0, 2.0, 10.0, 0.55, 0.1)
+print 'Time needed: {0} microseconds'.format((time() - start) / attempts * 10e6)
+
+

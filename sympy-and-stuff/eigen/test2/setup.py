@@ -13,6 +13,6 @@ setup(
         sources = ["wrapper.pyx", "hamiltonian.cpp"],
         include_dirs=[numpy.get_include(), "/usr/local/include/eigen3/"],
         language="c++",
-        extra_compiles_args=['-O3', '-fPIC', '-march=native'],
+        extra_compiles_args=['-O3', '-fPIC', '-march=native', '-mtune=native', '-funroll-loops'],
         )]
 )
