@@ -1,4 +1,4 @@
-//#include <chrono>
+#include <chrono>
 
 #include <iostream>
 #include <math.h>
@@ -132,6 +132,10 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
 
     G12.noalias() = - G11 * A * a.inverse();
     
+    cout << "G11: " << endl << G11 << endl;
+    cout << "G12: " << endl << G12 << endl;
+    cout << "G22: " << endl << G22 << endl;
+    
     Matrix<double, 3, 3> G11_dr;
     Matrix<double, 3, 3> G11_dtheta;
     Matrix<double, 2, 2> G22_dr;
@@ -144,10 +148,10 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     G11_dr = - G11 * I_dr * G11;
     G11_dtheta = - G11 * I_dtheta * G11;
 
-    G22_dr = G22 * A.transpose() * I_inv * I_dr * I_inv * A * G22;
-    G22_dtheta = G22 * A.transpose() * I_inv * I_dtheta * I_inv * A * G22;
+    G22_dr = - G22 * A.transpose() * I_inv * I_dr * I_inv * A * G22;
+    G22_dtheta = - G22 * A.transpose() * I_inv * I_dtheta * I_inv * A * G22;
 
-    G12_dr = -G11_dr * A * a_inv;
+    G12_dr = - G11_dr * A * a_inv;
     G12_dtheta = -G11_dtheta * A * a_inv;
 
     double ang_term, kin_term, cor_term;
@@ -157,6 +161,8 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     cor_term = j_vector.transpose() * G12_dr * p_vector;
 
     double h_dr = ang_term + kin_term + cor_term;
+    printf("ang_term: %lf; kin_term: %lf; cor_term: %lf\n", ang_term, kin_term, cor_term);
+    printf("dh dr: %lf\n", h_dr);
 
     ang_term = 0.5 * j_vector.transpose() * G11_dtheta * j_vector;
     kin_term = 0.5 * p_vector.transpose() * G22_dtheta * p_vector;
@@ -790,36 +796,34 @@ void rhs(double* out, double R, double theta, double pR, double pT, double alpha
     delete[] derivatives;
 }
 
-//int main()
-//{
-    //double R = 1.0;
-    //double theta = M_PI / 2;
-    //double J = 10;
-    //double alpha = 0.05;
-    //double beta = 0.55;
-    //double pR = -10.;
-    //double pT = 0.1;
+int main()
+{
+    double R = 5.0;
+    double theta = M_PI / 2;
+    double J = 10;
+    double alpha = 0.05;
+    double beta = 0.55;
+    double pR = -10.;
+    double pT = 0.1;
 
-    //std::chrono::time_point<std::chrono::system_clock> start, end;
-    //start = std::chrono::system_clock::now(); 
-    
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now(); 
+
     //double* output = new double[6];
+    double *derivatives = new double[6];
 
-    ////for (int j = 0; j < 6; ++j)
-    ////{
-        ////printf("output[%d]: %lf\n", j, output[j]); 
-    ////}
-    //for (int i = 0; i < 100000; i++)
-    //{
-        ////hamiltonian(h, derivatives, R, theta, pR, pT, J, alpha, beta);
+    for (int i = 0; i < 1; i++)
+    {
+        hamiltonian(derivatives, R, theta, pR, pT, J, alpha, beta);
         //rhs(output, R, theta, pR, pT, J, alpha, beta);
-    //}
-    
+    }
+
+    delete[] derivatives;
     //delete[] output;
 
-    //end = std::chrono::system_clock::now();
-    //std::chrono::duration<double> elapsed_seconds = end - start;
-    //std::cout << "elapsed time: " << elapsed_seconds.count() / 100000 * pow(10, 6) << "microseconds\n";
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::cout << "elapsed time: " << elapsed_seconds.count() / 100000 * pow(10, 6) << "microseconds\n";
 
-    //return 0;
-//}
+    return 0;
+}
