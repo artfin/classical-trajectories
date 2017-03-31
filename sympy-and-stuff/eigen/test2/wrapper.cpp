@@ -1442,7 +1442,7 @@ static PyObject *__pyx_n_s_rhs;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_theta;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
-static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_J, double __pyx_v_alpha, double __pyx_v_beta); /* proto */
+static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_alpha, double __pyx_v_beta); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tuple_;
@@ -1460,7 +1460,7 @@ static PyObject *__pyx_codeobj__11;
 /* "wrapper.pyx":14
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double J, double alpha, double beta):             # <<<<<<<<<<<<<<
+ * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
  *     """
  *         Input:
  */
@@ -1475,20 +1475,18 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
   double __pyx_v_theta;
   double __pyx_v_pR;
   double __pyx_v_pT;
-  double __pyx_v_J;
   double __pyx_v_alpha;
   double __pyx_v_beta;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__rhs__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_out,&__pyx_n_s_R,&__pyx_n_s_theta,&__pyx_n_s_pR,&__pyx_n_s_pT,&__pyx_n_s_J,&__pyx_n_s_alpha,&__pyx_n_s_beta,0};
-    PyObject* values[8] = {0,0,0,0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_out,&__pyx_n_s_R,&__pyx_n_s_theta,&__pyx_n_s_pR,&__pyx_n_s_pT,&__pyx_n_s_alpha,&__pyx_n_s_beta,0};
+    PyObject* values[7] = {0,0,0,0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
         case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
         case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
         case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
@@ -1507,43 +1505,38 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_R)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 1); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 1); __PYX_ERR(0, 14, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_theta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 2); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 2); __PYX_ERR(0, 14, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pR)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 3); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 3); __PYX_ERR(0, 14, __pyx_L3_error)
         }
         case  4:
         if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pT)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 4); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 4); __PYX_ERR(0, 14, __pyx_L3_error)
         }
         case  5:
-        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_J)) != 0)) kw_args--;
+        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_alpha)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 5); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 5); __PYX_ERR(0, 14, __pyx_L3_error)
         }
         case  6:
-        if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_alpha)) != 0)) kw_args--;
+        if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_beta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 6); __PYX_ERR(0, 14, __pyx_L3_error)
-        }
-        case  7:
-        if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_beta)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, 7); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 6); __PYX_ERR(0, 14, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__rhs__") < 0)) __PYX_ERR(0, 14, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 8) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 7) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -1553,27 +1546,25 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
       values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
       values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
     }
     __pyx_v_out = ((PyArrayObject *)values[0]);
     __pyx_v_R = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_R == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
     __pyx_v_theta = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_theta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
     __pyx_v_pR = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_pR == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
     __pyx_v_pT = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_pT == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_J = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_J == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_alpha = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_alpha == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_beta = __pyx_PyFloat_AsDouble(values[7]); if (unlikely((__pyx_v_beta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    __pyx_v_alpha = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_alpha == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    __pyx_v_beta = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_beta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 8, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 14, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 14, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("ham.__rhs__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_out), __pyx_ptype_5numpy_ndarray, 1, "out", 0))) __PYX_ERR(0, 14, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3ham___rhs__(__pyx_self, __pyx_v_out, __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_J, __pyx_v_alpha, __pyx_v_beta);
+  __pyx_r = __pyx_pf_3ham___rhs__(__pyx_self, __pyx_v_out, __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta);
 
   /* function exit code */
   goto __pyx_L0;
@@ -1584,7 +1575,8 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_J, double __pyx_v_alpha, double __pyx_v_beta) {
+static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_alpha, double __pyx_v_beta) {
+  long __pyx_v_J;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_out;
   __Pyx_Buffer __pyx_pybuffer_out;
   PyObject *__pyx_r = NULL;
@@ -1604,15 +1596,24 @@ static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArr
   /* "wrapper.pyx":22
  *             are put in the given np.array()
  *     """
- *     rhs(&out[0], R, theta, pR, pT, J, alpha, beta)             # <<<<<<<<<<<<<<
+ *     J = 15             # <<<<<<<<<<<<<<
+ *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
  *     return None
  */
-  __pyx_t_1 = 0;
-  rhs((&(*__Pyx_BufPtrCContig1d(double *, __pyx_pybuffernd_out.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_out.diminfo[0].strides))), __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_J, __pyx_v_alpha, __pyx_v_beta);
+  __pyx_v_J = 15;
 
   /* "wrapper.pyx":23
  *     """
- *     rhs(&out[0], R, theta, pR, pT, J, alpha, beta)
+ *     J = 15
+ *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)             # <<<<<<<<<<<<<<
+ *     return None
+ */
+  __pyx_t_1 = 0;
+  rhs((&(*__Pyx_BufPtrCContig1d(double *, __pyx_pybuffernd_out.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_out.diminfo[0].strides))), __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta, __pyx_v_J);
+
+  /* "wrapper.pyx":24
+ *     J = 15
+ *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
  *     return None             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
@@ -1623,7 +1624,7 @@ static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArr
   /* "wrapper.pyx":14
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double J, double alpha, double beta):             # <<<<<<<<<<<<<<
+ * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
  *     """
  *         Input:
  */
@@ -4328,14 +4329,14 @@ static int __Pyx_InitCachedConstants(void) {
   /* "wrapper.pyx":14
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double J, double alpha, double beta):             # <<<<<<<<<<<<<<
+ * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
  *     """
  *         Input:
  */
-  __pyx_tuple__10 = PyTuple_Pack(8, __pyx_n_s_out, __pyx_n_s_R, __pyx_n_s_theta, __pyx_n_s_pR, __pyx_n_s_pT, __pyx_n_s_J, __pyx_n_s_alpha, __pyx_n_s_beta); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(8, __pyx_n_s_out, __pyx_n_s_R, __pyx_n_s_theta, __pyx_n_s_pR, __pyx_n_s_pT, __pyx_n_s_alpha, __pyx_n_s_beta, __pyx_n_s_J); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
-  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(8, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_rhs, 14, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(7, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_rhs, 14, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4469,7 +4470,7 @@ PyMODINIT_FUNC PyInit_ham(void)
   /* "wrapper.pyx":14
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double J, double alpha, double beta):             # <<<<<<<<<<<<<<
+ * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
  *     """
  *         Input:
  */
