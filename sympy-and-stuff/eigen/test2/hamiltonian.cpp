@@ -1,4 +1,4 @@
-#include <chrono>
+//#include <chrono>
 
 #include <iostream>
 #include <math.h>
@@ -8,8 +8,8 @@
 using namespace Eigen;
 using namespace std;
 
-const double mu1 = 14579;
-const double mu2 = 36440;
+const double mu1 = 14579.0;
+const double mu2 = 36440.0;
 const double l = 4.398; 
 
 void inertia_tensor_dR(Matrix3d &i_dr, double &R, double &theta)
@@ -29,7 +29,7 @@ void inertia_tensor_dtheta(Matrix3d &i_dt, double &R, double &theta)
 
     i_dt(0, 0) = - 2 * mu1 * l2 * sin_t * cos_t;
     i_dt(1, 0) = 0;
-    i_dt(2, 0) = i_dt(2, 0) = - mu1 * l2 * (cos_t * cos_t - sin_t * sin_t);
+    i_dt(2, 0) = i_dt(0, 2) = - mu1 * l2 * (cos_t * cos_t - sin_t * sin_t);
 
     i_dt(1, 2) = 0;
     i_dt(2, 2) = - i_dt(0, 0); 
@@ -43,7 +43,7 @@ void inertia_tensor(Matrix3d &inertia_tensor, double &R, double &theta)
     double cos_t = cos(theta);
     double l2 = l * l;
     double R2 = R * R;
-    
+
     inertia_tensor(0, 0) = mu1 * l2 * cos_t * cos_t + mu2 * R2; 
     inertia_tensor(1, 0) = 0;
     inertia_tensor(2, 0) = -mu1 * l2 * sin_t * cos_t;
@@ -55,8 +55,6 @@ void inertia_tensor(Matrix3d &inertia_tensor, double &R, double &theta)
     inertia_tensor(0, 1) = 0;
     inertia_tensor(1, 1) = inertia_tensor(0, 0) + inertia_tensor(2, 2);
     inertia_tensor(2, 1) = 0;
-
-    //cout << "Inertia tensor matrix:" << endl << inertia_tensor << endl;
 }
 
 void fill_a_matrix(Matrix2d &a, double &R, double &theta)
@@ -65,8 +63,6 @@ void fill_a_matrix(Matrix2d &a, double &R, double &theta)
     a(0, 1) = 0;
     a(1, 0) = 0;
     a(1, 1) = mu1 * l * l;
-
-    //cout << "a matrix:" << endl << a << endl;
 }
 
 void fill_A_matrix(Matrix<double, 3, 2> &A, double &R, double &theta)
@@ -75,8 +71,6 @@ void fill_A_matrix(Matrix<double, 3, 2> &A, double &R, double &theta)
     A(1, 0) = 0;
     A(1, 1) = mu1 * l * l;
     A(2, 0) = A(2, 1) = 0;
-
-    //cout << "A matrix:" << endl << A << endl;
 }
 
 void hamiltonian(double* out, double R, double theta, double pR, double pT, double alpha, double beta, double J)
@@ -85,7 +79,7 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     Vector3d j_vector(J * cos(alpha) * sin(beta),
                       J * sin(alpha) * sin(beta),
                       J * cos(beta));
-
+    
     Vector3d j_vector_dalpha(- J * sin(alpha) * sin(beta),
                                J * cos(alpha) * sin(beta),
                                0);
@@ -125,16 +119,12 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     t1 = I;
     t1.noalias() -= A * a_inv * A.transpose();
     G11 = t1.inverse();
-   
+  
     t2 = a;
-    t2.noalias() -= A.transpose() * I * A;
+    t2.noalias() -= A.transpose() * I_inv * A;
     G22 = t2.inverse();
 
     G12.noalias() = - G11 * A * a.inverse();
-    
-    cout << "G11: " << endl << G11 << endl;
-    cout << "G12: " << endl << G12 << endl;
-    cout << "G22: " << endl << G22 << endl;
     
     Matrix<double, 3, 3> G11_dr;
     Matrix<double, 3, 3> G11_dtheta;
@@ -147,8 +137,8 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     // derivatives dH/dr and dH/dtheta
     G11_dr = - G11 * I_dr * G11;
     G11_dtheta = - G11 * I_dtheta * G11;
-
-    G22_dr = - G22 * A.transpose() * I_inv * I_dr * I_inv * A * G22;
+   
+    G22_dr = - G22 * A.transpose() * I_inv * I_dr * I_inv * A * G22; 
     G22_dtheta = - G22 * A.transpose() * I_inv * I_dtheta * I_inv * A * G22;
 
     G12_dr = - G11_dr * A * a_inv;
@@ -159,37 +149,35 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     ang_term = 0.5 * j_vector.transpose() * G11_dr * j_vector;
     kin_term = 0.5 * p_vector.transpose() * G22_dr * p_vector;
     cor_term = j_vector.transpose() * G12_dr * p_vector;
-
     double h_dr = ang_term + kin_term + cor_term;
-    printf("ang_term: %lf; kin_term: %lf; cor_term: %lf\n", ang_term, kin_term, cor_term);
-    printf("dh dr: %lf\n", h_dr);
+    
+    //cout << "h_dr: " << h_dr << endl;
 
     ang_term = 0.5 * j_vector.transpose() * G11_dtheta * j_vector;
     kin_term = 0.5 * p_vector.transpose() * G22_dtheta * p_vector;
     cor_term = j_vector.transpose() * G12_dtheta * p_vector;
-
     double h_dtheta = ang_term + kin_term + cor_term;
-
+    
     // (vector of) derivatives dH/dp
     Vector2d h_dp = G22 * p_vector + G12.transpose() * j_vector;
-       
+
     // derivatives dH/dalpha, dH/dbeta
     ang_term = j_vector.transpose() * G11 * j_vector_dalpha;
     cor_term = j_vector_dalpha.transpose() * G12 * p_vector;
+    double h_dalpha = ang_term + cor_term;
 
     ang_term = j_vector.transpose() * G11 * j_vector_dbeta;
     cor_term = j_vector_dbeta.transpose() * G12 * p_vector;
-    // kinetic term is independent of alpha,beta
-    
-    double h_dalpha = ang_term + cor_term;
     double h_dbeta = ang_term + cor_term;
     
-    out[0] = h_dr;
+    out[0] = h_dr; 
     out[1] = h_dtheta;
     out[2] = h_dp(0);
     out[3] = h_dp(1);
     out[4] = h_dalpha;
     out[5] = h_dbeta;
+
+    //cout << "out[0]: " << out[0] << endl;
 }
 
 double* legendre_array(int N, double cosT)
@@ -436,7 +424,7 @@ t86 = -0.40000000000000e-9 * sinT * (-0.24321463482684e18 * t3 + 0.2432146348268
 	t6 = t5 * R;
 	t7 = t6 * cosT;
 	t10 = cosT * R;
-	t13 = t5 * cosT;
+
 	t41 = 0.27588384039338e32 * legP[3] + 0.12283125826839e32 * legP[5] + 0.33664456683974e31 * legP[7] + 0.31211343400517e30 * legP[9] + 0.15072510087296e29 * t7 * legP[6] + 0.79231864339338e31 * t10 * legP[2] - 0.86078125518389e30 * t13 * legP[2] + 0.31121234736231e29 * t7 * legP[2] + 0.88805544934591e31 * t10 * legP[4] - 0.95372857276345e30 * t13 * legP[4] + 0.34179972452864e29 * t7 * legP[4] + 0.39374613341889e31 * t10 * legP[6] - 0.42155726483365e30 * t13 * legP[6] + 0.10821908179209e31 * t10 * legP[8] - 0.11621678422598e30 * t13 * legP[8] + 0.41686272140991e28 * t7 * legP[8] + 0.96644012395254e29 * t10 * legP[10] - 0.99842426270097e28 * t13 * legP[10] + 0.34405559849830e27 * t7 * legP[10] - 0.79231864339338e31 * t10;
 	t79 = 0.24233852291723e32 * cosT - 0.24233852291723e32 * cosT * legP[2] - 0.27588384039338e32 * cosT * legP[4] - 0.12283125826839e32 * cosT * legP[6] - 0.33664456683974e31 * cosT * legP[8] - 0.31211343400517e30 * cosT * legP[10] + 0.86078125518389e30 * t13 - 0.31121234736231e29 * t7 - 0.88805544934591e31 * R * legP[3] + 0.95372857276345e30 * t5 * legP[3] - 0.34179972452864e29 * t6 * legP[3] - 0.39374613341889e31 * R * legP[5] + 0.42155726483365e30 * t5 * legP[5] - 0.15072510087296e29 * t6 * legP[5] - 0.10821908179209e31 * R * legP[7] + 0.11621678422598e30 * t5 * legP[7] - 0.41686272140991e28 * t6 * legP[7] - 0.96644012395254e29 * R * legP[9] + 0.99842426270097e28 * t5 * legP[9] - 0.34405559849830e27 * t6 * legP[9];
 	t82 = cosT * cosT;
@@ -790,40 +778,44 @@ void rhs(double* out, double R, double theta, double pR, double pT, double alpha
     out[1] = derivatives[3]; // /dot(theta) = dH/dpT
     out[2] = - derivatives[0] - derivativeR(R, theta) / 2.1947 * pow(10, -5); // /dot(pR) = - dH/dR = - dT/dR - dU/dR (to hartrees from cm^-1)
     out[3] = - derivatives[1] - derivativeTheta(R, theta) / 2.1947 * pow(10, -5); // /dot(pT) = - dH/dtheta = -dT/dtheta - dU/dtheta (to hartrees from cm^-1)
-    out[4] = 1 / Jsint * derivatives[4]; // /dot(varphi) = 1 / J / sin(teta) * dH/dtheta
-    out[5] = - 1 / Jsint * derivatives[5]; // /dot(theta) = - 1 / J / sin(theta) * dH/dvarphi
+    out[4] = 1 / Jsint * derivatives[5]; // /dot(varphi) = 1 / J / sin(teta) * dH/dtheta
+    out[5] = - 1 / Jsint * derivatives[4]; // /dot(theta) = - 1 / J / sin(theta) * dH/dvarphi
 
     delete[] derivatives;
 }
 
-int main()
-{
-    double R = 5.0;
-    double theta = M_PI / 2;
-    double J = 10;
-    double alpha = 0.05;
-    double beta = 0.55;
-    double pR = -10.;
-    double pT = 0.1;
+//int main()
+//{
+    //double R = 5.0;
+    //double theta = 1.0; 
+    //double J = 10;
+    //double alpha = 0.05;
+    //double beta = 0.55;
+    //double pR = -10.;
+    //double pT = 0.1;
 
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now(); 
+    //std::chrono::time_point<std::chrono::system_clock> start, end;
+    //start = std::chrono::system_clock::now(); 
 
-    //double* output = new double[6];
-    double *derivatives = new double[6];
+    //double *derivatives = new double[6];
 
-    for (int i = 0; i < 1; i++)
-    {
-        hamiltonian(derivatives, R, theta, pR, pT, J, alpha, beta);
-        //rhs(output, R, theta, pR, pT, J, alpha, beta);
-    }
+    //for (int i = 0; i < 1; i++)
+    //{
+        //hamiltonian(derivatives, R, theta, pR, pT, alpha, beta, J);
+    //}
 
-    delete[] derivatives;
-    //delete[] output;
+    //for (int i = 0; i < 6; ++i)
+    //{
+        //cout << "derivatives[" << i << "]: " << derivatives[i] << endl; 
+    //}
 
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "elapsed time: " << elapsed_seconds.count() / 100000 * pow(10, 6) << "microseconds\n";
+    //cout << "derivatives[0]: " << derivatives[0] << endl;
 
-    return 0;
-}
+    //delete[] derivatives;
+
+    //end = std::chrono::system_clock::now();
+    //std::chrono::duration<double> elapsed_seconds = end - start;
+    //std::cout << "elapsed time: " << elapsed_seconds.count() / 100000 * pow(10, 6) << "microseconds\n";
+
+    //return 0;
+//}

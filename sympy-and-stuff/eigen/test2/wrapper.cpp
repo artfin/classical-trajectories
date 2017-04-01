@@ -1404,6 +1404,7 @@ static const char __pyx_k_theta[] = "theta";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_ImportError[] = "ImportError";
+static const char __pyx_k_derivatives[] = "__derivatives__";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_home_artfin_Desktop_repos_class[] = "/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/sympy-and-stuff/eigen/test2/wrapper.pyx";
@@ -1424,6 +1425,7 @@ static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_alpha;
 static PyObject *__pyx_n_s_beta;
+static PyObject *__pyx_n_s_derivatives;
 static PyObject *__pyx_n_s_ham;
 static PyObject *__pyx_kp_s_home_artfin_Desktop_repos_class;
 static PyObject *__pyx_n_s_import;
@@ -1443,6 +1445,7 @@ static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_theta;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_alpha, double __pyx_v_beta); /* proto */
+static PyObject *__pyx_pf_3ham_2__derivatives__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_alpha, double __pyx_v_beta, double __pyx_v_J); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tuple_;
@@ -1455,9 +1458,11 @@ static PyObject *__pyx_tuple__7;
 static PyObject *__pyx_tuple__8;
 static PyObject *__pyx_tuple__9;
 static PyObject *__pyx_tuple__10;
+static PyObject *__pyx_tuple__12;
 static PyObject *__pyx_codeobj__11;
+static PyObject *__pyx_codeobj__13;
 
-/* "wrapper.pyx":14
+/* "wrapper.pyx":15
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
@@ -1467,7 +1472,7 @@ static PyObject *__pyx_codeobj__11;
 
 /* Python wrapper */
 static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_3ham___rhs__[] = "\n        Input: \n            np.array() of length 6 to be filled with right-hand sides\n            dynamic variables: R, theta, pR, pT, J, alpha, beta\n        RHS:\n            are put in the given np.array()\n    ";
+static char __pyx_doc_3ham___rhs__[] = "\n        Input: \n            np.array() of length 6 to be filled with right-hand sides\n            dynamic variables: R, theta, pR, pT, alpha, beta\n        RHS:\n            are put in the given np.array()\n    ";
 static PyMethodDef __pyx_mdef_3ham_1__rhs__ = {"__rhs__", (PyCFunction)__pyx_pw_3ham_1__rhs__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_3ham___rhs__};
 static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_out = 0;
@@ -1505,36 +1510,36 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_R)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 1); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 1); __PYX_ERR(0, 15, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_theta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 2); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 2); __PYX_ERR(0, 15, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pR)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 3); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 3); __PYX_ERR(0, 15, __pyx_L3_error)
         }
         case  4:
         if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pT)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 4); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 4); __PYX_ERR(0, 15, __pyx_L3_error)
         }
         case  5:
         if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_alpha)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 5); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 5); __PYX_ERR(0, 15, __pyx_L3_error)
         }
         case  6:
         if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_beta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 6); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, 6); __PYX_ERR(0, 15, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__rhs__") < 0)) __PYX_ERR(0, 14, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__rhs__") < 0)) __PYX_ERR(0, 15, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 7) {
       goto __pyx_L5_argtuple_error;
@@ -1548,22 +1553,22 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
       values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
     }
     __pyx_v_out = ((PyArrayObject *)values[0]);
-    __pyx_v_R = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_R == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_theta = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_theta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_pR = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_pR == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_pT = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_pT == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_alpha = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_alpha == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_beta = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_beta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    __pyx_v_R = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_R == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
+    __pyx_v_theta = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_theta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
+    __pyx_v_pR = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_pR == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
+    __pyx_v_pT = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_pT == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
+    __pyx_v_alpha = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_alpha == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
+    __pyx_v_beta = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_beta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 14, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__rhs__", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 15, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("ham.__rhs__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_out), __pyx_ptype_5numpy_ndarray, 1, "out", 0))) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_out), __pyx_ptype_5numpy_ndarray, 1, "out", 0))) __PYX_ERR(0, 15, __pyx_L1_error)
   __pyx_r = __pyx_pf_3ham___rhs__(__pyx_self, __pyx_v_out, __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta);
 
   /* function exit code */
@@ -1576,7 +1581,7 @@ static PyObject *__pyx_pw_3ham_1__rhs__(PyObject *__pyx_self, PyObject *__pyx_ar
 }
 
 static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_alpha, double __pyx_v_beta) {
-  long __pyx_v_J;
+  double __pyx_v_J;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_out;
   __Pyx_Buffer __pyx_pybuffer_out;
   PyObject *__pyx_r = NULL;
@@ -1589,39 +1594,42 @@ static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArr
   __pyx_pybuffernd_out.rcbuffer = &__pyx_pybuffer_out;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_out.rcbuffer->pybuffer, (PyObject*)__pyx_v_out, &__Pyx_TypeInfo_double, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 14, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_out.rcbuffer->pybuffer, (PyObject*)__pyx_v_out, &__Pyx_TypeInfo_double, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 15, __pyx_L1_error)
   }
   __pyx_pybuffernd_out.diminfo[0].strides = __pyx_pybuffernd_out.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_out.diminfo[0].shape = __pyx_pybuffernd_out.rcbuffer->pybuffer.shape[0];
 
-  /* "wrapper.pyx":22
+  /* "wrapper.pyx":23
  *             are put in the given np.array()
  *     """
- *     J = 15             # <<<<<<<<<<<<<<
+ *     J = 0.01             # <<<<<<<<<<<<<<
  *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
  *     return None
  */
-  __pyx_v_J = 15;
+  __pyx_v_J = 0.01;
 
-  /* "wrapper.pyx":23
+  /* "wrapper.pyx":24
  *     """
- *     J = 15
+ *     J = 0.01
  *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)             # <<<<<<<<<<<<<<
  *     return None
+ * 
  */
   __pyx_t_1 = 0;
   rhs((&(*__Pyx_BufPtrCContig1d(double *, __pyx_pybuffernd_out.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_out.diminfo[0].strides))), __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta, __pyx_v_J);
 
-  /* "wrapper.pyx":24
- *     J = 15
+  /* "wrapper.pyx":25
+ *     J = 0.01
  *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
  *     return None             # <<<<<<<<<<<<<<
+ * 
+ * @cython.boundscheck(False)
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(Py_None);
   __pyx_r = Py_None;
   goto __pyx_L0;
 
-  /* "wrapper.pyx":14
+  /* "wrapper.pyx":15
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
@@ -1638,6 +1646,196 @@ static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArr
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
   __Pyx_AddTraceback("ham.__rhs__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "wrapper.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def __derivatives__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta, double J):             # <<<<<<<<<<<<<<
+ *     """
+ *         Input:
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_3ham_3__derivatives__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_3ham_2__derivatives__[] = " \n        Input:\n            np.array() of length 6 to be filled with derivatives of hamiltonian by dynamic variables\n            dynamic variable: R, theta, pR, pT, alpha, beta, J\n    ";
+static PyMethodDef __pyx_mdef_3ham_3__derivatives__ = {"__derivatives__", (PyCFunction)__pyx_pw_3ham_3__derivatives__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_3ham_2__derivatives__};
+static PyObject *__pyx_pw_3ham_3__derivatives__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyArrayObject *__pyx_v_out = 0;
+  double __pyx_v_R;
+  double __pyx_v_theta;
+  double __pyx_v_pR;
+  double __pyx_v_pT;
+  double __pyx_v_alpha;
+  double __pyx_v_beta;
+  double __pyx_v_J;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__derivatives__ (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_out,&__pyx_n_s_R,&__pyx_n_s_theta,&__pyx_n_s_pR,&__pyx_n_s_pT,&__pyx_n_s_alpha,&__pyx_n_s_beta,&__pyx_n_s_J,0};
+    PyObject* values[8] = {0,0,0,0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_out)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_R)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 1); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        case  2:
+        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_theta)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 2); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        case  3:
+        if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pR)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 3); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        case  4:
+        if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pT)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 4); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        case  5:
+        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_alpha)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 5); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        case  6:
+        if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_beta)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 6); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        case  7:
+        if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_J)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, 7); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__derivatives__") < 0)) __PYX_ERR(0, 29, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 8) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+    }
+    __pyx_v_out = ((PyArrayObject *)values[0]);
+    __pyx_v_R = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_R == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_theta = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_theta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_pR = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_pR == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_pT = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_pT == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_alpha = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_alpha == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_beta = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_beta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_J = __pyx_PyFloat_AsDouble(values[7]); if (unlikely((__pyx_v_J == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__derivatives__", 1, 8, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 29, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("ham.__derivatives__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_out), __pyx_ptype_5numpy_ndarray, 1, "out", 0))) __PYX_ERR(0, 29, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3ham_2__derivatives__(__pyx_self, __pyx_v_out, __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta, __pyx_v_J);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_3ham_2__derivatives__(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_out, double __pyx_v_R, double __pyx_v_theta, double __pyx_v_pR, double __pyx_v_pT, double __pyx_v_alpha, double __pyx_v_beta, double __pyx_v_J) {
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_out;
+  __Pyx_Buffer __pyx_pybuffer_out;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  Py_ssize_t __pyx_t_1;
+  __Pyx_RefNannySetupContext("__derivatives__", 0);
+  __pyx_pybuffer_out.pybuffer.buf = NULL;
+  __pyx_pybuffer_out.refcount = 0;
+  __pyx_pybuffernd_out.data = NULL;
+  __pyx_pybuffernd_out.rcbuffer = &__pyx_pybuffer_out;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_out.rcbuffer->pybuffer, (PyObject*)__pyx_v_out, &__Pyx_TypeInfo_double, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 29, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_out.diminfo[0].strides = __pyx_pybuffernd_out.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_out.diminfo[0].shape = __pyx_pybuffernd_out.rcbuffer->pybuffer.shape[0];
+
+  /* "wrapper.pyx":35
+ *             dynamic variable: R, theta, pR, pT, alpha, beta, J
+ *     """
+ *     hamiltonian(&out[0], R, theta, pR, pT, alpha, beta, J)             # <<<<<<<<<<<<<<
+ *     return None
+ */
+  __pyx_t_1 = 0;
+  hamiltonian((&(*__Pyx_BufPtrCContig1d(double *, __pyx_pybuffernd_out.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_out.diminfo[0].strides))), __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta, __pyx_v_J);
+
+  /* "wrapper.pyx":36
+ *     """
+ *     hamiltonian(&out[0], R, theta, pR, pT, alpha, beta, J)
+ *     return None             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __Pyx_INCREF(Py_None);
+  __pyx_r = Py_None;
+  goto __pyx_L0;
+
+  /* "wrapper.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def __derivatives__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta, double J):             # <<<<<<<<<<<<<<
+ *     """
+ *         Input:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("ham.__derivatives__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
@@ -4195,6 +4393,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_alpha, __pyx_k_alpha, sizeof(__pyx_k_alpha), 0, 0, 1, 1},
   {&__pyx_n_s_beta, __pyx_k_beta, sizeof(__pyx_k_beta), 0, 0, 1, 1},
+  {&__pyx_n_s_derivatives, __pyx_k_derivatives, sizeof(__pyx_k_derivatives), 0, 0, 1, 1},
   {&__pyx_n_s_ham, __pyx_k_ham, sizeof(__pyx_k_ham), 0, 0, 1, 1},
   {&__pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_k_home_artfin_Desktop_repos_class, sizeof(__pyx_k_home_artfin_Desktop_repos_class), 0, 0, 1, 0},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
@@ -4326,17 +4525,29 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "wrapper.pyx":14
+  /* "wrapper.pyx":15
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
  *     """
  *         Input:
  */
-  __pyx_tuple__10 = PyTuple_Pack(8, __pyx_n_s_out, __pyx_n_s_R, __pyx_n_s_theta, __pyx_n_s_pR, __pyx_n_s_pT, __pyx_n_s_alpha, __pyx_n_s_beta, __pyx_n_s_J); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(8, __pyx_n_s_out, __pyx_n_s_R, __pyx_n_s_theta, __pyx_n_s_pR, __pyx_n_s_pT, __pyx_n_s_alpha, __pyx_n_s_beta, __pyx_n_s_J); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
-  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(7, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_rhs, 14, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(7, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_rhs, 15, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 15, __pyx_L1_error)
+
+  /* "wrapper.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def __derivatives__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta, double J):             # <<<<<<<<<<<<<<
+ *     """
+ *         Input:
+ */
+  __pyx_tuple__12 = PyTuple_Pack(8, __pyx_n_s_out, __pyx_n_s_R, __pyx_n_s_theta, __pyx_n_s_pR, __pyx_n_s_pT, __pyx_n_s_alpha, __pyx_n_s_beta, __pyx_n_s_J); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(8, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_artfin_Desktop_repos_class, __pyx_n_s_derivatives, 29, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4467,16 +4678,28 @@ PyMODINIT_FUNC PyInit_ham(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "wrapper.pyx":14
+  /* "wrapper.pyx":15
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta):             # <<<<<<<<<<<<<<
  *     """
  *         Input:
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_3ham_1__rhs__, NULL, __pyx_n_s_ham); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_3ham_1__rhs__, NULL, __pyx_n_s_ham); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rhs, __pyx_t_1) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rhs, __pyx_t_1) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "wrapper.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def __derivatives__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta, double pR, double pT, double alpha, double beta, double J):             # <<<<<<<<<<<<<<
+ *     """
+ *         Input:
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_3ham_3__derivatives__, NULL, __pyx_n_s_ham); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_derivatives, __pyx_t_1) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "wrapper.pyx":1
