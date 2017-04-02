@@ -20,7 +20,7 @@ initial_conditions = np.array([10.0, np.pi/2, -1.0, 0, 1.1, 1.3])
 
 t_start = 0.
 t_end = 1e6
-t_step = 1.
+t_step = 10.
 
 ode = spi.ode(rhs)
 

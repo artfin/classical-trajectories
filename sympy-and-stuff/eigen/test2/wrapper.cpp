@@ -1601,15 +1601,15 @@ static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArr
   /* "wrapper.pyx":23
  *             are put in the given np.array()
  *     """
- *     J = 0.01             # <<<<<<<<<<<<<<
+ *     J = 1.0             # <<<<<<<<<<<<<<
  *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
  *     return None
  */
-  __pyx_v_J = 0.01;
+  __pyx_v_J = 1.0;
 
   /* "wrapper.pyx":24
  *     """
- *     J = 0.01
+ *     J = 1.0
  *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)             # <<<<<<<<<<<<<<
  *     return None
  * 
@@ -1618,7 +1618,7 @@ static PyObject *__pyx_pf_3ham___rhs__(CYTHON_UNUSED PyObject *__pyx_self, PyArr
   rhs((&(*__Pyx_BufPtrCContig1d(double *, __pyx_pybuffernd_out.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_out.diminfo[0].strides))), __pyx_v_R, __pyx_v_theta, __pyx_v_pR, __pyx_v_pT, __pyx_v_alpha, __pyx_v_beta, __pyx_v_J);
 
   /* "wrapper.pyx":25
- *     J = 0.01
+ *     J = 1.0
  *     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
  *     return None             # <<<<<<<<<<<<<<
  * 

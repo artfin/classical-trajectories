@@ -20,7 +20,7 @@ def __rhs__(np.ndarray[double, ndim = 1, mode = "c"] out, double R, double theta
         RHS:
             are put in the given np.array()
     """
-    J = 0.01
+    J = 1.0 
     rhs(&out[0], R, theta, pR, pT, alpha, beta, J)
     return None
 
