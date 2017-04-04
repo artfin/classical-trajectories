@@ -25,9 +25,17 @@ J, beta = symbols('J beta')
 R, pR = symbols('R pR')
 mu = symbols('mu')
 
+pseudo_kinetic_energy = pR**2 / (2 * mu)
+
 kinetic_energy = pR**2 / (2 * mu) + J**2 * sin(beta)**2 / (2 * mu * R**2)
 kinetic_energy = kinetic_energy.subs({'mu': reduced_mass_amu}) 
 _kinetic_energy = lambdify((J, beta, R, pR), kinetic_energy)
+
+
+pseudo_kinetic_energy = pseudo_kinetic_energy.subs({'mu': reduced_mass_amu})
+
+_pseudo_kinetic_energy = lambdify((J, beta, R, pR), pseudo_kinetic_energy)
+pseudo_hamiltonian = lambda J, beta, R, pR: _pseudo_kinetic_energy(J, beta, R, pR)
 
 hamiltonian = lambda J, beta, R, pR: _kinetic_energy(J, beta, R, pR) + potential(R, np.pi/2)
 
@@ -40,16 +48,18 @@ gas_constant = 8.314
 def integrand(x, temperature):
     # x = [J, beta, R, pR]
     hamiltonian_value = hamiltonian(*x)
+    pseudo_hamiltonian_value = pseudo_hamiltonian(*x)
 
     if hamiltonian_value < 0:
-        return x[0]**2 * np.sin(x[1]) * np.exp(-hamiltonian_value * htoj / (k * temperature))
+        # return x[0]**2 * np.sin(x[1]) * np.exp(-hamiltonian_value * htoj / (k * temperature))
+        return np.exp(-pseudo_hamiltonian_value / (k * temperature))
     else:
         return 0
 
-limits = [[0, 100], # J
+limits = [[0, 10], # J
           [0, np.pi], # beta
-          [0, 100], # R
-          [-5000, 5000], # pR
+          [0, 10], # R
+          [-0.02, 0.02], # pR
          ]
 
 h = 6.626070040 * 10**(-34) 
@@ -60,9 +70,10 @@ def cycle(temperature):
     integ = vegas.Integrator(limits)
 
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 3 * 10**5)
+    result = integ(_integrand, nitn = 10, neval = 2 * 10**5)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
+    print result.summary()
     return result.mean
 
 def eval_constant(temperature, integral):
@@ -76,6 +87,9 @@ def eval_constant(temperature, integral):
 
     Q_complex = (2 * np.pi * complex_mass * k * temperature / h**2)**(1.5) / avogadro
     print 'Q translational complex: {0}'.format(Q_complex)
+
+    Q_reduced = (2 * np.pi * reduced_mass * k * temperature / h**2)**(1.5)
+    print 'Q reduced: {0}'.format(Q_reduced)
 
     pre_constant = Q_complex / Q_Ar / Q_CO2 / (gas_constant * temperature)
     print 'Pre constant: {0}'.format(pre_constant)
