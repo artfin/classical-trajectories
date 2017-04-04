@@ -18,26 +18,24 @@ co2_mass = 44 * da
 ar_mass = 40 * da
 complex_mass = 84 * da
 
+atomic_mass_unit = 9.109 * 10**(-31) # kg
+
 reduced_mass = co2_mass * ar_mass / (co2_mass + ar_mass) # in kg
 reduced_mass_amu = reduced_mass / amu # reduced mass in amu
+print 'reduced_mass_amu: {0}'.format(reduced_mass_amu)
 
 J, beta = symbols('J beta')
 R, pR = symbols('R pR')
 mu = symbols('mu')
 
-pseudo_kinetic_energy = pR**2 / (2 * mu)
-
-kinetic_energy = pR**2 / (2 * mu) + J**2 * sin(beta)**2 / (2 * mu * R**2)
+kinetic_energy = pR**2 / (2 * mu) + J**2 / (2 * mu * R**2)
 kinetic_energy = kinetic_energy.subs({'mu': reduced_mass_amu}) 
-_kinetic_energy = lambdify((J, beta, R, pR), kinetic_energy)
+_kinetic_energy = lambdify((J, R, pR), kinetic_energy)
 
+kinetic_part = lambda J, R, pR: pR**2 / (2 * reduced_mass_amu)
+angular_part = lambda J, R, pR: J**2 / (2 * reduced_mass_amu * R**2) + potential(R, np.pi/2)
 
-pseudo_kinetic_energy = pseudo_kinetic_energy.subs({'mu': reduced_mass_amu})
-
-_pseudo_kinetic_energy = lambdify((J, beta, R, pR), pseudo_kinetic_energy)
-pseudo_hamiltonian = lambda J, beta, R, pR: _pseudo_kinetic_energy(J, beta, R, pR)
-
-hamiltonian = lambda J, beta, R, pR: _kinetic_energy(J, beta, R, pR) + potential(R, np.pi/2)
+hamiltonian = lambda J, R, pR: _kinetic_energy(J, R, pR) + potential(R, np.pi/2)
 
 k = 1.38064852 * 10**(-23) # J / K
 htoj = 4.35974417 * 10**(-18) # hartree to J
@@ -46,20 +44,19 @@ pressure_coeff = 9.869 * 10**(-6) # pascals^-1 to atm^-1
 gas_constant = 8.314
 
 def integrand(x, temperature):
-    # x = [J, beta, R, pR]
+    # x = [J, R, pR]
     hamiltonian_value = hamiltonian(*x)
-    pseudo_hamiltonian_value = pseudo_hamiltonian(*x)
-
+    kinetic_part_value = kinetic_part(*x)
+    angular_part_value = angular_part(*x)
+    
     if hamiltonian_value < 0:
-        # return x[0]**2 * np.sin(x[1]) * np.exp(-hamiltonian_value * htoj / (k * temperature))
-        return np.exp(-pseudo_hamiltonian_value / (k * temperature))
+        return x[0]**2 * np.exp(-angular_part_value * htoj / (k * temperature))
     else:
         return 0
 
-limits = [[0, 10], # J
-          [0, np.pi], # beta
-          [0, 10], # R
-          [-0.02, 0.02], # pR
+limits = [[0, 100], # J
+          [0, 200], # R
+          [-20, 20], # pR
          ]
 
 h = 6.626070040 * 10**(-34) 
@@ -70,7 +67,7 @@ def cycle(temperature):
     integ = vegas.Integrator(limits)
 
     start = time()
-    result = integ(_integrand, nitn = 10, neval = 2 * 10**5)
+    result = integ(_integrand, nitn = 20, neval = 5 * 10**4)
     print 'Time needed: {0}'.format(time() - start)
     print 'result = %s Q = %.2f' % (result, result.Q)
     print result.summary()
@@ -79,22 +76,26 @@ def cycle(temperature):
 def eval_constant(temperature, integral):
 
     print 'Temperature: {0}'.format(temperature)
-    Q_Ar = (2 * np.pi * ar_mass * k * temperature / h**2)**(1.5) / avogadro
+    Q_Ar = (2 * np.pi * ar_mass * k * temperature / h**2)**(1.5) 
     print 'Q Ar: {0}'.format(Q_Ar)
 
-    Q_CO2 = (2 * np.pi * co2_mass * k * temperature / h**2)**(1.5) / avogadro
+    Q_CO2 = (2 * np.pi * co2_mass * k * temperature / h**2)**(1.5)
     print 'Q CO2: {0}'.format(Q_CO2)
 
-    Q_complex = (2 * np.pi * complex_mass * k * temperature / h**2)**(1.5) / avogadro
+    Q_complex = (2 * np.pi * complex_mass * k * temperature / h**2)**(1.5)
     print 'Q translational complex: {0}'.format(Q_complex)
 
-    Q_reduced = (2 * np.pi * reduced_mass * k * temperature / h**2)**(1.5)
-    print 'Q reduced: {0}'.format(Q_reduced)
+    Q_reduced = 1693.70 * (atomic_mass_unit * htoj / h**2)**(1.5)
+    print 'Q_reduced: {0}'.format(Q_reduced)
 
-    pre_constant = Q_complex / Q_Ar / Q_CO2 / (gas_constant * temperature)
+    almost_one = Q_complex * Q_reduced / Q_Ar / Q_CO2
+    print 'almost one: {0}'.format(almost_one)
+
+    #pre_constant = Q_complex / Q_Ar / Q_CO2 / (gas_constant * temperature)
+    pre_constant = 1 / (gas_constant * temperature)
     print 'Pre constant: {0}'.format(pre_constant)
 
-    constant = pre_constant * integral / (4 * np.pi**3) * pressure_coeff
+    constant = pre_constant * integral * 2 / np.pi * pressure_coeff
     print 'Constant: {0}'.format(constant)
 
     print '*'*30 + '\n'
@@ -105,14 +106,24 @@ def save_constants(temperatures, constants):
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = [200 + 5 * i for i in range(50)]
-constants = []
+#prediction = lambda temperature: (2 * np.pi * reduced_mass_amu * k * temperature / htoj)**(1.5)
 
-for temperature in temperatures:
-    integral = cycle(temperature)
-    constants.append(eval_constant(temperature, integral))
+#print 'predicted 100K: {0}'.format(prediction(100))
+#print 'predicted 200K: {0}'.format(prediction(200))
+#print 'predicted 300K: {0}'.format(prediction(300))
+#print 'predicted 400K: {0}'.format(prediction(400))
 
-save_constants(temperatures, constants)
+integral = cycle(200)
+eval_constant(200, integral)
+
+#temperatures = [200 + 5 * i for i in range(50)]
+#constants = []
+
+#for temperature in temperatures:
+    #integral = cycle(temperature)
+    #constants.append(eval_constant(temperature, integral))
+
+#save_constants(temperatures, constants)
 
 
 
