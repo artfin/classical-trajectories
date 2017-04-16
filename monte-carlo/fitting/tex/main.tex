@@ -1,0 +1,58 @@
+\documentclass[14pt]{article}
+
+\usepackage[T2A]{fontenc}
+
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\usepackage{amsmath, amssymb}
+
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+
+\begin{document}
+
+\section{Константа равновесия двухатомной молекулы в приближении ЖРГО}
+
+\begin{gather}
+	K_p = \Lambda^3 \frac{k T}{\lb h \omega \rb \lb h c B \chi \rb} \left[ \exp \lb \frac{D_e}{k T} \rb - \lb 1 + \frac{D_e}{k T} \rb \right], \notag \\
+	\Lambda = \frac{h}{\lb 2 \pi \mu_c k T \rb^{\displaymode \frac{1}{2}}} \notag
+\end{gather}
+
+Исходя из соображений размерости вращательная постоянная $B$ должна быть выражена в $\textup{cm}^{-1}$. Тогда произведение $c \cdot B$ будет представлено в $Hz$.
+
+Для потенциала Юли нашел следующие параметры потенциала и слабосвязанного комплекса:\\
+\begin{gather}
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	$R_m$, \AA & $D_e$, см$^{-1}$ & $\omega$, см$^{-1}$ // Hz & B, см$^{-1} // Hz $ \\ 
+	\hline
+	$3.436$ & 195.64 & 26.94 & 6.809 \\
+		       & & 8.081$\cdot 10^{11}$ & 2.041 $\cdot 10^{11}$ \\  
+	\hline
+\end{tabular}
+\notag
+\end{gather}
+
+\section{Полный фазовый интеграл для двухатомной молекулы}
+
+\begin{gather}
+	K_c = \frac{ \displaystyle \frac{Q_{complex}}{N_A V} }{ \displaystyle \frac{Q_{Ar}}{N_A V} \displaystyle \frac{Q_{CO_2}}{N_A V} } = N_A V \displaystyle \frac{Q_{complex}}{Q_{Ar} Q_{CO_2}} \notag \\
+ 	K_p = \frac{N_A}{R T} \lb V \frac{Q_{complex}}{Q_{Ar} Q_{CO_2}} \rb \notag 
+\end{gather}
+
+Скобка в выражении для константы $K_p$ была рассчитана в атомных единицах, затем переведена в систему СИ (т.е. умножена на \textit{atomic length unit}$^3$, т.к. статсуммы безразмерны). При этом объемы, содержащиеся в поступательных статсуммах сокращаются с объемом перед дробью. 
+
+\begin{gather}
+	Q_{Ar} = \lb \frac{ 2 \pi m_{Ar} k T}{h^2} \rb^{\displaystyle \frac{3}{2}} \textit{[СИ]} \quad \longrightarrow \quad \lb \frac{m_{Ar} k T}{2 \pi} \rb^{\displaystyle \frac{3}{2} } \textit{[АС]} \notag \\
+	Q_{complex} = Q_{tr} \times \frac{32 \pi^3}{h^4} \int_{H<0} \exp \lb -\frac{p_R^2}{2 \mu k T} \rb d p_R \int_{H<0} J^2 \exp \lb - \frac{J^2}{2 \mu R^2 k T} - \frac{U}{kT} \rb  d J d R \ \textit{[СИ]} \quad \longrightarrow \notag \\ 
+	\longrightarrow Q_{tr} \times \frac{2}{\pi} \int_{H<0} \exp \lb -\frac{p_R^2}{2 \mu k T} \rb d p_R \int_{H<0} J^2 \exp \lb - \frac{J^2}{2 \mu R^2 k T} - \frac{U}{kT} \rb  d J d R \ \textit{[АС]} \notag  
+\end{gather}
+
+
+
+\end{document}

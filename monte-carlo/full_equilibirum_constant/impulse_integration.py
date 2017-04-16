@@ -28,6 +28,8 @@ pr_unit = atomic_mass_unit * atomic_length_unit / atomic_time_unit
 print 'pr_unit (2): {0}'.format(pr_unit)
 
 kinetic_part = lambda pR: pR**2 / (2 * mu2)
+angular_part = lambda J, R: J**2 / (2 * mu2 * R**2) + potential(R, np.pi/2)
+hamiltonian = lambda J, R, pR: kinetic_part(pR) + angular_part(J, R)
 
 def integrand(x, temperature):
     # x = [pR]
@@ -52,6 +54,15 @@ cycle(100)
 cycle(200)
 cycle(300)
 cycle(400)
+
+predicted = (2 * np.pi * mu2 * k * 100 / htoj)**(0.5)
+print 'ATOMIC prediced 100K: {0}'.format(predicted)
+predicted = (2 * np.pi * mu2 * k * 200 / htoj)**(0.5)
+print 'ATOMIC prediced 200K: {0}'.format(predicted)
+predicted = (2 * np.pi * mu2 * k * 300 / htoj)**(0.5)
+print 'ATOMIC prediced 300K: {0}'.format(predicted)
+predicted = (2 * np.pi * mu2 * k * 400 / htoj)**(0.5)
+print 'ATOMIC prediced 400K: {0}'.format(predicted)
 
 predicted = np.sqrt(2 * np.pi * mu2 * k * atomic_mass_unit* 100)
 print 'predicted 100K: {0}'.format(predicted)
@@ -86,4 +97,27 @@ print 'predicted 400K: {0}'.format(predicted)
 #plt.legend(handles = [magenta_patch, blue_patch, red_patch, cyan_patch])
 
 #plt.savefig('impulse_plot.png')
+#plt.show()
+
+
+#x = np.linspace(0, 1e2, 1e3)
+
+#for r in np.arange(5, 100, 0.1):
+    #y = [_x**2 * np.exp(-angular_part(_x, r) * htoj / k / 200) for _x in x]
+    #plt.plot(x, y, linewidth = 300 / r**3)
+
+#plt.savefig('j-surface.png')
+#plt.show()
+
+
+#axes = plt.gca()
+#axes.set_ylim([-2e-3, 1e-3])
+
+#j = 1
+#pR = np.linspace(-7e1, 7e1, 1e3)
+
+#for r in np.arange(0.1, 20, 0.1):
+    #energy = [hamiltonian(j, r, p) for p in pR]
+    #plt.plot(pR, energy, linewidth = 300 / r**3)
+
 #plt.show()

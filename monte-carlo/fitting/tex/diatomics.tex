@@ -1,0 +1,39 @@
+\documentclass[14pt]{article}
+
+\usepackage[T2A]{fontenc}
+
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\usepackage{amsmath, amssymb}
+
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+\newcommand{\mH}{\mathcal{H}}
+
+\begin{document}
+
+\begin{gather}
+\mH = \frac{p_R^2}{2 \mu} + \frac{J_x^2}{2 \mu R^2} + \frac{J_y^2}{2 \mu R^2} + U \notag \\
+\left\{
+\begin{aligned}
+x_1^2 &= \frac{p_R^2}{2 \mu k T} \\
+x_2^2 &= \frac{J_x^2}{2 \mu R^2 k T} \\
+x_3^2 &= \frac{J_y^2}{2 \mu R^2 k T}
+\end{aligned}
+\right. \notag \\
+d p_R d J_x d J_y = \lb 2 \mu k T \rb^{\frac{3}{2}} R^2 dx_1 dx_2 dx_3 \notag
+\end{gather}
+
+\begin{gather}
+\int_{\mH < 0} \exp \lb - \frac{H}{k T} \rb dR dp_R dJ_x dJ_y = \lb 2 \mu k T \rb^{\frac{3}{2}} \int R^2 dR \exp \lb - \frac{U}{kT} \rb \int \exp \lb -x_1^2 -x_2^2 -x_3^2 \rb dx_1 dx_2 dx_3 \notag \\ 
+\int_{x_1^2 + x_2^2 + x_3^2 + \frac{U}{kT} < 0} \exp \lb -x_1^2 -x_2^2 -x_3^2 \rb dx_1 dx_2 dx_3 = \frac{\pi^\frac{3}{2}}{\Gamma \lb \frac{3}{2} \rb} \gamma \lb \frac{3}{2}, - \frac{U}{kT} \rb \notag \\
+Q^{bound}_{pair} = 4 \pi \lb \frac{2 \pi M k T}{h^2} \rb^\frac{3}{2} V \lb \frac{2 \pi \mu k T}{h^2} \rb^\frac{3}{2} \int_R R^2 \frac{\gamma \lb \frac{3}{2}, -\frac{U}{kT} \rb}{\Gamma \lb \frac{3}{2} \rb} \exp \lb - \frac{U}{kT} \rb dR \notag
+\end{gather}
+
+\end{document}
+

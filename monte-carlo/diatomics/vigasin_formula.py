@@ -13,7 +13,7 @@ k = 1.38064852 * 10**(-23) # J / K
 htoj = 4.35974417 * 10**(-18) # hartree to J
 avogadro = 6.022 * 10**(23) # 1 / mol
 R = 8.314 # J / mol / K
-pressure_coeff = 9.869 * 10**(-6) # pascals-1 to atm-1
+patoatm = 101325 # pa^-1 to atm^-1
 length_unit = 5.291772 * 10**(-11) # alu to m
 
 def integrand(x, Temperature):
@@ -35,24 +35,29 @@ sigma = determine_sigma()
 print 'sigma: {0}'.format(sigma)
 
 def cycle(Temperature):
+    print 'Temperature: {0}'.format(Temperature)
+
     _integrand = partial(integrand, Temperature = Temperature)
     
     start = time()
     integ = vegas.Integrator([[sigma, 100]])
-    result = integ(_integrand, nitn = 50, neval = 10**5)
+    result = integ(_integrand, nitn = 20, neval = 10**4)
     print 'Time needed: {0}'.format(time() - start)
     
     print 'result = %s Q = %.2f' % (result, result.Q)
-    constant = 2 * np.pi * avogadro / R / Temperature * result.mean * pressure_coeff * length_unit**2 
+    constant = 4 * np.pi * avogadro / R / Temperature * result.mean * patoatm * length_unit**3 
     print 'Constant %.5f' % constant
     return constant
 
 def save_constants(temperatures, constants):
-    with open('vigasin_diatomics.dat', mode = 'w') as out:
+    with open('vigasin_diatomics.dat', mode = 'a') as out:
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = [200 + 5 * i for i in range(0, 50)]  
+temperatures = range(310, 501)
 constants = [cycle(temperature) for temperature in temperatures]
+
+for temperature, constant in zip(temperatures, constants):
+    print 'temperature: {0}; constant: {1}'.format(temperature, constant)
 
 save_constants(temperatures, constants)

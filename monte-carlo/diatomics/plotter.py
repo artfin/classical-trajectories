@@ -1,32 +1,34 @@
-from statistics import mean
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
-with open('simple_diatomics.dat', 'r') as inputfile:
-    lines = inputfile.readlines()
+def read_file(filename):
+    with open(filename, 'r') as inputfile:
+        lines = inputfile.readlines()
 
-temperatures = []
-simple_diatomics = []
+    temperatures = []
+    constants = []
+    
+    for line in lines:
+        temperatures.append(int(line.split()[0]))
+        constants.append(float(line.split()[1]))
 
-for line in lines:
-    data = line.split()
-    temperatures.append(int(data[0]))
-    simple_diatomics.append(float(data[1]))
+    return temperatures, constants
 
-with open('phase_diatomics.dat', mode = 'r') as inputfile:
-    lines = inputfile.readlines()
+temperatures_vig, constants_vig = read_file('vigasin_diatomics.dat')
+temperatures_phase, constants_phase = read_file('phase_diatomics.dat')
+temperatures_rrho, constants_rrho = read_file('rrho_constant.dat')
 
-phase_diatomics = []
+plt.plot(temperatures_vig, constants_vig, color = 'green')
+plt.plot(temperatures_phase, constants_phase, color = 'orange')
+plt.plot(temperatures_rrho, constants_rrho, color = 'blue')
 
-for line in lines:
-    phase_diatomics.append(float(line.split()[1]))
+green_patch = mpatches.Patch(color = 'green', label = 'Vigasin formula')
+orange_patch = mpatches.Patch(color = 'orange', label = 'Phase Integral')
+blue_patch = mpatches.Patch(color = 'blue', label = 'RRHO')
 
+plt.legend(handles = [green_patch, orange_patch, blue_patch])
 
-coeffs = [simple / phase for simple, phase in zip(simple_diatomics, phase_diatomics)]
-
-coeffs = [100 * coeff / mean(coeffs) for coeff in coeffs]
-
-plt.scatter(temperatures, coeffs)
+plt.grid()
 #plt.show()
-plt.savefig('deviation.png')
 
-
+plt.savefig('EquilibiumConstants.png')
