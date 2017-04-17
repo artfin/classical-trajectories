@@ -14,7 +14,7 @@ htoj = 4.35974417 * 10**(-18) # hartree to Joules
 avogadro = 6.022 * 10**(23)
 length_unit = 5.291772 * 10**(-11)
 R = 8.314
-pressure_coeff = 9.869 * 10**(-6) # between pascals and atmospheres
+patoatm = 101325 
 
 def integrand(x, Temperature):
 	# x = [R, theta]
@@ -38,8 +38,8 @@ def cycle(T):
 	integ = vegas.Integrator([[3., 20.], [0., np.pi]])
 	result = integ(_integrand, nitn = 50, neval = 10**4)
 	print 'result = %s Q = %.2f' % (result, result.Q)
-	constant = 4. * np.pi * avogadro / (R * T) * result.mean * pressure_coeff * length_unit**2
-	print 'Constant %.5f' % constant
+	constant = 2. * np.pi * avogadro / (R * T) * result.mean * patoatm * length_unit**3
+	print 'Temperature: %d Constant %.5f' % (T, constant)
 	return constant
 
 def save_constants(temperatures, constants):
@@ -47,10 +47,10 @@ def save_constants(temperatures, constants):
 		for temperature, constant in zip(temperatures, constants):
 			out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-initialization(T = 50)
-temperatures = [50 + 5 * i for i in range(0, 61)] # K
+#initialization(T = 50)
+temperatures = [100 + 5 * i for i in range(0, 61)] # K
 constants = [cycle(temperature) for temperature in temperatures]
 
-save_constants(temperatures, constants)
+#save_constants(temperatures, constants)
 
 
