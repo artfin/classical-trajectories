@@ -3,5 +3,6 @@ amazon_services/ClassicalTrajectories.pem
 learning-stuff/Fortran/fortran_notebook/odepack/
 learning-stuff/Fortran/fortran_notebook/odepack/
 learning-stuff/Fortran/fortran_notebook/odepack/
+*.exe
 
 
