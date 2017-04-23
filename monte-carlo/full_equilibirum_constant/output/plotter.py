@@ -17,15 +17,15 @@ def read_constants(filename):
     return temperatures, simple_constants
 
 temperatures, simple_constants = read_constants('simple_constants.dat')
-temperatures, general_constants = read_constants('general_constants.dat')
+#temperatures, general_constants = read_constants('general_constants.dat')
 
 plt.plot(temperatures, simple_constants)
-plt.plot(temperatures, general_constants)
+#plt.plot(temperatures, general_constants)
 plt.grid()
 
 blue_patch = mpatches.Patch(color = 'blue', label = 'Simple formula')
-orange_patch = mpatches.Patch(color = 'orange', label = 'General formula')
+#orange_patch = mpatches.Patch(color = 'orange', label = 'General formula')
 
-plt.legend(handles = [blue_patch, orange_patch])
-#plt.show()
-plt.savefig('plot.png')
+plt.legend(handles = [blue_patch])
+plt.show()
+#plt.savefig('plot.png')

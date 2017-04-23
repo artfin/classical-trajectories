@@ -97,7 +97,8 @@
 \begin{gather}
 	l = 2 r_{C-O}, \mu_1 = \frac{m_O}{2} \notag \\
 	Q_{rot} = \frac{8 \pi^2 k T}{h^2} m_O r_{C-O}^2 = \frac{4 \pi^2 k T}{h^2} \mu_1 l^2 \notag \\
-	\frac{2 \mu_1 l^2 \pi k T}{h^2} =  \frac{1}{2 \pi} Q_{rot} \notag 
+	\frac{2 \mu_1 l^2 \pi k T}{h^2} =  \frac{1}{2 \pi} Q_{rot} \notag \\
+	Q_{CO_2} = \frac{1}{\sigma} Q_{tr} Q_{rot} = \frac{1}{2} Q_{tr} Q_{rot} \notag
 \end{gather}
 
 Итак, статсумма связанного димера $Ar-CO_2$ преобразуется к следующему виду:
@@ -115,20 +116,19 @@
 
 Сравним значения получаемые при интегрировании гамильтониана по области фазового пространства с интегралом по потенциальной области следующим образом:
 \begin{gather}
-	(1): \int \int_{U < 0} \exp \lb -\frac{U}{kT} \rb \frac{\gamma \lb \frac{5}{2}, -\frac{U}{kT} \rb}{\Gamma \lb \frac{5}{2} \rb } R^2 dR d \theta \notag \\
-	(2): \int \int_{U < 0} \exp \lb -\frac{U}{kT} \rb \frac{\gamma \lb \frac{5}{2}, -\frac{U}{kT} \rb}{\Gamma \lb \frac{5}{2} \rb } R^2 \sin \theta dR d \theta \notag \\
-	(3): \frac{1}{\lb 2 \mu_2 kT \rb^{\frac{3}{2}}} \frac{1}{2 \mu_1 l^2 kT} \int_{H < 0} \exp \lb - \frac{H_{mol}}{kT} \rb dR dp_R d\theta dp_\theta dJ_x dJ_y dJ_z \notag
+	(1): \int \int_{U < 0} \exp \lb -\frac{U}{kT} \rb \frac{\gamma \lb \frac{5}{2}, -\frac{U}{kT} \rb}{\Gamma \lb \frac{5}{2} \rb } R^2 \sin \theta dR d \theta \notag \\
+	(2): \frac{1}{\lb 2 \mu_2 kT \rb^{\frac{3}{2}}} \frac{1}{2 \mu_1 l^2 kT} \int_{H < 0} \exp \lb - \frac{H_{mol}}{kT} \rb dR dp_R d\theta dp_\theta dJ_x dJ_y dJ_z \notag
 \end{gather}
 
 \begin{center}
-\begin{tabular}{cccc}
+\begin{tabular}{ccc}
 	\hline
-	Температура & $(1)$ & $(2)$ & $(3)$ \\
+	Температура & $(1)$ & $(2)$ \\
 	\hline
-	100K & 695.874 & 521.833 & 521.392 \\
-	150K & 205.405 & 151.053 & 151.121 \\
-	200K & 91.111 & 66.442 &  66.376 \\
-	250K & 49.448 & 35.884 & 35.802 \\
+	100K & 521.833 & 521.392 \\
+	150K & 151.053 & 151.121 \\
+	200K & 66.442 &  66.376 \\
+	250K & 35.884 & 35.802 \\
 	\hline
 \end{tabular} 
 \end{center}
@@ -140,7 +140,18 @@
 
 Температурная зависимость константы равновесия в обратных атмосферах; Simple formula -- $(1)$, General formula -- $(2)$ = $(3)$.
 
-\includegraphics[scale=1.0]{plot.png}
+\includegraphics[scale=0.5]{plot.png}
+
+\newpage
+
+\begin{gather}
+	\frac{1}{\lb 2 \mu_2 k T \rb^{\frac{3}{2}}} = V \frac{\pi^{\frac{3}{2}}}{h^3} \frac{Q_{complex}^{tr}}{Q_{CO_2}^{tr} Q_{Ar}^{tr}} \notag \\
+	\frac{1}{2 \mu_1 l^2 k T} = \frac{2 \pi^2}{h^2} \frac{1}{Q_{CO_2}^{rot}} \notag \\
+	\frac{1}{\lb 2 \mu_2 k T \rb^{\frac{3}{2}}} \times \frac{1}{2 \mu_1 l^2 k T} = \frac{2 \pi^{\frac{7}{2}}}{h^5} V \frac{Q_{complex}^{tr}}{Q_{CO_2}^{tr} Q_{CO_2}^{rot} Q_{Ar}^{tr}} = \frac{4 \pi^{\frac{7}{2}}}{h^5} V \frac{Q_{complex}^{tr}}{Q_{CO_2} Q_{Ar}} \notag \\
+	K_p = \frac{2 \pi N_0}{RT} \int \int_{U < 0} \frac{\gamma \lb \frac{5}{2} , - \frac{U}{kT} \rb }{\Gamma \lb \frac{5}{2} \rb} \exp \lb - \frac{U}{kT} \rb R^2 \sin \theta dR d\theta \notag \\
+	K_p = \frac{2 \pi N_0}{RT}  \frac{1}{\lb 2 \mu_2 k T \rb^{\frac{3}{2}}} \frac{1}{2 \mu_1 l^2 k T} \times \int_{H < 0} \exp \lb - \frac{H}{kT} \rb dR dp_R d\theta dp_\theta dJ_x dJ_y dJ_z = \notag \\
+	= \frac{N_0}{p} \frac{Q_{complex}^{tr}}{Q_{CO_2} Q_{Ar}} \pi^\frac{5}{2} \frac{1}{h^5} \int_{H < 0} \exp \lb - \frac{H}{kT} \rb dR dp_R d\theta dp_\theta d\Theta d\Phi d\Psi dp_\Theta dp_\Psi dp_\Theta \notag
+\end{gather}
 
 \newpage
 
