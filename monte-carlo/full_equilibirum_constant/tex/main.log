@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.4.7)  24 APR 2017 00:54
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.4.7)  24 APR 2017 02:35
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -726,20 +726,20 @@ File: t2acmr.fd 2001/08/11 v1.0a Computer Modern Cyrillic font definitions
 ))
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for T2A/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for T2A/cmr/m/n on input line 32.
+LaTeX Font Info:    ... okay on input line 32.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -821,62 +821,168 @@ Package grfext Info: Graphics extension search list:
  (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 )) ABD: EverySelectfont initializing macros
-LaTeX Info: Redefining \selectfont on input line 26.
+LaTeX Info: Redefining \selectfont on input line 32.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Try loading font information for U+msa on input line 28.
+LaTeX Font Info:    Try loading font information for U+msa on input line 34.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 28.
+LaTeX Font Info:    Try loading font information for U+msb on input line 34.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Overfull \hbox (36.7737pt too wide) in paragraph at lines 69--69
+Overfull \hbox (36.7737pt too wide) in paragraph at lines 75--75
 [] 
  []
 
 
-Overfull \hbox (7.06143pt too wide) in paragraph at lines 94--94
+Overfull \hbox (7.06143pt too wide) in paragraph at lines 100--100
 [] 
  []
 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
-Overfull \hbox (3.26385pt too wide) in paragraph at lines 141--142
+Overfull \hbox (3.26385pt too wide) in paragraph at lines 147--148
 []\T2A/cmr/m/n/10 Температурная за-ви-си-мость кон-стан-ты рав-но-ве-сия в об-рат-ных ат-мо-сфе-рах; Simple formula -- $\OT1/cmr/m/n/10 (1)$\T2A/cmr/m/n/10 , General
  []
 
 <plot.png, id=20, 925.056pt x 553.5882pt>
 File: plot.png Graphic file (type png)
  <use plot.png>
-Package pdftex.def Info: plot.png used on input line 143.
+Package pdftex.def Info: plot.png used on input line 149.
 (pdftex.def)             Requested size: 462.52687pt x 276.79341pt.
  [3 <./plot.png>] [4]
-Overfull \hbox (10.97426pt too wide) in paragraph at lines 158--159
+Overfull \hbox (10.97426pt too wide) in paragraph at lines 164--165
 []\T2A/cmr/m/n/10 Рассмотрим $\OML/cmm/m/it/10 n$\T2A/cmr/m/n/10 -мерную ги-пер-сфе-ру (ги-пер-шар). Ис-хо-дя из со-об-ра-же-ний раз-мер-но-сти (dimensional analysis)
  []
 
 
-Overfull \hbox (1.19662pt too wide) in paragraph at lines 179--179
+Overfull \hbox (1.19662pt too wide) in paragraph at lines 185--185
 [] 
  []
 
-[5] (./main.aux) ) 
+[5]
+./main.tex:244: Missing { inserted.
+<to be read again> 
+                   \mathchoice 
+l.244 ...‚Рѕ $F_m(0) = U_m(0)$. РџРѕРґ $q^\barcirc
+                                                   = q_{NVT}^\barcirc$ РїРѕР...
+A left brace was mandatory here, so I've put one in.
+You might want to delete and/or insert some corrections
+so that I will find a matching right brace soon.
+(If you're confused by all this, try typing `I}' now.)
+
+./main.tex:244: Missing { inserted.
+<to be read again> 
+                   \mathchoice 
+l.244 ...)$. РџРѕРґ $q^\barcirc = q_{NVT}^\barcirc
+                                                  $ РїРѕРЅРёРјР°РµС‚СЃСЏ Р·Р...
+A left brace was mandatory here, so I've put one in.
+You might want to delete and/or insert some corrections
+so that I will find a matching right brace soon.
+(If you're confused by all this, try typing `I}' now.)
+
+./main.tex:244: Missing } inserted.
+<inserted text> 
+                }
+l.244 ...$. РџРѕРґ $q^\barcirc = q_{NVT}^\barcirc$
+                                                   РїРѕРЅРёРјР°РµС‚СЃСЏ Р·РЅ...
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+./main.tex:244: Missing } inserted.
+<inserted text> 
+                }
+l.244 ...$. РџРѕРґ $q^\barcirc = q_{NVT}^\barcirc$
+                                                   РїРѕРЅРёРјР°РµС‚СЃСЏ Р·РЅ...
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+./main.tex:244: Missing { inserted.
+<to be read again> 
+                   \mathchoice 
+l.244 ...ј РѕР±СЉРµРјРµ $V = \frac{RT}{p^\barcirc}
+                                                  $.
+A left brace was mandatory here, so I've put one in.
+You might want to delete and/or insert some corrections
+so that I will find a matching right brace soon.
+(If you're confused by all this, try typing `I}' now.)
+
+./main.tex:244: Missing } inserted.
+<inserted text> 
+                }
+l.244 ... РѕР±СЉРµРјРµ $V = \frac{RT}{p^\barcirc}$
+                                                  .
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+./main.tex:249: Missing { inserted.
+<to be read again> 
+                   \mathchoice 
+l.249 \end{gather}
+                  
+A left brace was mandatory here, so I've put one in.
+You might want to delete and/or insert some corrections
+so that I will find a matching right brace soon.
+(If you're confused by all this, try typing `I}' now.)
+
+./main.tex:249: Missing } inserted.
+<inserted text> 
+                }
+l.249 \end{gather}
+                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+./main.tex:249: Missing { inserted.
+<to be read again> 
+                   \mathchoice 
+l.249 \end{gather}
+                  
+A left brace was mandatory here, so I've put one in.
+You might want to delete and/or insert some corrections
+so that I will find a matching right brace soon.
+(If you're confused by all this, try typing `I}' now.)
+
+./main.tex:249: Missing } inserted.
+<inserted text> 
+                }
+l.249 \end{gather}
+                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+[6] [7] (./main.aux) ) 
 Here is how much of TeX's memory you used:
- 5458 strings out of 494440
- 74119 string characters out of 6173199
- 161849 words of memory out of 5000000
- 8668 multiletter control sequences out of 15000+600000
- 7010 words of font info for 24 fonts, out of 8000000 for 9000
+ 5465 strings out of 494440
+ 74186 string characters out of 6173199
+ 161882 words of memory out of 5000000
+ 8673 multiletter control sequences out of 15000+600000
+ 8634 words of font info for 26 fonts, out of 8000000 for 9000
  430 hyphenation exceptions out of 8191
- 38i,17n,38p,719b,170s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t2a.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1000.pfb>
-Output written on main.pdf (5 pages, 181309 bytes).
+ 38i,17n,38p,1801b,170s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t2a.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1000.pfb>
+Output written on main.pdf (7 pages, 218116 bytes).
 PDF statistics:
- 68 PDF objects out of 1000 (max. 8388607)
- 47 compressed objects within 1 object stream
+ 92 PDF objects out of 1000 (max. 8388607)
+ 65 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

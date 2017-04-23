@@ -23,6 +23,12 @@
 \newcolumntype{C}[1]{>{\Centering}m{#1}}
 \renewcommand\tabularxcolumn[1]{C{#1}}
 
+\makeatletter
+\providecommand\barcirc{\mathpalette\@barred\circ}%
+\def\@barred#1#2{\ooalign{\hfil$#1-$\hfil\cr\hfil$#1#2$\hfil\cr}}%
+\newcommand\stst{^{\protect\barcirc}}%
+\makeatother
+
 \begin{document}
 
 Рассмотрим гамильтониан системы $Ar-CO_2$ в молекулярно-фиксированной системе координат:
@@ -192,6 +198,64 @@
 \begin{gather}
 	\int \dots \int_{x_1^2 + \dots + x_n^2 \leq R^2} \exp \lb -x_1^2 - \dots - x_n^2 \rb dx_1 \dots dx_n = \int_{0}^{R} r^{n-1} \exp \lb -r^2 \rb dr \int d \Omega_{n-1} = \notag \\
 	= \frac{2 \pi^{\frac{n}{2}}}{\Gamma \lb \frac{n}{2} \rb} \int_{0}^{R} r^{n-1} \exp \lb -r^2 \rb dr = \left[ t = r^2 \right] = \frac{\pi^{\frac{n}{2}}}{\Gamma \lb \frac{n}{2} \rb} \int_{0}^{R^2} t^{\frac{n}{2} - 1} \exp \lb -t \rb dt = \frac{\pi^{\frac{n}{2}}}{\Gamma \lb \frac{n}{2} \rb} \gamma \lb \frac{n}{2}, R^2 \rb \notag
+\end{gather}
+
+\newpage
+
+\section*{Расчет константы равновесия в каноническом ансамбле}
+
+Канонический ансамбль -- модель термодинамической системы, окруженной полупроницаемой (пропускает энергию, но не материю == diathermal) жесткой стенкой, погруженной в тепловой резервуар постоянной температуры. Тепловой резервуар обеспечивает постоянство температуры внутри рассматриваемой системы независимо от того в какую сторону протекает тепловой поток между ними. Таким образом, канонический ансамбль -- также называемый $NVT$-ансамблем -- состоит из $N$ частиц, находящихся в фиксированном объеме $V$ при фиксированной температуре $T$.  Рассматривая совокупность резервуара и погруженной в него исследуемой системы как микроканонической системы, получают каноническое распределение (распределение Гиббса) -- вероятность нахождения системы в состоянии с энергией $E_n$:
+\begin{gather}
+	\omega_n = A \times \exp \lb - \frac{E_n}{kT} \rb \quad \Leftrightarrow \quad \rho \lb p, q \rb = A \times \exp \lb - \frac{E \lb p, q \rb}{kT} \rb \notag
+\end{gather}
+Энтропия может быть выражена как среднее значение функции распределения:
+\begin{gather}
+	S = - \langle \ln \omega_n \rangle \notag \\
+	S = - \ln A + \frac{1}{T} \langle E_n \rangle = - \ln A + \frac{\overline{E}}{kT} \notag \\
+	\ln A = \frac{\overline{E} - TS}{kT} = \frac{F}{kT} \notag 
+\end{gather}
+Средняя энергия $\overline{E}$ есть как раз то, что понимается в термодинамике под энергией, таким образом получаем следующие выражение для функций распределения Гиббса через свободную энергию Гельмгольца:
+\begin{gather}
+	\omega_n = \exp \lb - \frac{F - E_n}{kT} \rb \quad \Leftrightarrow \quad \rho(p, q) = \frac{1}{\lb 2 \pi \hbar \rb^{s}} \exp \lb \frac{F - E(p, q)}{kT} \rb \notag
+\end{gather}
+
+Условие нормировки для распределения $\omega_n$:
+\begin{gather}
+	\sum_n \omega_n = \exp \lb \frac{F}{kT} \rb \sum_n \exp \lb - \frac{E_n}{kT} \rb = 1 \notag \\
+	F = - kT \ln \sum_n \exp \lb - \frac{E_n}{kT} \rb = - kT \ln Z \notag
+\end{gather}
+
+При записи аналогичной формулы в классической термодинамике следует учесть, что если, например, переменить местами два одинаковых атома, то после такой перестановки микросостояние тела будет изображаться другой фазовой точкой, получающейся из первоначальной заменой и импульсов одного атома координатами и импульсами другого. С другой стороны, ввдиу одинаковости переставляемых атомов оба состояния тела физически тождественны. Таким образом, одну и тому же физическому микросостоянию тела в фазовом пространстве соответствует целый ряд точек. При интегрировании распределения каждое состояние должно учитываться лишь однократно (т.к. можно рассмотреть классический статинтеграл как предел квантовой статистической суммы. В последней суммирование производится по всем различным квантовым состояниям), то есть, интегирование производится лишь по тем областям фазового пространства, которые соответсвуют физически различным состояниям тела (отмечается штрихом).
+\begin{gather}
+	F = - T \ln \int^{\prime} \exp \lb - \frac{E(p, q)}{kT} \rb d \Gamma, \quad d \Gamma = \frac{dp \, dq}{\lb 2 \pi \hbar \rb^s} \notag
+\end{gather}
+
+Не совсем понятно в каком месте появляется $F(0)$, но короче говоря, для ансамбля частиц предлагается следующее выражение для свободной энергии Гельмгольца.
+\begin{gather}
+	F = F(0) - k T \ln Q = F(0) - kT \ln \frac{q^N}{N!} \notag \\
+	F = F(0) - NkT \ln q + NkT \lb \ln N - 1 \rb \notag 
+\end{gather}
+
+Полагая $N = N_A$, приходим к мольному значению свободной энергии Гельмгольца:
+\begin{gather}
+	F_m = F_m(0) - RT \ln \frac{q}{N_A} - RT \notag
+\end{gather}
+
+В приближении идеального газа $G_m = F_m + p V_m = F_m + RT$. Кроме того, заметим, что $F_m(0) = U_m(0)$. Под $q^\barcirc = q_{NVT}^\barcirc$ понимается значение статсуммы, вычисленное при $N = N_A$, фиксированной температуре $T$ и при фиксированном объеме $V = \frac{RT}{p^\barcirc}$.
+\begin{gather} 
+	G_m = F_m(0) - RT \ln \frac{q}{N_A} \notag \\
+	G^{\barcirc} = U_m(0) - RT \ln \frac{q^\barcirc}{N_A} \notag \\
+	\Delta_r G^{\barcirc} = \Delta_r U_m(0) - RT \ln \prod_{i} \lb \frac{q_i^{\barcirc}}{N_A} \rb ^{\nu_i} \notag
+\end{gather}
+
+Используя равенство $\Delta_r G^{\barcirc} = - RT \ln K$, получаем выражение для термодинамической константы равновесия:
+\begin{gather}
+	K = \prod_{i = 1}^{r} \lb \frac{q_i^{\barcirc}}{N_A} \rb^{\nu_i} \exp \lb - \frac{\Delta_R U_m (0)}{RT} \rb \notag
+\end{gather}
+
+Термодинамическая и газовая константы равновесия связаны между собой следующим соотношением: 
+\begin{gather}
+	K =  \frac{K_p}{\lb p^{\barcirc} \rb^{\sum_i \nu_i}} \notag 
 \end{gather}
 
 \end{document}
