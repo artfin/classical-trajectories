@@ -41,6 +41,8 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
@@ -117,9 +119,13 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
-INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/lati1000.tfm
 OUTPUT main.pdf
 INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
+INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/lati1000.tfm
+INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm0700.tfm
+INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/lati0700.tfm
+INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm0500.tfm
+INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/lati0500.tfm
 INPUT plot.png
 INPUT ./plot.png
 INPUT ./plot.png

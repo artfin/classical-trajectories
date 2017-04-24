@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath,amssymb, amsfonts, amsthm}
 
 \usepackage{geometry}
 \geometry{
@@ -28,6 +28,15 @@
 \def\@barred#1#2{\ooalign{\hfil$#1-$\hfil\cr\hfil$#1#2$\hfil\cr}}%
 \newcommand\stst{^{\protect\barcirc}}%
 \makeatother
+
+%\usepackage{mathtools}
+%\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+%\DeclarePairedDelimeter\abs{\lvert}{\rvert}%
+%% swap the definition of \abs*, so that \abs resizes the size of the brackets, and the starred version does not
+%\makeatletter
+%\let\oldabs\abs
+%\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+%\makeatother
 
 \begin{document}
 
@@ -83,10 +92,17 @@
 	\frac{1}{h^5} \int \int dR d\theta \int \exp \lb -\frac{H_{mol}}{kT} \rb dp_R dp_\theta dJ_x dJ_y dJ_z = \frac{1}{h^5} \int \int [Jac \, ] \exp \lb -\frac{U}{kT} \rb dR d\theta \times \notag \\ \times \int_{x_1^2 + \dots + x_5^2 + \frac{U}{kT} < 0} \exp \lb - x_1^2 - \dots - x_5^2 \rb dx_1 \dots dx_5, \notag 
 \end{gather}
 
-где $[Jac \,]$ представляет собой следующее выражение (основываясь на представлении о том, что конструкцию $dx_1 dx_2 dx_3 dx_4 dx_5$ \textit{можно воспринимать} как дифференциальную форму $dx_1 \wedge dx_2 \wedge dx_3 \wedge dx_4 \wedge dx_5$, зануляю интегралы, которые содержат пару одинаковых $dx_i$; короче говоря, пара одинаковых $dx_i$ будет означать вырожденность элемента объема, что автоматически зануляет интеграл):
+где $[Jac \,]$ равен следующему произведению радикалов: 
 \begin{gather}
-	[Jac\,] = \frac{\partial [p_R, p_\theta, J_x, J_y, J_z]}{\partial [x_1, x_2, x_3, x_4, x_5]} = \sqrt{2 \mu_2 k T} \sqrt{2 \mu_1 l^2 k T} \sqrt{2 \mu_2 R^2 kT} \sqrt{2 \mu_2 R^2 kT} \sqrt{2 \mu_1 l^2 \sin^2 \theta kT} = \notag \\
-	= kT (2 \mu_2 kT)^\frac{3}{2} 2\mu_1 l^2 R^2 \sin \theta \notag
+	[Jac\,] = \Bigg{|} \frac{\partial [p_R, p_\theta, J_x, J_y, J_z]}{\partial [x_1, x_2, x_3, x_4, x_5]} \Bigg{|} = \det  
+	\begin{bmatrix}
+		\sqrt{2 \mu_2 k T} & 0 & 0 & 0 & 0 \\
+		0 & \sqrt{2 \mu_1 l^2 k T} & 0 & 0 & 0 \\
+		0 & 0 & 0 & \sqrt{2 \mu_2 R^2 k T} & -\sqrt{2 \mu_1 l^2 \cos^2 \theta} \\
+		0 & \sqrt{2 \mu_1 l^2 k T} & -\sqrt{2 \mu_2 R^2 k T} & 0 & 0 \\
+		0 & 0 & 0 & 0 & \sqrt{2 \mu_1 l^2 \sin^2 \theta k T}
+	\end{bmatrix} = \notag \\
+	= \sqrt{2 \mu_2 k T} \sqrt{2 \mu_1 l^2 k T} \sqrt{2 \mu_2 R^2 kT} \sqrt{2 \mu_2 R^2 kT} \sqrt{2 \mu_1 l^2 \sin^2 \theta kT} = (2 \mu_2 kT)^\frac{3}{2} 2\mu_1 l^2 k T R^2 \sin \theta \notag
 \end{gather}
 
 Применим формулу $(A13)$ к интегралу по многомерному шару:
@@ -142,9 +158,7 @@
 \vspace{0.3cm}
 С точностью до погрешности Монте-Карло формулы $(2)$ и $(3)$ дают одинаковый результат. (Интеграл в $(3)$ имеет порядок примерно $1 \cdot 10^8$, так что погрешности там могут быть достаточно существенными.)
 
-(При построении графика предполагаю, что потерял $2$ку в предынтегральном множителе, то есть следующий его вид: $\frac{2 \pi N_0}{RT}$.) 
-
-Температурная зависимость константы равновесия в обратных атмосферах; Simple formula -- $(1)$, General formula -- $(2)$ = $(3)$.
+(При построении графика предполагаю, что потерял $2$ку в предынтегральном множителе, то есть следующий его вид: $\frac{2 \pi N_0}{RT}$. Размерность -- $\textit{атм}^{-1}$.) 
 
 \includegraphics[scale=0.5]{plot.png}
 
@@ -227,7 +241,7 @@
 
 При записи аналогичной формулы в классической термодинамике следует учесть, что если, например, переменить местами два одинаковых атома, то после такой перестановки микросостояние тела будет изображаться другой фазовой точкой, получающейся из первоначальной заменой и импульсов одного атома координатами и импульсами другого. С другой стороны, ввдиу одинаковости переставляемых атомов оба состояния тела физически тождественны. Таким образом, одну и тому же физическому микросостоянию тела в фазовом пространстве соответствует целый ряд точек. При интегрировании распределения каждое состояние должно учитываться лишь однократно (т.к. можно рассмотреть классический статинтеграл как предел квантовой статистической суммы. В последней суммирование производится по всем различным квантовым состояниям), то есть, интегирование производится лишь по тем областям фазового пространства, которые соответсвуют физически различным состояниям тела (отмечается штрихом).
 \begin{gather}
-	F = - T \ln \int^{\prime} \exp \lb - \frac{E(p, q)}{kT} \rb d \Gamma, \quad d \Gamma = \frac{dp \, dq}{\lb 2 \pi \hbar \rb^s} \notag
+	F = -k T \ln \int^{\prime} \exp \lb - \frac{E(p, q)}{kT} \rb d \Gamma, \quad d \Gamma = \frac{dp \, dq}{\lb 2 \pi \hbar \rb^s} \notag
 \end{gather}
 
 Не совсем понятно в каком месте появляется $F(0)$, но короче говоря, для ансамбля частиц предлагается следующее выражение для свободной энергии Гельмгольца.
@@ -241,7 +255,7 @@
 	F_m = F_m(0) - RT \ln \frac{q}{N_A} - RT \notag
 \end{gather}
 
-В приближении идеального газа $G_m = F_m + p V_m = F_m + RT$. Кроме того, заметим, что $F_m(0) = U_m(0)$. Под $q^\barcirc = q_{NVT}^\barcirc$ понимается значение статсуммы, вычисленное при $N = N_A$, фиксированной температуре $T$ и при фиксированном объеме $V = \frac{RT}{p^\barcirc}$.
+В приближении идеального газа $G_m = F_m + p V_m = F_m + RT$. Кроме того, заметим, что $F_m(0) = U_m(0)$. Под $q^{\barcirc} = q_{NVT}^{\barcirc}$ понимается значение статсуммы, вычисленное при $N = N_A$, фиксированной температуре $T$ и при фиксированном объеме $V = \frac{RT}{p^\barcirc}$.
 \begin{gather} 
 	G_m = F_m(0) - RT \ln \frac{q}{N_A} \notag \\
 	G^{\barcirc} = U_m(0) - RT \ln \frac{q^\barcirc}{N_A} \notag \\
@@ -250,7 +264,7 @@
 
 Используя равенство $\Delta_r G^{\barcirc} = - RT \ln K$, получаем выражение для термодинамической константы равновесия:
 \begin{gather}
-	K = \prod_{i = 1}^{r} \lb \frac{q_i^{\barcirc}}{N_A} \rb^{\nu_i} \exp \lb - \frac{\Delta_R U_m (0)}{RT} \rb \notag
+	K = \prod_{i = 1}^{r} \lb \frac{q_i^{\barcirc}}{N_A} \rb^{\nu_i} \exp \lb - \frac{\Delta_r U_m (0)}{RT} \rb \notag
 \end{gather}
 
 Термодинамическая и газовая константы равновесия связаны между собой следующим соотношением: 
