@@ -56,18 +56,6 @@ def simple_integrand(x, temperature):
     else:
         return 0
 
-def full_integrand(x, temperature):
-    # x = [R, theta]
-    R = x[0]
-    theta = x[1]
-    potential_value = potential(R, theta)
-
-    if potential_value < 0:
-        u_kt = potential_value * htoj / (k * temperature)
-        return R**2 * np.sin(theta) * sp.gammainc(2.5, -u_kt) * np.exp(-u_kt)  
-    else:
-        return 0
-
 def adv_integrand(x, temperature):
     # x = [R, theta, pR, pT, Jx, Jy, Jz]
     hamiltonian_value = hamiltonian(x)
@@ -96,32 +84,12 @@ def simple_constant(temp):
 
     return eq_const
 
-# more general form of hamiltonian
-def general_constant(temp):
-    _full_integrand = partial(full_integrand, temperature = temp)
-    
-    print('*'*30)
-    print('Temperature: {0}'.format(temp))
-
-    start = time()
-    integ = vegas.Integrator([[3, 20], [0, np.pi]])
-    integral = integ(_full_integrand, nitn = 20, neval = 3 * 10**4)
-    print('integral (atomic units): {0}'.format(integral.mean))
-    interim = integral.mean * atomic_length_unit**3
-    print('Time needed: {0}'.format(time() - start))
-
-    eq_const = 2 * np.pi * avogadro / (R * temperature) * interim * patoatm
-    print('eq_const: {0}'.format(eq_const))
-    print('*'*30 + '\n')
-    
-    return eq_const
-
 # full phase integral
-def full_phase_constant(temp):
-    _adv_integrand = partial(adv_integrand, temperature = temp)
+def full_phase_constant(temperature):
+    _adv_integrand = partial(adv_integrand, temperature = temperature)
 
     print('*'*30)
-    print('Temperature: {0}'.format(temp))
+    print('Temperature: {0}'.format(temperature))
 
     start = time()
     integ = vegas.Integrator([[3, 20], [0, np.pi], [-50, 50], [-50, 50], [-100, 100], [-100, 100], [-100, 100]])
@@ -130,31 +98,20 @@ def full_phase_constant(temp):
     print('integral (atomic units): {0}'.format(integral.mean))
     print('Time needed: {0}'.format(time() - start))
 
-    # calculating value to compare with
-    q_tr = (2 * np.pi * mu2 * k * temperature / htoj)**(1.5)
-    q_rot = 2 * np.pi * mu1 * l**2  * k * temperature / htoj 
-    interim = integral.mean / q_tr / q_rot
-    print('integral divided by statsumms: {0}'.format(interim))
-    interim = interim * atomic_length_unit**3
+    #interim = 180529672.14
+    interim = integral.mean
 
-    eq_const = 2 * np.pi * avogadro / (R * temperature) * interim * patoatm
+    qtr_complex = (2 * np.pi * 84 * da * k * temperature / h**2)**(1.5)
+    q_ar = (2 * np.pi * 40 * da * k * temperature / h**2)**(1.5)
+    q_co2 = (2 * np.pi * 44 * da * k * temperature / h**2)**(1.5) * 8 * np.pi**2 * k * temperature * 16 * da * (116.3 * 10**(-12))**2 / h**2
+
+    print('qtr complex: {0}'.format(qtr_complex))
+    print('q_ar: {0}'.format(q_ar))
+    print('q_co2: {0}'.format(q_co2))
+
+    eq_const = avogadro / (R * temperature) * qtr_complex / q_ar / q_co2 * interim * patoatm * 8 * np.pi**2 / (2 * np.pi)**5 / 1.8857
     print('eq_const: {0}'.format(eq_const))
     print('*'*30 + '\n')
-
-    #integral = 180640253.314
-
-    # fully honest formula
-    #q_complex = (complex_mass * k * temperature / htoj / 2 / np.pi)**(1.5) # atomic units
-    #print('q_complex: {0}'.format(q_complex))
-    #q_co2 = 0.5 * (co2_mass * k * temperature / htoj / 2 /np.pi)**(1.5) * k * temperature / htoj * mu1 * l**2 # atomic units
-    #print('q_co2: {0}'.format(q_co2))
-    #q_ar = (ar_mass * k * temperature / htoj / 2 / np.pi)**(1.5) # atomic units
-    #print('q_ar: {0}'.format(q_ar))
-    
-    #eq_const = avogadro / (R * temperature) * q_complex / q_ar / q_co2 / 4 *  np.pi**-0.5 * atomic_length_unit**3 * integral * patoatm
-    #print('eq_const: {0}'.format(eq_const))
-    
-    #print('relation: {0}'.format(0.0356315235743 / eq_const))
 
     return eq_const
 
@@ -163,17 +120,13 @@ def save_constants(filename, temperatures, constants):
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = range(100, 400, 1)
+temperatures = range(200, 201, 1)
 # calculating simple constants
 simple_constants = [simple_constant(temperature) for temperature in temperatures]
-save_constants('simple_constants.dat', temperatures, simple_constants)
+#save_constants('simple_constants.dat', temperatures, simple_constants)
 
-# calculating general constants
-#general_constants = [general_constant(temperature) for temperature in temperatures]
-#save_constants('general_constants.dat', temperatures, general_constants)
-
-# calculating super full phase constant
-#phase_constants = [full_phase_constant(temperature) for temperature in temperatures]
+ #calculating super full phase constant
+phase_constants = [full_phase_constant(temperature) for temperature in temperatures]
 #save_constants('phase_constants.dat', temperatures, phase_constants)
 
 

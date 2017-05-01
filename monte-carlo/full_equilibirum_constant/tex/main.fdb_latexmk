@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1493024997 "main.tex" "main.pdf" "main" 1493024997
+["pdflatex"] 1493030229 "main.tex" "main.pdf" "main" 1493030246
   "/etc/texmf/web2c/texmf.cnf" 1491468032 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/labx1440.tfm" 1491517754 3304 6a543c07045572737981351171e0505e ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm0500.tfm" 1491906672 3252 bc0f8cc163ba94bbce20e59f671a255d ""
@@ -54,6 +54,7 @@
   "/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty" 1456875012 2431 fe3078ec12fc30287f568596f8e0b948 ""
   "/usr/share/texlive/texmf-dist/tex/latex/base/article.cls" 1454284088 20708 39fdf9e2fb65617012fa7382a351f485 ""
   "/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty" 1454284088 5619 b1e63522e111972696a4db609d2b915f ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd" 1454284088 2256 80ce1168fb4ce6a85583a9cf8972c013 ""
   "/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu" 1454284088 2006 ed35f065eb949f203d1b6acd2bc1dcb8 ""
   "/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu" 1454284088 3183 76313d3584eba6cfdb7421aa6c69c2dd ""
   "/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo" 1454284088 9179 4cd3c5f593e63512893b8ac0123f1bd7 ""
@@ -88,10 +89,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1458942643 31351 b32c45dce4a01cb7b53ed90c546614ca ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1491601216 245152 f4c2279c4fb3bceec023b5ce30be5231 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1491515014 989979 bda82939c26bbb848813c241fdc0c6ec ""
-  "main.aux" 1493024975 186 d84bf62585b18c5b92804f4b0a9189f3 ""
-  "main.tex" 1493024997 20558 1102531eefd98b923ec74e52e7e790e7 ""
+  "main.aux" 1493030229 186 d84bf62585b18c5b92804f4b0a9189f3 ""
+  "main.tex" 1493030225 20800 b633bf04d09c1432272f6ef9d6cce371 ""
   "plot.png" 1492984418 33460 f8669d8b534382601e10f4171735e314 ""
   (generated)
   "main.aux"
-  "main.log"
   "main.pdf"
+  "main.log"

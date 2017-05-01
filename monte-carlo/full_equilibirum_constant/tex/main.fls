@@ -131,6 +131,8 @@ INPUT ./plot.png
 INPUT ./plot.png
 INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm1440.tfm
 INPUT /home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/labx1440.tfm
+INPUT /usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+INPUT /usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 INPUT main.aux
 INPUT /usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t2a.enc
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
