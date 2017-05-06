@@ -57,17 +57,36 @@ def save_data(temperatures, svcs):
         for temperature, svc in zip(temperatures, svcs):
             out.write(str(temperature) + ' ' + str(svc) + '\n')
 
-temperatures = [75.0 + i * 5.0 for i in range(50)]
+def read_data(filename):
+    with open(filename, mode = 'r') as inputfile:
+        lines = inputfile.readlines()
 
-svcs = [cycle(temperature) for temperature in temperatures]
-save_data(temperatures, svcs)
+    temperatures = []
+    svcs = []
 
-#r = np.linspace(2.0, 10, 100)
-#val = [potential(_, 0., 0., 0.1) for _ in r]
+    for line in lines:
+        if len(line) > 1:
+            data = line.split()
 
-#plt.plot(r, val)
-#plt.show()
+            temperatures.append(float(data[0]))
+            svcs.append(float(data[1]))
 
+    return temperatures, svcs
+
+#temperatures = [75.0 + i * 5.0 for i in range(50)]
+
+#svcs = [cycle(temperature) for temperature in temperatures]
+#save_data(temperatures, svcs)
+
+article_temperatures = [75.0, 80.0, 90.0, 100.0, 110.0, 125.0, 150.0, 200.0, 250.0, 300.0]
+article_svcs = [-280.2, -247.0, -196.8, -161.0, -134.1, -104.4, -71.77, -35.79, -16.58, -4.75]
+
+temperatures, svcs = read_data('SVC.dat')
+
+plt.plot(temperatures, svcs, '--', color = 'k')
+plt.scatter(article_temperatures, article_svcs, marker = '*', color = 'r')
+plt.grid()
+plt.show()
 
 
 
