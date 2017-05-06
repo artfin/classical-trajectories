@@ -120,7 +120,7 @@ def save_constants(filename, temperatures, constants):
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = range(200, 201, 1)
+temperatures = range(150, 151, 1)
 # calculating simple constants
 simple_constants = [simple_constant(temperature) for temperature in temperatures]
 #save_constants('simple_constants.dat', temperatures, simple_constants)
