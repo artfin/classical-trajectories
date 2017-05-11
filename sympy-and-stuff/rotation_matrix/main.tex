@@ -1,0 +1,93 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+% blackboard lettering
+\usepackage{dsfont}
+\usepackage{bbm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\newcommand{\bbS}{\mathbb{S}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfJ}{\mathbf{J}}
+
+\begin{document}
+
+Ориентируем лабораторную систему координат в начальный момент времени таким образом, что вектор $\bfj$ ориентирован вдоль оси $OZ$. Матрица, связывающие координаты векторов в лабораторной и подвижной системах координат выглядит следующим образом: 
+\begin{gather}
+\bfj = \bbS \bfJ = 
+\begin{bmatrix}
+0 \\
+0 \\
+J
+\end{bmatrix} \notag \\
+\bbS = 
+\begin{bmatrix} 
+\cos \psi \cos \varphi - \cos \theta \sin \varphi \sin \psi & - \sin \psi \cos \varphi - \cos \theta \sin \varphi \cos \psi & \sin \theta \sin \varphi \\ \cos \psi \sin \varphi + \cos \theta \cos \varphi \sin \psi & - \sin \psi \sin \varphi + \cos \theta \cos \varphi \cos \psi & - \sin \theta \cos \varphi \\ \sin \theta \sin \psi & \sin \theta \cos \psi & \cos \theta 
+\end{bmatrix} \notag
+\end{gather}
+
+Так как матрица $\bbS$ ортогональна, то $\bbS^{-1} = \bbS^\top$. Итак, получаем следующиие соотношения на углы $\theta, \psi$:
+\begin{gather}
+\left\{
+\begin{aligned}
+J_x &= J \sin \psi \sin \theta \\
+J_y &= J \cos \psi \sin \theta \\
+J_z &= J \cos \theta
+\end{aligned}
+\right. \notag
+\end{gather}
+
+Из связи между вектором угловой скорости и вектор эйлеровых скоростей получим выражение для $\dot{\varphi}$:
+\begin{gather}
+\mathbf{\Omega} = \mathbb{V} \dot{\mathbf{e}} = 
+\begin{bmatrix}
+\sin \theta \sin \psi & \cos \varphi & 0 \\
+\sin \theta \cos \psi & - \sin \psi & 0 \\
+\cos \theta & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+\dot{\varphi} \\
+\dot{\theta} \\
+\dot{\psi}
+\end{bmatrix} 
+\quad \implies \quad
+\dot{\mathbf{e}} = 
+\begin{bmatrix}
+\displaystyle \frac{\sin \psi}{\sin \theta} & \displaystyle \frac{\cos \psi}{\sin \theta} & 0 \\
+\cos \psi & - \sin \psi & 0 \\
+- \sin \psi \ctg \theta & - \cos \psi \ctg \theta & 1 
+\end{bmatrix}
+\mathbf{\Omega} \notag \\
+\dot{\varphi} = \frac{1}{\sin \theta} \left( \Omega_x \sin \psi + \Omega_y \cos \psi \right) = J \cdot \frac{J_x \Omega_x + J_y \Omega_y}{J_x^2 + J_y^2} \notag
+\end{gather}
+
+Интегрируя, получаем значение угла $\varphi(t)$:
+\begin{gather}
+	\varphi(t) = J \cdot \int_{0}^{t} \frac{J_x(\xi) \Omega_x(\xi) + J_y(\xi)\Omega_y(\xi)}{J_x^2(\xi) + J_y^2(\xi)} d\xi \notag
+\end{gather}
+
+Компоненты матрицы $\bbS$ несложно выразить через компоненты углового момента и $\varphi$:
+\begin{gather}
+	\bbS = \frac{1}{\sqrt{J_x^2 + J_y^2}} 
+	\begin{bmatrix}
+		J_y \cos \varphi - \displaystyle \frac{1}{J} J_x J_z \sin \varphi & J_x \cos \varphi + \displaystyle \frac{1}{J} J_y J_z \sin \varphi & \displaystyle \frac{J_x^2 + J_y^2}{J} \sin \varphi \\
+		J_y \sin \varphi + \displaystyle \frac{1}{J} J_x J_z \cos \varphi & - J_x \sin \varphi + \displaystyle \frac{1}{J} J_y J_z \cos \varphi & - \displaystyle \frac{J_x^2 + J_y^2}{J} \cos \varphi \\
+		\displaystyle \frac{J_x}{J} \sqrt{J_x^2 + J_y^2} & \displaystyle \frac{J_y}{J} \sqrt{J_x^2 + J_y^2} & \displaystyle \frac{J_z}{J} \sqrt{J_x^2 + J_y^2}
+	\end{bmatrix} \notag
+\end{gather}
+
+\end{document}

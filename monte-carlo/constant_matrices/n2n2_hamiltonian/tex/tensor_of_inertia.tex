@@ -1,0 +1,55 @@
+\documentclass[a4paper]{article}
+
+\usepackage{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\usepackage{graphicx} % \scalebox
+\usepackage{environ}
+\NewEnviron{small_gather}{%
+	\begin{gather}
+		\scalebox{0.75}{$\BODY$}
+	\end{gather}
+}
+
+\begin{document}
+
+\begin{small_gather}
+\left[ \begin {array}{ccc} \mu_{{1}}{l_{{1}}}^{2} \left( \cos \left( 
+q_{{1}} \right)  \right) ^{2}
++ \mu_{{2}}{l_{{2}}}^{2}
+-\mu_{{2}}{l_{{2}}}^{2} \left( \cos \left( q_{{2}} \right)  \right) ^{2}
++\mu_{{2}}{l_{{2}}}^{2} \left( \cos \left( q_{{2}} \right)  \right) ^{2} \left( \cos
+ \left( q_{{3}} \right)  \right) ^{2}
+ + \mu_{{3}}{q_{{4}}}^{2}
+ &
+ -\mu_{{2}
+}{l_{{2}}}^{2}\cos \left( q_{{2}} \right)  \left( \sin \left( q_{{3}}
+ \right)  \right) ^{2}\sin \left( q_{{2}} \right) &-\mu_{{1}}{l_{{1}}}
+^{2}\sin \left( q_{{1}} \right) \cos \left( q_{{1}} \right) -\mu_{{2}}
+{l_{{2}}}^{2}\cos \left( q_{{2}} \right) \sin \left( q_{{3}} \right) 
+\cos \left( q_{{3}} \right) \\ \noalign{\medskip}-\mu_{{2}}{l_{{2}}}^{
+2}\cos \left( q_{{2}} \right)  \left( \sin \left( q_{{3}} \right) 
+ \right) ^{2}\sin \left( q_{{2}} \right) &\mu_{{1}}{l_{{1}}}^{2}+\mu_{
+{2}}{l_{{2}}}^{2} \left( \cos \left( q_{{2}} \right)  \right) ^{2}-\mu
+_{{2}}{l_{{2}}}^{2} \left( \cos \left( q_{{2}} \right)  \right) ^{2}
+ \left( \cos \left( q_{{3}} \right)  \right) ^{2}+\mu_{{2}}{l_{{2}}}^{
+2} \left( \cos \left( q_{{3}} \right)  \right) ^{2}+\mu_{{3}}{q_{{4}}}
+^{2}&-\mu_{{2}}{l_{{2}}}^{2}\sin \left( q_{{2}} \right) \sin \left( q_
+{{3}} \right) \cos \left( q_{{3}} \right) \\ \noalign{\medskip}-\mu_{{
+1}}{l_{{1}}}^{2}\sin \left( q_{{1}} \right) \cos \left( q_{{1}}
+ \right) -\mu_{{2}}{l_{{2}}}^{2}\cos \left( q_{{2}} \right) \sin
+ \left( q_{{3}} \right) \cos \left( q_{{3}} \right) &-\mu_{{2}}{l_{{2}
+}}^{2}\sin \left( q_{{2}} \right) \sin \left( q_{{3}} \right) \cos
+ \left( q_{{3}} \right) &2\,\mu_{{2}}{l_{{2}}}^{2} \left( \sin \left( 
+q_{{2}} \right)  \right) ^{2} \left( \sin \left( q_{{3}} \right) 
+ \right) ^{2}\end {array} \right] 
+ \end{small_gather}
+
+\end{document}

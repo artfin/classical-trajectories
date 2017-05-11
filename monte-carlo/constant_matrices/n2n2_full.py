@@ -41,12 +41,11 @@ def integrand(x, temperature):
     
     kinetic_energy = ke(*x)
     hamiltonian_value = kinetic_energy + potential(r, theta1, theta2, phi)
-    print('ham value: {0}; exp: {1}'.format(hamiltonian_value, np.exp(-hamiltonian_value * htoj / (k * temperature))))
+    #print('ham value: {0}; exp: {1}'.format(hamiltonian_value, np.exp(-hamiltonian_value * htoj / (k * temperature))))
 
     if hamiltonian_value < 0:
         print('*'*30)
-        print('kinetic_energy: {0}: x: {1}'.format(ke(*x), x))
-        print('*'*30)
+        print('kinetic_energy: {0}; x: {1}'.format(kinetic_energy, x))
         return np.exp(- hamiltonian_value * htoj / (k * temperature))
     else:
         return 0
@@ -59,7 +58,7 @@ def constant(temperature):
 
     start = time()
     integ = vegas.Integrator([[0.0, np.pi], [0.0, 2 * np.pi], [0.0, np.pi], [4.4, 45.0], [-50.0, 50.0], [-50.0, 50.0], [-50.0, 50.0], [-50.0, 50.0], [-50.0, 50.0], [-50.0, 50.0], [-50.0, 50.0]])
-    integral = integ(_integrand, nitn = 20, neval = 10**5)
+    integral = integ(_integrand, nitn = 20, neval = 10**7)
     print(integral.summary())
     print('integral (atomic units): {0}'.format(integral.mean))
     print('Time needed: {0}'.format(time() - start))

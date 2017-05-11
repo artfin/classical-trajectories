@@ -34,13 +34,16 @@ def integrand(x, temperature):
     theta2 = x[2]
     potential_value = potential(*x) * htoj
     
-    return (1 - np.exp(-potential_value / (k * temperature))) * r**2 * np.sin(theta1) * np.sin(theta2)
+    if r > 4.4:
+        return (1 - np.exp(-potential_value / (k * temperature))) * r**2 * np.sin(theta1) * np.sin(theta2)
+    else:
+        return r**2 * np.sin(theta1) * np.sin(theta2) 
 
 def cycle(temperature):
     _integrand = partial(integrand, temperature = temperature)
 
     start = time()
-    integ = vegas.Integrator([[4.4, 45.0], [0.0, np.pi], [0.0, np.pi], [0.0, 2 * np.pi]])
+    integ = vegas.Integrator([[0.0, 45.0], [0, np.pi], [0, np.pi], [0.0, 2 * np.pi]])
     result = integ(_integrand, nitn = 10, neval = 5 * 10**4)
     print('result: {0}; Q: {1}'.format(result, result.Q))
 
@@ -73,7 +76,7 @@ def read_data(filename):
 
     return temperatures, svcs
 
-#temperatures = [75.0 + i * 5.0 for i in range(50)]
+temperatures = [75.0 + i * 5.0 for i in range(50)]
 
 #svcs = [cycle(temperature) for temperature in temperatures]
 #save_data(temperatures, svcs)
