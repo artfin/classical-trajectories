@@ -1,0 +1,153 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+% blackboard lettering
+\usepackage{dsfont}
+\usepackage{bbm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\newcommand{\bbU}{\mathbb{U}}
+\newcommand{\bbG}{\mathbb{G}}
+\newcommand{\bbE}{\mathbb{E}}
+\newcommand{\bbS}{\mathbb{S}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfJ}{\mathbf{J}}
+\newcommand{\mH}{\mathcal{H}}
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+\newcommand{\lcb}{\left\{}
+\newcommand{\rcb}{\right\}}
+
+\title{Тензорный подход к выражениям для второго спектрального момента}
+\date{12 мая 2017}
+
+\begin{document}
+
+\maketitle
+
+Запишем вектор дипольного момента в МСК и его производную по времени в нотации Эйнштейна, $N_\alpha$ -- орты МСК:
+\begin{gather}
+	\mu = \mu^\alpha N_\alpha, \quad \dot{\mu} = \dot{\mu}^\alpha N_\alpha + \mu^\alpha \dot{N_\alpha} \notag
+\end{gather}
+
+Матрица $\bbS$ связывает координаты вектора в разных базисах: $N_\alpha = \bbS^\beta_\alpha n_\beta$. Производные ортов подвижной системы могут быть представлены с использованием скобки Пуссона по эйлеровым углам и импульсам (?):
+\begin{gather}
+	\dot{N}_\alpha = \lcb N_\alpha, \mH \rcb \notag
+\end{gather}
+
+Производная вектора дипольного момента преобразуется к виду:
+\begin{gather}
+	\dot{\mu} = \dot{\mu}^\alpha \bbS^\beta_\alpha n_\beta + \mu^\alpha \lcb \bbS^\beta_\alpha , \mH \rcb n_\beta \notag
+\end{gather}
+
+Несложно заметить, что матричный аналог первого слагаемого есть:
+\begin{gather}
+	\dot{\mu}^\alpha S^\beta_\alpha n_\beta = \bbS^\top 
+	\begin{bmatrix}
+		\dot{\mu}_X \\
+		\dot{\mu}_Y \\
+		\dot{\mu}_Z
+	\end{bmatrix} \notag
+\end{gather}
+
+Второе слагаемое может быть представлено в следующем виде:
+\begin{gather}
+	\lcb \bbS_\alpha^\beta , \mH \rcb = \lb \partial_k \bbS_\alpha^\beta \rb \lb \partial^l \mH \rb J^{k}_{l}, \notag
+\end{gather}
+где под $\partial$ понимается следующий дифференциальный оператор, действующий в фазовом пространстве: 
+\begin{gather}
+	\partial = \lb \frac{\partial}{\partial \varphi},  
+		       \frac{\partial}{\partial \theta},
+ 		       \frac{\partial}{\partial \psi},
+ 	   	       \frac{\partial}{\partial p_\varphi},
+ 		       \frac{\partial}{\partial p_\theta},
+ 		       \frac{\partial}{\partial p_\psi} \rb \notag
+\end{gather}
+
+Несложно сообразить, что тензор $J^{k}_{l}$ имеет следующее матричное представление (может быть представлен в виде блочной матрицы):
+\begin{gather}
+	J^{k}_{l} =
+	\begin{bmatrix}
+		0 & 0 & 0 & 1 & 0 & 0 \\
+		0 & 0 & 0 & 0 & 1 & 0 \\
+		0 & 0 & 0 & 0 & 0 & 1 \\
+	       -1 & 0 & 0 & 0 & 0 & 0 \\
+	       0 & -1 & 0 & 0 & 0 & 0 \\
+	       0 & 0 & -1 & 0 & 0 & 0
+	\end{bmatrix} =
+	\begin{bmatrix}
+		0 & \bbE \\
+		-\bbE & 0
+	\end{bmatrix}
+\end{gather}
+
+Осуществим переход к дифференциальному оператору, содержащему производные по компонентам углового момента (не будем уточнять вид матрицы $\bbG$):
+\begin{gather}
+	\widetilde{\partial} = 
+	\begin{bmatrix}
+		\frac{\partial}{\partial \varphi} \\
+		\frac{\partial}{\partial \theta} \\
+		\frac{\partial}{\partial \psi} \\
+		\frac{\partial}{\partial J_x} \\
+		\frac{\partial}{\partial J_y} \\
+		\frac{\partial}{\partial J_z} \\
+	\end{bmatrix} = \bbU \partial =  
+	\begin{bmatrix}
+		\bbE & 0 \\
+		0 & \bbG
+	\end{bmatrix}
+	\begin{bmatrix}
+		\frac{\partial}{\partial \varphi} \\
+		\frac{\partial}{\partial \theta} \\
+		\frac{\partial}{\partial \psi} \\
+		\frac{\partial}{\partial p_\varphi} \\
+		 \frac{\partial}{\partial p_\theta} \\
+		\frac{\partial}{\partial p_\psi} \\
+	\end{bmatrix} \notag
+\end{gather}
+
+Осуществим замену дифференциального оператора в выражении для скобки Пуассона:
+\begin{gather}
+	\lcb \bbS^\beta_\alpha , \mH \rcb = \lb \partial_k \bbS^\beta_\alpha \rb \lb \partial^l \mH \rb J^k_l = \lb \partial_k \bbS^\beta_\alpha \rb \lb \bbU^l_m \widetilde{\partial}^m \mH \rb J^k_l = \lb \partial_k \bbS^\beta_\alpha \rb \lb \widetilde{\partial}^m \mH \rb \widetilde{J}^k_m, \quad \widetilde{J}^k_m = \bbU^l_m J^k_l \notag 
+\end{gather}
+
+Матричное представление тензора $\widetilde{J}_m^k$ выглядит следующим образом:
+\begin{gather}
+	\widetilde{J}_m^k = 
+	\begin{bmatrix}
+		\bbE & 0 \\
+		0 & \bbG
+	\end{bmatrix}
+	\begin{bmatrix}
+		0 & E \\
+		-E & 0
+	\end{bmatrix} = 
+	\begin{bmatrix}
+		0 & E \\
+		-\bbG & 0
+	\end{bmatrix} \notag
+\end{gather}
+
+Заметим, что вид матрицы $\bbG$ не влияет на значение рассматриваемой скобки Пуассона (т.к. тензор $\partial_k \bbS^\beta_\alpha$ имеет первые три ненулевые компоненты, а тензор $\partial^l \mH$ -- последние три). Приходим к следующему выражению для скобки Пуассона:
+\begin{gather}
+	\lcb \bbS_\alpha^\beta, \mH \rcb = \partial_e \bbS_\alpha^\beta \frac{\partial \mH}{\partial \bfJ}, \notag
+\end{gather}
+где $\partial_e$ -- оператор дифференцирования по эйлеровым углам.
+
+\end{document}
+
