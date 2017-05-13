@@ -13,6 +13,9 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 
+% for strut keyword
+\usepackage{mathtools}
+
 % blackboard lettering
 \usepackage{dsfont}
 \usepackage{bbm}
@@ -45,7 +48,7 @@
 	\mu = \mu^\alpha N_\alpha, \quad \dot{\mu} = \dot{\mu}^\alpha N_\alpha + \mu^\alpha \dot{N_\alpha} \notag
 \end{gather}
 
-Матрица $\bbS$ связывает координаты вектора в разных базисах: $N_\alpha = \bbS^\beta_\alpha n_\beta$. Производные ортов подвижной системы могут быть представлены с использованием скобки Пуссона по эйлеровым углам и импульсам (?):
+Матрица $\bbS$ связывает координаты вектора в разных базисах: $N_\alpha = \bbS^\beta_\alpha n_\beta$. Производные ортов подвижной системы могут быть представлены с использованием скобки Пуссона по эйлеровым углам и импульсам:
 \begin{gather}
 	\dot{N}_\alpha = \lcb N_\alpha, \mH \rcb \notag
 \end{gather}
@@ -71,53 +74,36 @@
 \end{gather}
 где под $\partial$ понимается следующий дифференциальный оператор, действующий в фазовом пространстве: 
 \begin{gather}
-	\partial = \lb \frac{\partial}{\partial \varphi},  
-		       \frac{\partial}{\partial \theta},
- 		       \frac{\partial}{\partial \psi},
- 	   	       \frac{\partial}{\partial p_\varphi},
- 		       \frac{\partial}{\partial p_\theta},
- 		       \frac{\partial}{\partial p_\psi} \rb \notag
+	\partial = 
+	\begin{bmatrix}
+		\dfrac{\strut\partial}{\strut\partial \mathbf{e}} \\
+		\dfrac{\strut\partial}{\strut\partial \mathbf{p}_e}
+	\end{bmatrix} \notag
 \end{gather}
 
-Несложно сообразить, что тензор $J^{k}_{l}$ имеет следующее матричное представление (может быть представлен в виде блочной матрицы):
+Несложно сообразить, что тензор $J^{k}_{l}$ имеет следующее матричное представление (в виде блочной матрицы):
 \begin{gather}
 	J^{k}_{l} =
 	\begin{bmatrix}
-		0 & 0 & 0 & 1 & 0 & 0 \\
-		0 & 0 & 0 & 0 & 1 & 0 \\
-		0 & 0 & 0 & 0 & 0 & 1 \\
-	       -1 & 0 & 0 & 0 & 0 & 0 \\
-	       0 & -1 & 0 & 0 & 0 & 0 \\
-	       0 & 0 & -1 & 0 & 0 & 0
-	\end{bmatrix} =
-	\begin{bmatrix}
 		0 & \bbE \\
 		-\bbE & 0
-	\end{bmatrix}
+	\end{bmatrix} \notag
 \end{gather}
 
 Осуществим переход к дифференциальному оператору, содержащему производные по компонентам углового момента (не будем уточнять вид матрицы $\bbG$):
 \begin{gather}
 	\widetilde{\partial} = 
 	\begin{bmatrix}
-		\frac{\partial}{\partial \varphi} \\
-		\frac{\partial}{\partial \theta} \\
-		\frac{\partial}{\partial \psi} \\
-		\frac{\partial}{\partial J_x} \\
-		\frac{\partial}{\partial J_y} \\
-		\frac{\partial}{\partial J_z} \\
-	\end{bmatrix} = \bbU \partial =  
+		\dfrac{\strut\partial}{\strut\partial \mathbf{e}} \\
+		\dfrac{\strut\partial}{\partial \mathbf{J}} \\
+	\end{bmatrix} = \bbU \, \partial =  
 	\begin{bmatrix}
 		\bbE & 0 \\
 		0 & \bbG
 	\end{bmatrix}
 	\begin{bmatrix}
-		\frac{\partial}{\partial \varphi} \\
-		\frac{\partial}{\partial \theta} \\
-		\frac{\partial}{\partial \psi} \\
-		\frac{\partial}{\partial p_\varphi} \\
-		 \frac{\partial}{\partial p_\theta} \\
-		\frac{\partial}{\partial p_\psi} \\
+		\dfrac{\strut\partial}{\strut\partial \mathbf{e}} \\
+		\dfrac{\strut\partial}{\strut\partial \mathbf{p}_e} \\
 	\end{bmatrix} \notag
 \end{gather}
 
@@ -130,24 +116,58 @@
 \begin{gather}
 	\widetilde{J}_m^k = 
 	\begin{bmatrix}
+		0 & \bbE \\
+		-\bbE & 0
+	\end{bmatrix} 
+	\begin{bmatrix}
 		\bbE & 0 \\
 		0 & \bbG
-	\end{bmatrix}
-	\begin{bmatrix}
-		0 & E \\
-		-E & 0
 	\end{bmatrix} = 
 	\begin{bmatrix}
-		0 & E \\
-		-\bbG & 0
+		0 & \bbG \\
+		-\bbE & 0
 	\end{bmatrix} \notag
 \end{gather}
 
-Заметим, что вид матрицы $\bbG$ не влияет на значение рассматриваемой скобки Пуассона (т.к. тензор $\partial_k \bbS^\beta_\alpha$ имеет первые три ненулевые компоненты, а тензор $\partial^l \mH$ -- последние три). Приходим к следующему выражению для скобки Пуассона:
+Приходим к следующему выражению для скобки Пуассона:
 \begin{gather}
-	\lcb \bbS_\alpha^\beta, \mH \rcb = \partial_e \bbS_\alpha^\beta \frac{\partial \mH}{\partial \bfJ}, \notag
+	\lcb \bbS_\alpha^\beta, \mH \rcb = \lb \frac{\partial \bbS_\alpha^\beta}{\partial \mathbf{e}} \rb^\top \bbG \, \frac{\partial \mH}{\partial \bfJ}, \quad \bbG = \frac{1}{\sin \theta}
+\begin{bmatrix}
+	\sin \psi & \cos \psi \sin \theta & -\cos \theta \sin \psi \\
+	\cos \psi & \sin \psi \sin \theta & - \cos \theta \cos \psi \\
+	0 & 0 & \sin \theta
+\end{bmatrix} \notag
 \end{gather}
-где $\partial_e$ -- оператор дифференцирования по эйлеровым углам.
 
+Подставляя полученный результат в выражение для производной дипольного момента и переходя к матричной нотации:
+\begin{gather}
+	\dot{\mu} = \bbS^\top
+	\begin{bmatrix}
+		\dot{\mu_X} \\
+		\dot{\mu_Y} \\
+		\dot{\mu_Z}
+	\end{bmatrix} +
+        \mathbb{W}
+	\begin{bmatrix}
+		\mu_X \\
+		\mu_Y \\
+		\mu_Z
+	\end{bmatrix}, 
+	\quad 
+	\mathbb{W} = 
+	\begin{bmatrix}
+		\dfrac{\strut\partial \bbS^\top}{\strut\partial \varphi} &
+		\dfrac{\strut\partial \bbS^\top}{\strut\partial \theta} &
+		\dfrac{\strut\partial \bbS^\top}{\strut\partial \psi}
+	\end{bmatrix}
+	\bbG^\top
+	\begin{bmatrix}
+		\dfrac{\strut\partial \mH}{\strut\partial J_x} \\
+		\dfrac{\strut\partial \mH}{\strut\partial J_y} \\
+		\dfrac{\strut\partial \mH}{\strut\partial J_z}
+	\end{bmatrix} \notag
+\end{gather}
+
+(матрица $\mathbb{W}$ получается как результат произведения матричного вектора, обычной матрицы и обычного вектора)
 \end{document}
 
