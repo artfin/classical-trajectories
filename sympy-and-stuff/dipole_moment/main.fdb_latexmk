@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1494689573 "main.tex" "main.pdf" "main" 1494689573
+["pdflatex"] 1494690304 "main.tex" "main.pdf" "main" 1494690304
   "/etc/texmf/web2c/texmf.cnf" 1491468032 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm1200.tfm" 1494161899 3240 c2435f2b5cd66d4930bc29b8df87967e ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm1440.tfm" 1491517753 3256 3daaa33cf35cf3f354983aa3214ecd7f ""
@@ -94,9 +94,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1458942643 31351 b32c45dce4a01cb7b53ed90c546614ca ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1494161846 1630811 1531377ddf3380885f90969e471a70e4 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1491515014 989979 bda82939c26bbb848813c241fdc0c6ec ""
-  "main.aux" 1494689573 186 d84bf62585b18c5b92804f4b0a9189f3 ""
-  "main.tex" 1494689573 6342 05b0316be09a081199e2ab6871ad1678 ""
+  "main.aux" 1494690304 186 d84bf62585b18c5b92804f4b0a9189f3 ""
+  "main.tex" 1494690300 6279 db7a86fafcf0bf0e70f109bef2b5c6ec ""
   (generated)
-  "main.log"
-  "main.aux"
   "main.pdf"
+  "main.aux"
+  "main.log"
