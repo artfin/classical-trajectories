@@ -19,13 +19,6 @@ def integrand(x, Temperature):
     value =  (1 - np.exp(- potential_value / (k * Temperature))) * x[0]**2 * np.sin(x[1])
     return value
 
-def initialization(T):
-    _integrand = partial(integrand, Temperature = T)
-
-    integ = vegas.Integrator([[3., 50.], [0., np.pi]])
-    result = integ(_integrand, nitn = 50, neval = 10**4)
-    print 'First integration. result = %s Q = %.2f' % (result, result.Q)
-
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
     
@@ -48,10 +41,8 @@ def save_data(temperatures, svcs):
         for temperature, svc in zip(temperatures, svcs):
             out.write(str(temperature) + ' ' + str(svc) + '\n')
 
-initialization(T = 100)
-
-# temperatures = [100 + i for i in range(401)]
-temperatures = [213., 223., 242., 248.2, 262., 273.2, 276., 288.2, 290., 295., 296., 296.15, 300., 303.15, 303.2, 310.0, 313.2, 320.0, 322.85, 323.1, 330.0, 333.15, 363.15, 365., 400., 425., 450., 475.]
+temperatures = [100 + i for i in range(401)]
+#temperatures = [213., 223., 242., 248.2, 262., 273.2, 276., 288.2, 290., 295., 296., 296.15, 300., 303.15, 303.2, 310.0, 313.2, 320.0, 322.85, 323.1, 330.0, 333.15, 363.15, 365., 400., 425., 450., 475.]
 
 svcs = [cycle(temperature) for temperature in temperatures]
 

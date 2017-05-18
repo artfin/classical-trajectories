@@ -24,7 +24,7 @@ def integrand(x, Temperature):
 def initialization(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[3., 100.], [0., np.pi]])
+    integ = vegas.Integrator([[0., 100.], [0., np.pi]])
     result = integ(_integrand, nitn = 50, neval = 10**4)
     print 'First integration. result = %s Q = %.2f' % (result, result.Q)
 

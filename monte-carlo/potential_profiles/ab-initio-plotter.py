@@ -16,5 +16,6 @@ axes.set_ylim([-1e-2, 1e-2])
 
 plt.plot(x, u)
 plt.grid()
-plt.savefig('ab-initio-potential.png')
+plt.show()
+#plt.savefig('ab-initio-potential.png')
 
