@@ -34,7 +34,6 @@ print 'len(temperatures1): {0}'.format(len(temperatures1))
 print 'len(temperatures2): {0}'.format(len(temperatures2))
 print 'len(temperatures3): {0}'.format(len(temperatures3))
 
-
 lowest_temperature = 200
 highest_temperature = 500
 
@@ -42,14 +41,21 @@ temperatures1, parker_svc = cut_data(temperatures1, parker_svc, lowest_temperatu
 temperatures2, hutson_svc = cut_data(temperatures2, hutson_svc, lowest_temperature, highest_temperature)
 temperatures3, ab_initio_svc = cut_data(temperatures3, ab_initio_svc, lowest_temperature, highest_temperature)
 
-plt.plot(temperatures1, parker_svc, color = 'green', linestyle = 'dashed')
-plt.plot(temperatures2, hutson_svc, color = 'red', linestyle = 'dashdot')
-plt.plot(temperatures3, ab_initio_svc, color = 'blue', linestyle = 'dotted')
 
-green_patch = mpatches.Patch(color = 'green', label = 'Parker potential')
-orange_patch = mpatches.Patch(color = 'red', label = 'Hutson potential')
-blue_patch = mpatches.Patch(color = 'blue', label = 'Ab-Initio potential')
+fig = plt.figure()
 
+plt.rc('text', usetex = True)
+lw = 1.75
+l1, = plt.plot(temperatures1, parker_svc, color = '0.6', linestyle = 'solid', linewidth = lw)
+l2, = plt.plot(temperatures2, ab_initio_svc, color = '0.5', linestyle = 'dashed', linewidth = lw)
+l3, = plt.plot(temperatures3, hutson_svc, color = '0.4', linestyle = 'dotted', linewidth = lw)
+
+plt.xlabel(r'\textbf{T}, (K)')
+plt.ylabel(r'$\textbf{B}_2$, $\left( \, {\Large\displaystyle\frac{\textit{cm}^{\, 3}}{\textit{mol}}} \, \right)$')
+
+#fig.legend((l1, l2, l3), ('Parker', 'Ab-Initio', 'Hutson'), 'lower center', ncol = 3, fancybox = True, shadow = True, prop = {'size': 'large'})
+#plt.grid()
+#plt.show()
 
 #temperatures = [213., 223., 242., 262., 276., 288.2, 296., 303.2, 313.2, 323.1, 333.2, 365.]
 #single_rep = [-93.1, -84.8, -71.3, -59.8, -53.0, -47.8, -44.7, -42.0, -38.5, -35.4, -32.4, -24.2]
@@ -63,32 +69,31 @@ blue_patch = mpatches.Patch(color = 'blue', label = 'Ab-Initio potential')
     #plt.scatter(temperature, rep2, marker = 'x', color = 'magenta')
     #plt.errorbar(temperature, svc, error, color = 'red')
 
-#temperatures = [213., 213., 223., 223.2, 242., 242., 248.2, 262., 273.2, 276., 276., 288.2, 
-        #290.0, 290.0, 295., 295., 296., 296.15, 300.,
-        #300.0, 303.15, 303.2, 310., 313.2, 320., 322.85, 323.1, 330., 330., 333.15, 363.15,
-        #365., 400., 400., 425., 450., 450., 475.]
+temperatures = [213., 213., 223., 223.2, 242., 242., 248.2, 262., 273.2, 276., 276., 288.2, 
+        290.0, 290.0, 295., 295., 296., 296.15, 300.,
+        300.0, 303.15, 303.2, 310., 313.2, 320., 322.85, 323.1, 330., 330., 333.15, 363.15,
+        365., 400., 400., 425., 450., 450., 475.]
 
-#svcs = [-86.3, -94.0, -75.5, -74.8, -62.9, -70.0, -58.4, -50.8, -50.6, -43.4, -51.0, -40.3,
-        #-45.2, -46.4, -37.2, -44.0, -37.0, -44.1, -40.8,
-        #-41.7, -31.8, -34.2, -38.6, -31.2, -35.3, -30.1, -28.3, -27.3, -35.0, -25.8, -19.6,
-        #-16.2, -6.0, -13.0, -3.1, 0.5, -7.0, 1.7]
+svcs = [-86.3, -94.0, -75.5, -74.8, -62.9, -70.0, -58.4, -50.8, -50.6, -43.4, -51.0, -40.3,
+        -45.2, -46.4, -37.2, -44.0, -37.0, -44.1, -40.8,
+        -41.7, -31.8, -34.2, -38.6, -31.2, -35.3, -30.1, -28.3, -27.3, -35.0, -25.8, -19.6,
+        -16.2, -6.0, -13.0, -3.1, 0.5, -7.0, 1.7]
 
-#errors = [5., 7., 5.0, 1.0, 5.0, 7.0, 1.0, 5.0, 1.0, 5.0, 6.0, 2.0,
-          #1.4, 4.0, 5.0, 6.0, 2.0, 5.0, 1.3,
-          #4.0, 4.6, 2.0, 4.0, 2.0, 1.3, 2.0, 2.0, 5.0, 5.0, 4.2, 4.2,
-          #5.0, 4.0, 3.0, 4.0, 4.0, 2.0, 4.0]
+errors = [5., 7., 5.0, 1.0, 5.0, 7.0, 1.0, 5.0, 1.0, 5.0, 6.0, 2.0,
+          1.4, 4.0, 5.0, 6.0, 2.0, 5.0, 1.3,
+          4.0, 4.6, 2.0, 4.0, 2.0, 1.3, 2.0, 2.0, 5.0, 5.0, 4.2, 4.2,
+          5.0, 4.0, 3.0, 4.0, 4.0, 2.0, 4.0]
 
-
-#for temperature, svc, error in zip(temperatures, svcs, errors):
-    #plt.scatter(temperature, svc, marker = '*', color = 'k') 
-    ##plt.errorbar(temperature, svc, error, color = 'k', fmt = "*--")
+for temperature, svc, error in zip(temperatures, svcs, errors):
+    l4 = plt.scatter(temperature, svc, marker = '*', color = 'k') 
+    #plt.errorbar(temperature, svc, error, color = 'k', fmt = "*--")
 
 #error_patch = mpatches.Patch(color = 'k', label = 'Dymond-Smith Data')
 
 #plt.legend(handles = [error_patch, orange_patch, blue_patch])
-plt.legend(handles = [green_patch, orange_patch, blue_patch])
+fig.legend((l1, l2, l3, l4), ('Parker', 'Ab-Initio', 'Hutson', 'Experiment'), 'lower center', ncol = 4, fancybox = True, shadow = True, prop = {'size': 'large'})
 
-plt.grid()
+plt.grid(linestyle = ':', alpha = 0.7)
 plt.show()
 
 #plt.savefig('Exp_Hutson_Julia1.png')
