@@ -1,73 +1,37 @@
-
-//#include "const_values.h"
 /* ------------------------ MODULE mgear.cpp ------------------------ */
 #include "../jean-pierre/basis.h"         /*  for umleiten, fprintf, stderr, scanf,  */
-                           /*       printf, NULL, REAL, LZS, LZP,     */
-                           /*       fehler_melden, fehler_t           */
+                           		  /*       printf, NULL, REAL, LZS, LZP,     */
+                           		  /*       fehler_melden, fehler_t           */
 #include "../jean-pierre/vmblock.h"       /*  for  vmalloc, vmcomplete, vmfree,      */
-                           /*       vminit, VEKTOR                    */
+                          		  /*       vminit, VEKTOR                    */
 #include "../jean-pierre/gear.h"          /*  for  gear4, gear_fehlertext            */
 #include "../jean-pierre/t_dgls.h"        /*  for  bsptyp, dgls_waehlen              */
-
 /* ------------------------------------------------------------------ */
 
-
-//#include "sys/psp_pes_tapenade_d.h"
-
-
-
-//#include "f.h"
 #include "matrix.h"
+#include <iostream>
 
+using namespace std;
 
-
-/*static void syst(REAL x, REAL *y, REAL *f)
+void syst (REAL t ,REAL *y, REAL *f)
 {
-  //f[0] = y[0] * y[1] + COS(x) - HALF * SIN(TWO * x);
- // f[1] = y[0] * y[0] + y[1] * y[1] - (ONE + SIN(x));
-  f[0] = x;
-}*/
-
-
-void 
-syst (REAL t ,REAL *y, REAL *f)
-{
-  (void)(t); /* avoid unused parameter warning */
-  //double * par = (double *)params;
-
-  /*double *par = new double[4];
-   par[0]= 14579;
-  par[1]=38183;
-  par[2]=4.398;
-  par[3]=3.0;*/
+  (void)(t);  /* avoid unused parameter warning */
 
   double * out = new double[6];
-  rhs(out, y[0],y[1],y[2],y[3],y[4],y[5],3.0);
+  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], 30.0);
 
-
-  f[0] = out[0];//dR/dt  
- // f[1]=f1(y,par)-(dpotdR);//d(pR)/dt 
-  f[1]=out[1];
- 
-  f[2] = out[2];//d(Theta)/dt 
-  f[3] = out[3];//d(pT)/dt
- 
-  f[4] = out[4];//d(phi)/dt
-  f[5] = out[5];//d(theta)/dt
-
-
+  f[0] = out[0];   // dR/dt  
+  f[1] = out[1];   // d(pR)/dt
+  f[2] = out[2];   // d(Theta)/dt 
+  f[3] = out[3];   // d(pT)/dt
+  f[4] = out[4];   // d(phi)/dt
+  f[5] = out[5];   // d(theta)/dt
 
   delete [] out;
-  //delete [] par;
-
-  
 }
 
 
-
-
 int main() {
-
  
   REAL     epsabs;       /* absolute error bound                      */
   REAL     epsrel;       /* relative error bound                      */
@@ -83,76 +47,52 @@ int main() {
   int      N;            /* number of DEs in system                   */
   int      fehler;       /* error code from umleiten(), gear4()       */
   int      i;            /* loop counter                              */
- 
-                        
+                         
   void     *vmblock;     /* List of dynamically allocated vectors     */
 
-/* -------------------- read input  -------------------- */
-
   N = 6;
- 
-  vmblock = vminit();                 /* initialize storage */
+
+  // initialize storage
+  vmblock = vminit();           
   y0  = (REAL *)vmalloc(vmblock, VEKTOR, N, 0);
- 
-  if (! vmcomplete(vmblock))  {       /* out of memory? */
+  
+  // out of memory?
+  if (! vmcomplete(vmblock))  {
     printf("mgear: out of memory.\n");
     return 0;
   }
 
-  
-
   epsabs = 1E-10;
   epsrel = 1E-10;
-  x0 = 0.0;
+  
+  int T_STEP = 1000;
+  int T_LENGTH= 2000000;
 
-   //double y[6] = { 10.0, -1.0,1.0,1.0,1.0,1.0 };
+  h = 0.1;
+  fmax = 100000;  
 
-  y0[0] = 7.0;
-  y0[1] = 1.0;
+  // y = [R, pR, theta, pT, phi, theta]
+  y0[0] = 20.0;
+  y0[1] = -5.0;
   y0[2] = -0.2;
   y0[3] = 1.0;
   y0[4] = 1.0;
   y0[5] = 1.0;
 
-
-  h =0.1;
-  xend = 30000;
-  fmax = 1000000;  /* ------------ put out the input data ----------- */
-
-
-
+  for ( int T = 0; T < T_LENGTH - 1; T += T_STEP ) {
+      
+	x0 = T;
+      	xend = T + T_STEP;
+	cout << "x0: " << x0 << "; xend: " << xend << endl;
  
+  	fehler = gear4(&x0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
 
-
-  /* ------------ Solve system of DEs -------------- */
-
-  fehler = gear4(&x0, xend, N, syst, y0, epsabs,
-                 epsrel, &h, fmax, &aufrufe);
-
-  if (fehler != 0) {
-    printf(" Gear4: error n° %d\n", 10 + fehler);
-    return 0;
-  }
-
-
-  /* -------------------- put out results ------------------- */
-
-  printf("\n\n"
-         "Output data:\n"
-         "------------\n"
-         "error code from gear4():                  %24d\n"
-         "final local step size:                    %24.15"LZP"e\n"
-         "number of calls of right hand side:       %24ld\n"
-         "Integration stopped at x =                %24.15"LZP"e\n\n",
-         fehler, h, aufrufe, x0);
-
-  for (i = 0; i < 1; i++)
-    printf("approximate solution y%d(x) = %24.15"LZP"e\n",
-           i + 1, y0[i]);
-
+  	if (fehler != 0) {
+            printf(" Gear4: error n° %d\n", 10 + fehler);
+            return 0;
+  	}
+  } 
   
-
   return 0;
 }
 
-/* -------------------------- END mgear.cpp ------------------------- */

@@ -2,8 +2,8 @@
 #include <math.h>
 #include <Eigen/Dense>
 
+#include "co2_ar_dipole.h"
 #include "../parker_snow/psp_pes.h"
-// #include <Eigen/Core>
 #include "matrix.h"
 
 using namespace Eigen;
@@ -171,18 +171,17 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     cor_term = j_vector_dbeta.transpose() * G12 * p_vector;
     double h_dbeta = ang_term + cor_term;
     
+    Vector3d omega = G11 * j_vector + G12 * p_vector;
+    double phi_dot = omega[0] * cos(alpha) / sin(beta) + omega[1] * sin(alpha) / sin(beta);
+	
     out[0] = h_dr; 
     out[1] = h_dtheta;
     out[2] = h_dp(0);
     out[3] = h_dp(1);
     out[4] = h_dalpha;
     out[5] = h_dbeta;
-
-    //cout << "out[0]: " << out[0] << endl;
+    out[6] = phi_dot;
 }
-
-
-
 
 void rhs(double* out, double R, double theta, double pR, double pT, double alpha, double beta, double J)
 // input:
@@ -190,9 +189,40 @@ void rhs(double* out, double R, double theta, double pR, double pT, double alpha
 {
     double Jsint = J * sin(theta);
 
-    double* derivatives = new double[6];
+    double* derivatives = new double[7];
     hamiltonian(derivatives, R, theta, pR, pT, alpha, beta, J);
     
+    FILE *ofp;
+    ofp = fopen("output/trajectory.dat", "a");
+
+    double phi_dot = derivatives[6];
+  
+    if ( ofp != NULL )  {
+	    fprintf(ofp, "%6lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf\n", R, theta, pR, pT, alpha, beta, J, phi_dot);
+    }
+
+    fclose(ofp);
+
+    double dipole_x = dipx(R, theta);
+    double dipole_y = 0;
+    double dipole_z = dipz(R, theta);
+
+    double ddipole_x_dr = ddipxdR(R, theta);
+    double ddipole_y_dr = 0;
+    double ddipole_z_dr = ddipzdR(R, theta);
+
+    double ddipole_x_dTheta = ddipxdTheta(R, theta);
+    double ddipole_y_dTheta = 0; 
+    double ddipole_z_dTheta = ddipzdTheta(R, theta);
+  
+    ofp = fopen("output/dipole.dat", "a");
+
+    if ( ofp != NULL ) {
+	    fprintf(ofp, "%6lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf\n", dipole_x, dipole_y, dipole_z, ddipole_x_dr, ddipole_y_dr, ddipole_z_dr, ddipole_x_dTheta, ddipole_y_dTheta, ddipole_z_dTheta);
+    }
+
+    fclose(ofp);
+
     out[0] = derivatives[2]; // /dot(R) = dH/dpR
     out[1] = derivatives[3]; // /dot(theta) = dH/dpT
     out[2] = - derivatives[0] - dpsp_pesdR(R,theta);  // /dot(pR) = - dH/dR = - dT/dR - dU/dR (to hartrees from cm^-1)

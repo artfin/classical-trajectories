@@ -1,0 +1,38 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% modifying page layout using fancyhdr
+\fancyhf{}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}} % adding number to section name
+\renewcommand{\subsectionmark}[1]{\markright{\thesubsection\ #1}} % adding number to subsection name
+
+% bibliography
+\usepackage[nottoc]{tocbibind}
+
+\title{...}
+\date{}
+\author{}
+
+\begin{document}
+
+\maketitle
+
+In connection with the problem of climatic modeling of planet atmospheres \cite{vigasin2017} in the recent years attention has been drawn to the theoretical description of collision-induced absorption of the gases consisting of symmetic molecules. Calculation of quantum spectra for the majority of polyatomic systems is considered to be impossible \cite{frommhold}. Modeling absorption spectrum on the base of classical trajectories method or calculation of spectral moments using classical rovibrational Hamilton function are usually considered as alternative methods. \par 
+In this study we present the precise expressions for the second spectral moment of the system with the arbitrary number of degrees of freedom. Subsequently, they were applied to the rotranslational absorption band of $Ar-CO_2$ taking into account molecular potential anisotropy and induced dipole moment. Preliminary estimation of profile of induced absorption band could be made taking into consideration spectral moments \cite{word2017}. \par
+	Temperature effect on spectral moments was calculated with numerical integration over phase space. Deviation of calculated values of spectral moments from experimental data has not exceeded few percents. \par
+	Multidimensional phase integral in the expression of gaseous equilibrium constant of $Ar-CO_2$ system has been simplified to the integral over area where $U < 0$, using the approach in \cite{vigasin2015}. Calculation of equilibrium constants over wide temperature range was made. They are used in estimation of dimer contribution to the absorption band profile.
+
+\renewcommand{\refname}{References}
+\bibliographystyle{unsrt}
+\bibliography{biblio.bib}
+
+\end{document}
+

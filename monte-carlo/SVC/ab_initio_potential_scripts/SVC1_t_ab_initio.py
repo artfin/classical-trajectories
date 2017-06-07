@@ -23,26 +23,15 @@ def integrand(x, Temperature):
     # x = [R, theta]
     u = potential(x[0], x[1]) * htoj
     du_dr = derivative_R(x[0], x[1])
-    
     value = np.exp(-u / (k * Temperature)) * (du_dr)**2 * x[0]**2 * np.sin(x[1])
-
     return value
-
-def initialization(T):
-    _integrand = partial(integrand, Temperature = T)
-
-    integ = vegas.Integrator([[0., 20.], [0., np.pi]])
-    start = time()
-    result = integ(_integrand, nitn = 20, neval = 40000)
-    print 'Time needed: {0}'.format(time() - start)
-    print 'First integration, result = %s Q = %.2f' % (result, result.Q)
 
 def cycle(T):
     _integrand = partial(integrand, Temperature = T)
 
-    integ = vegas.Integrator([[0., 100.], [0., np.pi]])
+    integ = vegas.Integrator([[0., 50.], [0., np.pi]])
     start = time()
-    result = integ(_integrand, nitn = 50, neval = 10**4)
+    result = integ(_integrand, nitn = 10, neval = 10**4)
 	
     print 'result = %s Q = %.2f' % (result, result.Q)
 
@@ -53,14 +42,14 @@ def cycle(T):
     return SVC_correction
 
 def save_data(temperatures, svc_corrections):
-    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC1t.dat'
-    with open(filename, mode = 'w') as out:
+    filename = '/home/artfin/Desktop/repos/classical-trajectories/classical-trajectories/monte-carlo/SVC/data/ab-initio/SVC1t_long.dat'
+    with open(filename, mode = 'a') as out:
         for temperature, svc_correction in zip(temperatures, svc_corrections):
             out.write(str(temperature) + ' ' + str(svc_correction) + '\n')
 
 # initialization(200)
-#temperatures = [100 + i for i in range(101)]
-temperatures = [213., 223., 242., 248.2, 262., 273.2, 276., 288.2, 290., 295., 296., 296.15, 300., 303.15, 303.2, 310.0, 313.2, 320.0, 322.85, 323.1, 330.0, 333.15, 363.15, 365., 400., 425., 450., 475.]
+temperatures = [350 + i for i in range(0, 150)]
+#temperatures = [213., 223., 242., 248.2, 262., 273.2, 276., 288.2, 290., 295., 296., 296.15, 300., 303.15, 303.2, 310.0, 313.2, 320.0, 322.85, 323.1, 330.0, 333.15, 363.15, 365., 400., 425., 450., 475.]
 
 svc_corrections = [cycle(temperature) for temperature in temperatures]
 

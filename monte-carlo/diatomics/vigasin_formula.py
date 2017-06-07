@@ -24,15 +24,15 @@ def integrand(x, Temperature):
     else:
         return 0.0
 
-def determine_sigma():
-    x_space = np.linspace(5, 10, 10000)
+#def determine_sigma():
+    #x_space = np.linspace(5, 10, 10000)
 
-    for x1, x2 in zip(x_space, x_space[1:]):
-        if potential(x1, np.pi/2) > 0 and potential(x2, np.pi/2) < 0:
-            return x1
+    #for x1, x2 in zip(x_space, x_space[1:]):
+        #if potential(x1, np.pi/2) > 0 and potential(x2, np.pi/2) < 0:
+            #return x1
 
-sigma = determine_sigma()
-print 'sigma: {0}'.format(sigma)
+#sigma = determine_sigma()
+#print 'sigma: {0}'.format(sigma)
 
 def cycle(Temperature):
     print 'Temperature: {0}'.format(Temperature)
@@ -40,8 +40,8 @@ def cycle(Temperature):
     _integrand = partial(integrand, Temperature = Temperature)
     
     start = time()
-    integ = vegas.Integrator([[sigma, 100]])
-    result = integ(_integrand, nitn = 20, neval = 10**4)
+    integ = vegas.Integrator([[0, 50]])
+    result = integ(_integrand, nitn = 10, neval = 10**4)
     print 'Time needed: {0}'.format(time() - start)
     
     print 'result = %s Q = %.2f' % (result, result.Q)
@@ -54,10 +54,10 @@ def save_constants(temperatures, constants):
         for temperature, constant in zip(temperatures, constants):
             out.write(str(temperature) + ' ' + str(constant) + '\n')
 
-temperatures = range(310, 501)
+temperatures = range(100, 150)
 constants = [cycle(temperature) for temperature in temperatures]
 
-for temperature, constant in zip(temperatures, constants):
-    print 'temperature: {0}; constant: {1}'.format(temperature, constant)
+#for temperature, constant in zip(temperatures, constants):
+    #print 'temperature: {0}; constant: {1}'.format(temperature, constant)
 
-save_constants(temperatures, constants)
+#save_constants(temperatures, constants)
