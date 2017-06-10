@@ -1,10 +1,14 @@
 from __future__ import print_function
 import numpy as np
+import matplotlib.pyplot as plt
 
-def read_trajectory(filename):
+from scipy.integrate import simps
+
+def read_file(filename):
        
     with open(filename, mode = 'r') as inputfile:
         for index, line in enumerate(inputfile):
+
             if index % 1000 == 0:
                 print(index)
 
@@ -14,35 +18,26 @@ def read_trajectory(filename):
                 else:
                     data = np.vstack((data, np.array([float(s) for s in line.split()])))
 
-    #R = np.array([])
-    #theta = np.array([])
-    #pR = np.array([])
-    #pT = np.array([])
-    #alpha = np.array([])
-    #beta = np.array([])
-    #J = np.array([])
-    #phi_dot = np.array([])
+    return data
 
-    #for index, line in enumerate(lines):
-        #if len(line) > 0:
-           
-            #if index % 1000 == 0:
-                #print(index)
-            
-            #data = line.split()
-            
-            #R = np.append(R, float(data[0]))
-            #theta = np.append(theta, float(data[1]))
-            #pR = np.append(pR, float(data[2]))
-            #pT = np.append(pT, float(data[3]))
-            #alpha = np.append(alpha, float(data[4]))
-            #beta = np.append(beta, float(data[5]))
-            #J = np.append(J, float(data[6]))
-            #phi_dot = np.append(phi_dot, float(data[7]))
+#traj_file = read_file('../output/trajectory.dat')
+dip_file = read_file('../output/dipole.dat')
 
-    #print(R)
+time = dip_file[:,0]
+phi_dot = dip_file[:,1]
+phi = [] 
 
+for i in range(1, len(time)):
+    rt = time[:i]
+    rp = phi_dot[:i]
 
-read_trajectory('../output/trajectory.dat')
+    # integrating phi_dot using simpson method
+    _phi = simps(rp, rt)
+    phi.append(_phi)
 
+    if i % 1000 == 0:
+        print(i)
+
+plt.plot(time[1:], phi)
+plt.show()
 

@@ -74,7 +74,7 @@ void fill_A_matrix(Matrix<double, 3, 2> &A, double &R, double &theta)
     A(2, 0) = A(2, 1) = 0;
 }
 
-void hamiltonian(double* out, double R, double theta, double pR, double pT, double alpha, double beta, double J)
+void hamiltonian(double* out, double R, double theta, double pR, double pT, double alpha, double beta, double J, bool dip_calc)
 {
     //declaring angular momentum and its derivatives
     Vector3d j_vector(J * cos(alpha) * sin(beta),
@@ -88,6 +88,7 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
                             J * sin(alpha) * cos(beta),
                            -J * sin(beta));
     
+    // declaring impulse vector
     Vector2d p_vector(pR, pT);
 
     // declaring inertia tensor and it's derivatives
@@ -126,109 +127,127 @@ void hamiltonian(double* out, double R, double theta, double pR, double pT, doub
     G22 = t2.inverse();
 
     G12.noalias() = - G11 * A * a.inverse();
+
+    // if usual derivative calculation is needed
     
-    Matrix<double, 3, 3> G11_dr;
-    Matrix<double, 3, 3> G11_dtheta;
-    Matrix<double, 2, 2> G22_dr;
-    Matrix<double, 2, 2> G22_dtheta;
-    Matrix<double, 3, 2> G12_dr;
-    Matrix<double, 3, 2> G12_dtheta;
-    
+    if (dip_calc == false) {
+	    
+	    Matrix<double, 3, 3> G11_dr;
+	    Matrix<double, 3, 3> G11_dtheta;
+	    Matrix<double, 2, 2> G22_dr;
+	    Matrix<double, 2, 2> G22_dtheta;
+	    Matrix<double, 3, 2> G12_dr;
+	    Matrix<double, 3, 2> G12_dtheta;
+	    
+	    // derivatives dH/dr and dH/dtheta
+	    G11_dr = - G11 * I_dr * G11;
+	    G11_dtheta = - G11 * I_dtheta * G11;
+	   
+	    G22_dr = - G22 * A.transpose() * I_inv * I_dr * I_inv * A * G22; 
+	    G22_dtheta = - G22 * A.transpose() * I_inv * I_dtheta * I_inv * A * G22;
 
-    // derivatives dH/dr and dH/dtheta
-    G11_dr = - G11 * I_dr * G11;
-    G11_dtheta = - G11 * I_dtheta * G11;
-   
-    G22_dr = - G22 * A.transpose() * I_inv * I_dr * I_inv * A * G22; 
-    G22_dtheta = - G22 * A.transpose() * I_inv * I_dtheta * I_inv * A * G22;
+	    G12_dr = - G11_dr * A * a_inv;
+	    G12_dtheta = -G11_dtheta * A * a_inv;
 
-    G12_dr = - G11_dr * A * a_inv;
-    G12_dtheta = -G11_dtheta * A * a_inv;
+	    double ang_term, kin_term, cor_term;
 
-    double ang_term, kin_term, cor_term;
+	    ang_term = 0.5 * j_vector.transpose() * G11_dr * j_vector;
+	    kin_term = 0.5 * p_vector.transpose() * G22_dr * p_vector;
+	    cor_term = j_vector.transpose() * G12_dr * p_vector;
+	    double h_dr = ang_term + kin_term + cor_term;
+	    
+	    //cout << "h_dr: " << h_dr << endl;
 
-    ang_term = 0.5 * j_vector.transpose() * G11_dr * j_vector;
-    kin_term = 0.5 * p_vector.transpose() * G22_dr * p_vector;
-    cor_term = j_vector.transpose() * G12_dr * p_vector;
-    double h_dr = ang_term + kin_term + cor_term;
-    
-    //cout << "h_dr: " << h_dr << endl;
+	    ang_term = 0.5 * j_vector.transpose() * G11_dtheta * j_vector;
+	    kin_term = 0.5 * p_vector.transpose() * G22_dtheta * p_vector;
+	    cor_term = j_vector.transpose() * G12_dtheta * p_vector;
+	    double h_dtheta = ang_term + kin_term + cor_term;
+	    
+	    // (vector of) derivatives dH/dp
+	    Vector2d h_dp = G22 * p_vector + G12.transpose() * j_vector;
 
-    ang_term = 0.5 * j_vector.transpose() * G11_dtheta * j_vector;
-    kin_term = 0.5 * p_vector.transpose() * G22_dtheta * p_vector;
-    cor_term = j_vector.transpose() * G12_dtheta * p_vector;
-    double h_dtheta = ang_term + kin_term + cor_term;
-    
-    // (vector of) derivatives dH/dp
-    Vector2d h_dp = G22 * p_vector + G12.transpose() * j_vector;
+	    // derivatives dH/dalpha, dH/dbeta
+	    ang_term = j_vector.transpose() * G11 * j_vector_dalpha;
+	    cor_term = j_vector_dalpha.transpose() * G12 * p_vector;
+	    double h_dalpha = ang_term + cor_term;
 
-    // derivatives dH/dalpha, dH/dbeta
-    ang_term = j_vector.transpose() * G11 * j_vector_dalpha;
-    cor_term = j_vector_dalpha.transpose() * G12 * p_vector;
-    double h_dalpha = ang_term + cor_term;
+	    ang_term = j_vector.transpose() * G11 * j_vector_dbeta;
+	    cor_term = j_vector_dbeta.transpose() * G12 * p_vector;
+	    double h_dbeta = ang_term + cor_term;
+	    	
+	    out[0] = h_dr; 
+	    out[1] = h_dtheta;
+	    out[2] = h_dp(0);
+	    out[3] = h_dp(1);
+	    out[4] = h_dalpha;
+	    out[5] = h_dbeta;
 
-    ang_term = j_vector.transpose() * G11 * j_vector_dbeta;
-    cor_term = j_vector_dbeta.transpose() * G12 * p_vector;
-    double h_dbeta = ang_term + cor_term;
-    
-    Vector3d omega = G11 * j_vector + G12 * p_vector;
-    double phi_dot = omega[0] * cos(alpha) / sin(beta) + omega[1] * sin(alpha) / sin(beta);
-	
-    out[0] = h_dr; 
-    out[1] = h_dtheta;
-    out[2] = h_dp(0);
-    out[3] = h_dp(1);
-    out[4] = h_dalpha;
-    out[5] = h_dbeta;
-    out[6] = phi_dot;
+    } else {
+	    
+	    Vector3d omega = G11 * j_vector + G12 * p_vector;
+	    double phi_dot = omega[0] * cos(alpha) / sin(beta) + omega[1] * sin(alpha) / sin(beta);
+	    
+	    double dipole_x = dipx(R, theta);
+	    double dipole_y = 0;
+	    double dipole_z = dipz(R, theta);
+
+	    //double ddipole_x_dr = ddipxdR(R, theta);
+	    //double ddipole_y_dr = 0;
+	    //double ddipole_z_dr = ddipzdR(R, theta);
+
+	    //double ddipole_x_dTheta = ddipxdTheta(R, theta);
+	    //double ddipole_y_dTheta = 0; 
+	    //double ddipole_z_dTheta = ddipzdTheta(R, theta);
+
+	    out[0] = phi_dot;
+	    out[1] = dipole_x;
+	    out[2] = dipole_y;
+	    out[3] = dipole_z;
+	    //out[4] = ddipole_x_dr;
+	    //out[5] = ddipole_y_dr;
+	    //out[6] = ddipole_z_dr;
+	    //out[7] = ddipole_x_dTheta;
+	    //out[8] = ddipole_y_dTheta;
+	    //out[9] = ddipole_z_dTheta;
+    }
 }
 
 void rhs(double* out, double R, double theta, double pR, double pT, double alpha, double beta, double J)
-// input:
-//      out -- prepared array to fill the right-hand sides of ODEs
 {
-    double Jsint = J * sin(theta);
+	double Jsint = J * sin(theta);
 
-    double* derivatives = new double[7];
-    hamiltonian(derivatives, R, theta, pR, pT, alpha, beta, J);
-    
-    FILE *ofp;
-    ofp = fopen("output/trajectory.dat", "a");
+	// calling hamiltonian function in "normal-mode":
+	// fills in derivatives array
+	double* derivatives = new double[7];
+	hamiltonian(derivatives, R, theta, pR, pT, alpha, beta, J, false);
 
-    double phi_dot = derivatives[6];
-  
-    if ( ofp != NULL )  {
-	    fprintf(ofp, "%6lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf\n", R, theta, pR, pT, alpha, beta, J, phi_dot);
-    }
+	out[0] = derivatives[2]; // /dot(R) = dH/dpR
+	out[1] = derivatives[3]; // /dot(theta) = dH/dpT
+	out[2] = - derivatives[0] - dpsp_pesdR(R,theta);  // /dot(pR) = - dH/dR = - dT/dR - dU/dR (to hartrees from cm^-1)
+	out[3] = - derivatives[1] - dpsp_pesdTheta(R, theta); // /dot(pT) = - dH/dtheta = -dT/dtheta - dU/dtheta (to hartrees from cm^-1)
+	out[4] = 1 / Jsint * derivatives[5]; // /dot(varphi) = 1 / J / sin(teta) * dH/dtheta
+	out[5] = - 1 / Jsint * derivatives[4]; // /dot(theta) = - 1 / J / sin(theta) * dH/dvarphi
 
-    fclose(ofp);
-
-    double dipole_x = dipx(R, theta);
-    double dipole_y = 0;
-    double dipole_z = dipz(R, theta);
-
-    double ddipole_x_dr = ddipxdR(R, theta);
-    double ddipole_y_dr = 0;
-    double ddipole_z_dr = ddipzdR(R, theta);
-
-    double ddipole_x_dTheta = ddipxdTheta(R, theta);
-    double ddipole_y_dTheta = 0; 
-    double ddipole_z_dTheta = ddipzdTheta(R, theta);
-  
-    ofp = fopen("output/dipole.dat", "a");
-
-    if ( ofp != NULL ) {
-	    fprintf(ofp, "%6lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf\n", dipole_x, dipole_y, dipole_z, ddipole_x_dr, ddipole_y_dr, ddipole_z_dr, ddipole_x_dTheta, ddipole_y_dTheta, ddipole_z_dTheta);
-    }
-
-    fclose(ofp);
-
-    out[0] = derivatives[2]; // /dot(R) = dH/dpR
-    out[1] = derivatives[3]; // /dot(theta) = dH/dpT
-    out[2] = - derivatives[0] - dpsp_pesdR(R,theta);  // /dot(pR) = - dH/dR = - dT/dR - dU/dR (to hartrees from cm^-1)
-    out[3] = - derivatives[1] - dpsp_pesdTheta(R, theta); // /dot(pT) = - dH/dtheta = -dT/dtheta - dU/dtheta (to hartrees from cm^-1)
-    out[4] = 1 / Jsint * derivatives[5]; // /dot(varphi) = 1 / J / sin(teta) * dH/dtheta
-    out[5] = - 1 / Jsint * derivatives[4]; // /dot(theta) = - 1 / J / sin(theta) * dH/dvarphi
-
-    delete[] derivatives;
+	delete[] derivatives;
 }
+
+//int main()
+//{
+  //double *out = new double[6];
+  //hamiltonian(out, 20.0, -5.0, -0.2, 1.0, 1.0, 1.0, 30.0, false);
+  
+  //for (int i = 0; i < 6; i++) {
+  	//cout << out[i] << endl;
+  //}
+
+  //cout << "----------" << endl;
+
+  //double *out2 = new double[10];
+  //hamiltonian(out2, 20.0, -5.0, -0.2, 1.0, 1.0, 1.0, 30.0, true);
+
+  //for (int i = 0; i < 10; i++ ) {
+	  //cout << out2[i] << endl;
+  //}
+
+  //return 0;
+//}

@@ -13,12 +13,14 @@
 
 using namespace std;
 
+const double J = 5.0;
+
 void syst (REAL t ,REAL *y, REAL *f)
 {
-  (void)(t);  /* avoid unused parameter warning */
+  (void) (t);  /* avoid unused parameter warning */
 
   double * out = new double[6];
-  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], 30.0);
+  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], J);
 
   f[0] = out[0];   // dR/dt  
   f[1] = out[1];   // d(pR)/dt
@@ -65,8 +67,8 @@ int main() {
   epsabs = 1E-10;
   epsrel = 1E-10;
   
-  int T_STEP = 1000;
-  int T_LENGTH= 2000000;
+  int T_STEP = 100;
+  int T_LENGTH= 5500000;
 
   h = 0.1;
   fmax = 100000;  
@@ -79,6 +81,9 @@ int main() {
   y0[4] = 1.0;
   y0[5] = 1.0;
 
+  FILE *traj_file = fopen("output/trajectory.dat", "w");
+  FILE *dipole_file = fopen("output/dipole.dat", "w");
+
   for ( int T = 0; T < T_LENGTH - 1; T += T_STEP ) {
       
 	x0 = T;
@@ -87,12 +92,26 @@ int main() {
  
   	fehler = gear4(&x0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
 
+  	double *dip_out = new double[4];
+  	hamiltonian(dip_out, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], J, true);
+
+	if ( dipole_file != NULL ) {
+		fprintf(dipole_file, "%lf %6lf %6lf %6lf %6lf\n", xend, dip_out[0], dip_out[1], dip_out[2], dip_out[3]);
+	}
+
+	if ( traj_file != NULL ) {
+		fprintf(traj_file, "%lf %6lf %6lf %6lf %6lf %6lf %6lf %6lf\n", xend, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], J);
+	}
+	
   	if (fehler != 0) {
             printf(" Gear4: error n° %d\n", 10 + fehler);
             return 0;
   	}
   } 
   
+  fclose(traj_file);
+  fclose(dipole_file);
+
   return 0;
 }
 

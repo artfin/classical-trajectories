@@ -6,6 +6,11 @@ CXXFLAGS = -I /usr/local/include/eigen3/ -std=c++11 -O3 -march=native -mtune=nat
 trajectories: basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o f.o  leg_arr.o matrix.o co2_ar_dipole.o trajectories.o
 	$(CCXX) $(CXXFLAGS) trajectories.o basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o f.o  leg_arr.o matrix.o  co2_ar_dipole.o -o $@ 
 
+co2_ar_dipole.o: co2_ar_dipole.cpp 
+	$(CCXX) $(CXXFLAGS) -c co2_ar_dipole.cpp
+
+matrix.o: matrix.cpp
+	$(CCXX) $(CXXFLAGS) -c matrix.cpp
 
 awp.o: 
 	$(CCXX) $(CXXFLAGS) -c ../jean-pierre/awp.cpp
@@ -34,14 +39,30 @@ psp_pes.o:
 f.o: f.cpp
 	$(CCXX) $(CXXFLAGS) -c f.cpp
 
-co2_ar_dipole.o: 
-	$(CCXX) $(CXXFLAGS) -c co2_ar_dipole.cpp
-
-matrix.o: matrix.cpp
-	$(CCXX) $(CXXFLAGS) -c matrix.cpp
-
 trajectories.o: trajectories.cpp
 	$(CCXX) $(CXXFLAGS) -c trajectories.cpp
 
 clean:
 	rm *.o
+
+
+# ----------------------------
+#hamiltonian: matrix.o co2_ar_dipole.o leg_arr.o psp_pes.o
+	#$(CCXX) $(CXXFLAGS) matrix.o co2_ar_dipole.o leg_arr.o psp_pes.o -o $@
+
+#co2_ar_dipole.o: co2_ar_dipole.cpp 
+	#$(CCXX) $(CXXFLAGS) -c co2_ar_dipole.cpp
+
+#matrix.o: matrix.cpp
+	#$(CCXX) $(CXXFLAGS) -c matrix.cpp
+
+#leg_arr.o: 
+	#$(CCXX) $(CXXFLAGS) -c  ../parker_snow/leg_arr.cpp
+
+#psp_pes.o: 
+	#$(CCXX) $(CXXFLAGS) -c  ../parker_snow/psp_pes.cpp
+
+#clean:
+	#rm *.o
+
+
