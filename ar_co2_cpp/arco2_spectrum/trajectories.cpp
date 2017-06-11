@@ -73,7 +73,7 @@ int main() {
   h = 0.1;
   fmax = 100000;  
 
-  // y = [R, pR, theta, pT, phi, theta]
+  // y = [R, pR, theta, pT, alpha, beta]
   y0[0] = 20.0;
   y0[1] = -5.0;
   y0[2] = -0.2;
