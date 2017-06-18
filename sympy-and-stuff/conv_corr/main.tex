@@ -1,0 +1,56 @@
+\documentclass[14pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+
+\newcommand{\intty}{\int\limits_{-\infty}^{\infty}}
+
+\begin{document}
+
+\subsection*{Definitions}
+
+\begin{gather}
+F \lb \omega \rb = \int\limits_{-\infty}^{\infty} f(t) \exp \lb - i \omega t \rb d t \notag \\
+f(t) = F^{-1} \left[ F \lb \omega \rb \right] = \int\limits_{-\infty}^{\infty} F \lb \omega \rb \exp \lb i \omega t \rb \frac{d \omega}{2 \pi} \notag
+\end{gather}
+
+
+\subsection*{Convolution theorem}
+
+\begin{gather}
+	f * g = \intty g \lb t^\prime \rb f \lb t - t^\prime \rb d t^\prime = \intty g(t^\prime) \left[ \, \intty F(\omega) \exp \lb i \omega (t - t^\prime) \rb \frac{d \omega}{2 \pi} \right] d t^\prime = \intty F(\omega) \left[ \, \intty g(t^\prime) \exp \lb i \omega (t - t^\prime) \rb d t^\prime \right] \frac{d \omega}{2 \pi}  = \notag \\ 
+	= \intty F(\omega) G(\omega) \exp \lb i \omega t \rb \frac{d \omega}{2 \pi} = F^{-1} \left[ F(\omega) G(\omega) \right] \notag \\
+	F \left[ f * g \right] = F(\omega) G(\omega) \notag
+\end{gather}
+
+
+\subsection*{Correlation theorem}
+
+\begin{gather}
+	f \bigstar g = \intty \bar{f}(\tau) g(t + \tau) d \tau = \intty \left[ \, \intty \bar{F}(\omega) \exp(-i \omega \tau) \frac{d \omega}{2 \pi} \right] \left[ \, \intty G(\omega^\prime) \exp \lb i \omega^\prime ( t + \tau) \rb \frac{d \omega^\prime}{2 \pi} \right] d \tau = \notag \\
+	= \intty \intty \bar{F}(\omega) G(\omega^\prime) \exp \lb i \omega^\prime t \rb \left[ \, \intty \exp \lb i \tau (\omega^\prime - \omega) \rb \frac{d \tau}{2 \pi} \right] \frac{d \omega}{2 \pi} \frac{d \omega^\prime}{2 \pi} = \intty \intty \bar{F}(\omega)G(\omega^\prime) \exp \lb i \omega^\prime t \rb  \delta \lb \omega - \omega^\prime \rb \frac{d \omega}{2 \pi} d \omega^\prime = \notag \\
+	= \intty \bar{F}(\omega) G(\omega) \exp \lb i \omega t \rb \frac{d \omega}{2 \pi} = F^{-1} \left[ \bar{F}(\omega) G(\omega) \right] \notag \\
+	F \left[ f \bigstar g \right] = \bar{F}(\omega) G(\omega) \notag
+\end{gather}
+
+\subsection*{Autocorrelation function and Wiener-Khintchine theorem}
+
+\begin{gather}
+C(t) = f \bigstar f = \intty \bar{f}(\tau) f(t + \tau) d \tau \notag \\
+F \left[ C(t) \right] = | F (\omega) |^2 \quad \longleftrightarrow \quad \intty \intty \bar{f}(\tau) f(t + \tau) \exp \lb - i \omega t \rb d t \, d \tau = \Bigg{|} \intty f(t) \exp \lb i \omega t \rb dt \Bigg{|}^2 \notag
+\end{gather}
+
+\end{document}
+
+
