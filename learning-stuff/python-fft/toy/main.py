@@ -26,13 +26,13 @@ plt.ylabel(r'\large \textbf{Amplitude}')
 #plt.grid(linestyle = ':', alpha = 0.7)
 #plt.show()
 
-xs = np.array([0.0, 1.0, 2.0, 3.0])
-ps = np.array([0.0, 1.0, 0.0, 0.0])
+xs = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+ps = np.array([0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0])
 
 plt.scatter(xs, ps, color = '0.5', marker = 'o', s = 50)
 
-#plt.plot([4.0, 4.0], [0.0, 2.5], linestyle = 'dotted', color = 'blue')
-#plt.text(4.2, 2.0, r'\large \textbf{Nyquist limit}')
+plt.plot([4.0, 4.0], [0.0, 2.5], linestyle = 'dotted', color = 'blue')
+plt.text(4.2, 2.0, r'\large \textbf{Nyquist limit}')
 
 plt.grid(linestyle = ':', alpha = 0.7)
 plt.show()
