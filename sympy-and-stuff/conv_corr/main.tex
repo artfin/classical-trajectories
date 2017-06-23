@@ -16,6 +16,13 @@
 
 \newcommand{\intty}{\int\limits_{-\infty}^{\infty}}
 
+% table/tabular packages
+\usepackage{tabularx, rotating, ragged2e, booktabs, caption}
+\usepackage{graphicx}
+\usepackage[verbose]{placeins}
+\usepackage{blindtext}
+\usepackage{multicol}
+
 \begin{document}
 
 \subsection*{Definitions}
@@ -50,6 +57,55 @@ f(t) = F^{-1} \left[ F \lb \omega \rb \right] = \int\limits_{-\infty}^{\infty} F
 C(t) = f \bigstar f = \intty \bar{f}(\tau) f(t + \tau) d \tau \notag \\
 F \left[ C(t) \right] = | F (\omega) |^2 \quad \longleftrightarrow \quad \intty \intty \bar{f}(\tau) f(t + \tau) \exp \lb - i \omega t \rb d t \, d \tau = \Bigg{|} \intty f(t) \exp \lb i \omega t \rb dt \Bigg{|}^2 \notag
 \end{gather}
+
+\newpage
+
+\subsection*{Discrete Fourier transform -- toy example}
+
+\begin{gather}
+	\begin{aligned}
+		& \textup{continuous} \quad \quad \quad &X(\omega) = \intty x(t) \exp \left( - 2 \pi i \omega t \right) \notag \\
+	 & \textup{discrete} \quad \quad \quad & X_k = \sum_{n = 0}^{N - 1} x_n \exp \left( - \frac{2 \pi i k n}{N} \right) \notag \\
+	& \quad \quad \quad \quad \quad \quad \quad  \omega \cong \frac{k}{N}, \quad \quad n \cong t
+\end{aligned}
+\end{gather}
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=\linewidth]{pictures/signal.png}
+\end{center}
+\caption{Sine wave $f(x) = \sin \lb 2 \pi x \rb$: $\omega = 1 Hz$, amplitude $ = $ 1. Sampling frequency: 8 Hz}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{cc}
+	\toprule
+	Amplitude in time domain & Amplitude in frequency domain \\
+	\midrule 
+	0.000 & 0.000 \\
+	0.707 & -4i \\
+	1.000 & 0.000 \\
+	0.707 & 0.000 \\
+	0.000 & 0.000 \\
+       -0.707 & 0.000 \\
+       -1.000 & 0.000\\
+       -0.707 & 4i \\
+	\bottomrule
+\end{tabular}
+\end{center}
+
+Frequency resolution = $\displaystyle \frac{\textup{Sampling frequency}}{\textup{Number of samples}} = \frac{8 \textup{Hz}}{8} = 1 \textup{Hz}$. 
+\begin{figure}[!h]
+	\includegraphics[width = \linewidth]{pictures/power_spectrum.png}
+	\caption{Power spectrum. $\omega_i$ -- $|X_i|$.}
+\end{figure}
+
+Getting rid of all frequencies above Nyquist limit, doubling amplitudes and normalizing amplitudes by number of samples.
+
+\begin{figure}[!h]
+	\includegraphics[width = \linewidth]{pictures/true_spectra.png}
+	\caption{Normalized power spectrum}
+\end{figure}
 
 \end{document}
 

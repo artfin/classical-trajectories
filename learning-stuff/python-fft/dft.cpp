@@ -38,17 +38,17 @@ void print_vector(const vector<double> &v, string name) {
 
 int main()
 {
-	size_t n = 4;
-	static const double arr1[] = {1.0, 2.0, 3.0, 4.0};
+	size_t n = 8;
+	static const double arr1[] = {0.000, 0.707, 1.000, 0.707, 0.000, -0.707, -1.000, -0.707};
 	const vector<double> in_real (arr1, arr1 + n);
 	print_vector(in_real, "in_real");
 
-	static const double arr2[] = {0.0, 0.0, 0.0, 0.0};
+	static const double arr2[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	const vector<double> in_imag (arr2, arr2 + n);
 	print_vector(in_imag, "in_imag");
 
-	vector<double> out_real(4);
-	vector<double> out_imag(4);
+	vector<double> out_real(n);
+	vector<double> out_imag(n);
 
 	computeDFT(in_real, in_imag, out_real, out_imag);
 
