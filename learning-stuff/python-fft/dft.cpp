@@ -38,12 +38,12 @@ void print_vector(const vector<double> &v, string name) {
 
 int main()
 {
-	size_t n = 8;
-	static const double arr1[] = {0.000, 0.707, 1.000, 0.707, 0.000, -0.707, -1.000, -0.707};
+	size_t n = 15;
+	static const double arr1[] = {0.000, 4.618, 3.837, -0.449, -1.815, 1.732, 4.980, 2.767, -2.767, -4.980, -1.732, 1.815, 0.449, -3.837, -4.618};
 	const vector<double> in_real (arr1, arr1 + n);
 	print_vector(in_real, "in_real");
 
-	static const double arr2[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+	static const double arr2[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	const vector<double> in_imag (arr2, arr2 + n);
 	print_vector(in_imag, "in_imag");
 

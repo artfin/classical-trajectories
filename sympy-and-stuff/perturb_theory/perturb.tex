@@ -1,0 +1,118 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{braket}
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+
+\newcommand{\mf}{\mathbf}
+
+\begin{document}
+
+\subsection*{Time-independent Hamiltonian with a time-dependent perturbation}
+
+Рассмотрим вариант теории возмущений, полагая, что невозмущенный гамильтониан не зависит от времени, а возмущение зависит. Таким образом, возмущенный гамильтониан может быть разложен по степеням возмущения:
+
+\begin{gather}
+	\hat{H}(t) = \hat{H}^{(0)} + \lambda \hat{V} = \hat{H}^{(0)} + \lambda \hat{H}^{(1)}(t) + \lambda^2 \hat{H}^{(2)}(t) + \dots \notag
+\end{gather}
+
+Используя формализм временной теории возмущений, аппроксимируем решение $\Psi(\mf{r}, t)$ временного уравнения Шредингера:
+\begin{gather}
+	i \hbar \frac{\partial \Psi}{\partial t} = \hat{H}(t) \Psi \notag
+\end{gather}
+
+В произвольный момент $t$ функция $\Psi(\mf{r}, t)$ может быть разложена в полном базисе собственных функций $\psi_k^{(0)}(\mf{r})$ невозмущенного гамильтониана $\hat{H}^{(0)}$:
+\begin{gather}
+	\Psi(\mf{r}, t) = \sum_k b_k(t) \psi_k^{(0)}(\mf{r}) \notag
+\end{gather}
+
+Переобозначим коэффициенты разложения для упрощения дальнейших выкладок $b_k(t) = a_k(t) \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb$:
+\begin{gather}
+	\Psi(\mf{r}, t) = \sum_k a_k(t) \psi_k^{(0)} (\mf{r}) \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb \notag
+\end{gather}
+
+Подставляя данное разложение во временное уравнение Шредингера, получаем (используем бракет нотацию $\psi_m = \ket{m^{(0)}}$) :
+\begin{gather}
+	i \hbar \sum_m \frac{d a_m(t)}{dt} \ket{m^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb = \sum_m a_m(t) \lambda \hat{V}(t) \ket{m^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag  
+\end{gather}
+
+Умножаем слева обе части на бра-вектор $\bra{k^{(0)}}$ и используем ортогонормированность собственных функций невозмущенного гамильтониана:  
+\begin{gather}
+	i \hbar \frac{d a_k(t)}{dt} \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb = \sum_m a_m(t) \lambda \bra {k^{(0)}} \hat{V}(t) \ket{n^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag 
+\end{gather}
+
+При дальнейших преобразованиях будем использовать вариант теории возмущения первого порядка, возмущение будем считать линейным по параметру разложения $\lambda$: $\hat{H}(t) = \hat{H}^{(0)} + \lambda \hat{H}^{(1)}(t)$. Разрешаем уравнения относительно производных коэффициентов $a_k(t)$:
+\begin{gather}
+	\frac{d a_k(t)}{dt} = - \frac{i \lambda}{\hbar} \sum_m a_m(t) H_{km}^{(1)}(t) \exp \lb i \omega_{km} t \rb , \notag
+\end{gather}
+где были введены обозначения резонансной частоты $\omega_{kn} = \displaystyle \frac{1}{\hbar} \lb E_k^{(0)} - E_n^{(0)} \rb$ и матричного элемента $H_{kn}^{(1)}(t) = \bra{k^{(0)}} \hat{H}^{(1)} \ket{n^{(0)}}$.
+
+Интегрируя дифференциальные уравнения, получаем
+\begin{gather}
+	a_k(t) - a_k(0) = - \frac{i \lambda}{\hbar} \sum_m \int\limits_0^t a_m(t^\prime) H_{kn}^{(1)} (t^\prime) \exp \lb i \omega_{kn} t^\prime \rb d t^\prime \label{eq:diff1}
+\end{gather}
+
+Разложим коэффициенты $a_k(t)$ в ряд по степеням параметра возмущения $\lambda$:
+\begin{gather}
+	a_k(t) = a_k^{(0)}(t) + \lambda a_k^{(1)}(t) + \lambda^2 a_k^{(2)}(t) + \dots \label{eq:exp1}
+\end{gather}
+Имеем ввиду, что параметр возмущения $\lambda$ никак не связан со временем $t$. Считаем, что в момент времени $t$ система не возмущена и мы все о ней знаем, для коэффициентов $a_k(t)$ это имеет следующее значение:
+\begin{gather}
+	a_k(0) = a_k^{(0)}(0) \notag 
+\end{gather}
+
+
+Дополнительно положим 
+\begin{gather}
+	a_m^{(0)}(0) = \delta_{mj}, \label{eq:exp2}
+\end{gather}
+имея ввиду, что в момент времени $t = 0$ система находится исключительно в состоянии $\ket{j^{(0)}}$. Подставляя разложение \eqref{eq:exp1} в уравнения \eqref{eq:diff1}, получим
+\begin{gather}
+	a_k^{(0)}(t) - a_k^{(0)}(0) = 0 \notag \\
+	a_k^{(1)}(t) - a_k^{(1)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(0)}(t^\prime) H_{km}^{(1)} (t^\prime) \exp (i \omega_{km} t^\prime) dt^\prime \notag \\
+	a_k^{(2)}(t) - a_k^{(2)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(1)} (t^\prime) H_{km}^{(1)} (t^\prime) \exp (i \omega_{km} t^\prime) d t^\prime \notag \\
+ \dots \notag 
+\end{gather}
+
+Полученные уравнения являются рекурсивными и позволяют найти значения коэффициентов более высокого порядка разложения $a_k^{(m + 1)}(t)$ при наличии коэффициентов предыдущего уровня $a_k^{(m)}(t)$. Используя дополнительное предположение \eqref{eq:exp2} о невозмущенном состоянии, преобразуем выражение для коэффициентов разложения первого порядка $a_k^{(1)}(t)$ :
+\begin{gather}
+	a_k^{(1)}(t) = - \frac{i}{\hbar} \sum_m \int\limits_{0}^{t} a_m^{(0)} (t^\prime) H_{km}^{(1)} (t^\prime) \exp \lb i \omega_{km} t^\prime \rb d t^\prime = - \frac{i}{\hbar} \int\limits_0^t H_{kj}^{(1)}(t^\prime) \exp \lb i \omega_{kj} t^\prime \rb d t^\prime \label{eq:exp3}
+\end{gather}
+
+Вероятность найти систему в состоянии $\ket{k^{(0)}}$ в момент времени $t$ определяется квадратом модуля коэффициента $a_k(t)$:
+\begin{gather}
+	P_{k}(t) = | a_k(t) |^2  = | a_k^{(0)}(t) + \lambda a_k^{(1)} + \lambda^2 a_k^{(2)}(t) + \dots |^2 \notag
+\end{gather}
+
+Полагая $ H_{kj}^{(1)}$ в \eqref{eq:exp3} не зависящим от $t$:
+\begin{gather}
+	a_k^{(1)}(t) = - \frac{H_{kj}^{(1)}}{\hbar} \frac{\exp \lb i \omega_{kj} t \rb - 1}{\omega_{kj}}, \quad k \neq j \notag
+\end{gather}
+
+Определим для этого случая вероятность нахождения частицы в состоянии $\ket{k}$ в момент времени $t$:
+\begin{gather}
+	P_k = |a _k^{(1)} |^2 = | H_{kj}^{(1)} |^2 \frac{1}{\omega_{kj}^2 \hbar^2} | \exp \lb i \omega_{kj} t \rb - 1 |^2 \notag \\
+	\begin{aligned}
+		Re \left\{ \exp \lb i \omega_{kj} t \rb \right\} &= \cos \lb \omega_{kj} t \rb - 1 \\
+		Im \left\{ \exp \lb i \omega_{kj} t \rb \right\} &= \sin \lb \omega_{kj} t \rb 
+	\end{aligned} \quad \implies \quad
+	| \exp \lb i \omega_{kj} t \rb - 1 |^2 = 2 - 2 \cos \lb \omega_{kj} t \rb = 4 \sin^2 \lb \frac{1}{2} \omega_{kj} t \rb \notag \\
+	P_k = 4 | H_{kj}^{(1)} |^2  \, \frac{\sin^2 \lb \frac{1}{2} \omega_{kj} t \rb}{\lb \omega_{kj} \hbar \rb^2} \notag
+\end{gather} 
+
+
+
+\end{document}
+
