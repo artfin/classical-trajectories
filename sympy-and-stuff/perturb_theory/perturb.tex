@@ -17,6 +17,7 @@
 \newcommand{\lb}{\left(}
 \newcommand{\rb}{\right)}
 
+\newcommand{\mH}{\mathcal{H}}
 \newcommand{\mf}{\mathbf}
 \newcommand{\vverh}{\vspace*{-0.15cm}}
 
@@ -169,10 +170,91 @@
 	| a_k^{(1)} |^2 = \frac{E_0^2}{4 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \Bigg[ \frac{ | \exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1 |^2 }{\lb \omega_{jk} + \omega \rb } + \frac{| \exp \lb i \lb \omega_{jk} - \omega \rb t \rb  - 1|^2 }{ \lb \omega_{jk} - \omega \rb}+ \notag \\ 
 	+ \frac{|\exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1 | | \exp \lb i \lb \omega_{jk} - \omega \rb t \rb - 1|}{\lb \omega_{jk} + \omega \rb \lb \omega_{jk} - \omega \rb} \Bigg] = \notag \\
 	= \frac{E_0^2}{\hbar^2} \Bigg[ \frac{\sin^2 \lb \frac{1}{2} \lb \omega_{jk} + \omega \rb t \rb}{\lb \omega_{jk} + \omega \rb^2} + \frac{ \sin^2 \lb \frac{1}{2} \lb \omega_{jk} - \omega \rb t \rb}{ \lb \omega_{jk} - \omega \rb^2 } + \frac{8 \cos \lb \omega t \rb \sin \lb \frac{1}{2} \lb \omega_{jk} + \omega \rb t \rb \sin \lb \frac{1}{2} \lb \omega_{jk} - \omega \rb t \rb }{ \lb \omega_{jk} + \omega \rb \lb \omega_{jk} - \omega \rb} \Bigg] \notag \\
-	P_{j \rightarrow k} = \frac{\pi E_0^2}{2 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2  \Big[ \delta(\omega_{jk} - \omega) + \delta( \omega_{jk} + \omega) \Big] \notag
+	P_{j \rightarrow k} = \frac{\pi E_0^2}{2 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2  \Big[ \delta(\omega_{jk} - \omega) + \delta( \omega_{jk} + \omega) \Big] \label{eq:prob}
 \end{gather}
 (Вот не могу понять откуда взялся $8 \cos \lb \omega t \rb$ в предпоследней строчке, мне кажется, что там должно быть просто произведение синусов. И, что более важно, не понимаю последний переход к дельта-функциям. Здесь же должно быть что-то сильно похожее на прием, примененный на предыдущей странице, где рассматривается непрерывный спектр в окрестности уровня $\ket{k}$. Но это приводит к появлению плотности уровней $\rho (E_k)$, ее здесь нет. И непонятно куда делось последнее слагаемое в скобке.) 
 
+\subsection*{Спектральная функция и автокорреляция дипольного момента}
+
+Используя выражение \eqref{eq:prob} получим скорость излучения энергии системой (скорость потому что вероятность $P_{j \rightarrow k}$ в выражении \eqref{eq:prob} нормирована на единицу времени). Умножая вероятность $P_{j \rightarrow k}$ на $\hbar \omega_{jk}$, получаем скорость излучения энергии системы в переходах $j \rightarrow k$; просуммировав по всем состояниям $\ket{k}$, получаем скорость излучения с уровня $\ket{j}$. И, наконец, просуммировав по начальным состояниям $\ket{j}$ с соответствующими весами $\rho_j$ -- вероятностью нахождения системы в состоянии $\ket{j}$ -- получим скорость излучения энергии системой:
+\vverh
+\begin{gather}
+	- \dot{E}_{rad} = \sum_j \sum_k \rho_j \hbar \omega_{jk} P_{j \rightarrow k} = \frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{jk} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \Bigg[ \delta \lb \omega_{jk} - \omega \rb + \delta \lb \omega_{jk} + \omega \rb \Bigg] \label{eq:rad}
+\end{gather}
+
+Раскрыв скобку в последнем выражении, отдельно рассмотрим вторую сумму (первая замена возможна, поскольку оба суммирования производятся по всем квантовым состояниям системы):
+\vverh
+\begin{gather}
+	\frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{jk} \rho_j | \bra{j} \mf{m} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} + \omega \rb = \left[ j \leftrightarrow k \right] = \frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{kj} \rho_k | \bra{k} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{j} |^2 \delta \lb \omega_{kj} + \omega \rb = \notag \\
+	= \left[ \omega_{kj} = - \omega_{jk}, \delta \lb \omega - \omega_{jk} \rb = \delta \lb \omega_{jk} - \omega \rb \right] = - \frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{jk} \rho_k | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \notag
+\end{gather}
+
+Подставляя полученный результат в \eqref{eq:rad}, получаем:
+\vverh
+\begin{gather}
+	- \dot{E}_{rad} = \frac{\pi E_0^2}{2 \hbar} \sum_{j, k} \omega_{jk} \lb \rho_j - \rho_k \rb | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \notag 
+\end{gather}
+
+Применим Больцмановскую статистику предполагая, что система изначально находится в состоянии теплового равновесия:
+\vverh
+\begin{gather}
+	\rho_k = \rho_j \exp \lb - \beta \hbar \omega_{jk} \rb \notag \\
+	- \dot{E}_{rad} = \frac{\pi E_0^2}{2 \hbar} \sum_{j, k} \omega_{jk} \rho_j \lb 1 - \exp \lb - \beta \hbar \omega_{jk} \rb \rb | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb = \label{eq:rad2} \\
+	= \frac{\pi E_0^2}{2 \hbar} \lb 1 - \exp \lb - \beta \hbar \omega \rb \rb \omega \sum_{j, k} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \label{eq:rad3} 
+\end{gather}
+
+Переход от \eqref{eq:rad2} к \eqref{eq:rad3} обосновывается тем, что дельта-функционал $\delta \lb \omega_{jk} - \omega \rb$ отсечет все значения $\omega$ кроме $\omega_{jk}$.  
+
+Вектор Пойнтинга определяет поток энергии, переносимый волной ($S$ -- модуль вектора Пойнтинга):
+\vverh
+\begin{gather}
+	S = \frac{c}{8 \pi} n E_0^2, \notag
+\end{gather}
+
+где $n$ -- показатель преломления среды. Показатель поглощения среды $\alpha(\omega)$ определим как коэффициент, связывающий энергию, поглощенную средой, с энергией, переносимой полем:
+\vverh
+\begin{gather}
+	\alpha(\omega) = \frac{4 \pi^2}{\hbar c n} \omega \lb 1 - \exp \lb - \beta \hbar \omega \rb \rb \sum_{j, k} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \notag
+\end{gather}
+
+``Удобно определить`` (?, McQuarrie) спектральную функцию (absorption lineshape) $J(\omega)$ следующим образом  
+\vverh
+\begin{gather}
+	J(\omega) = \frac{3 \hbar c n \alpha(\omega)}{4 \pi^2 \omega \lb 1 - \exp \lb - \beta \hbar \omega \rb \rb} = 3 \sum_{j, k} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \label{eq:specfunc} 
+\end{gather}
+
+В дальнейшем рассуждении применяется представление Гейзенберга квантовой механики, в котором эволюция системы описывается операторами, а не состояниями, которые остаются постоянными. Эволюция оператора описывается оператором эволюции $U(t)$ следующим образом:
+\vverh
+\begin{gather}
+	A(t) = U^{*}(t) A(0) U(t) = \exp \lb \frac{i}{\hbar} \mH t \rb A(0) \exp \lb - \frac{i}{\hbar} \mH t \rb \notag
+\end{gather}
+
+В выражении \eqref{eq:specfunc} подставим дельта-функционал как преобразование Фурье экспоненты:
+\vverh
+\begin{gather}
+	\delta(\omega) = \frac{1}{2 \pi} \int\limits_{-\infty}^{\infty} \exp \lb i \omega t \rb \notag \\
+	J(\omega) = \frac{3}{2 \pi} \sum_{j, k} \rho_j \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \bra{k} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{j} \int\limits_{-\infty}^{\infty} \exp \lb \frac{E_k - E_j}{\hbar} - \omega \rb dt \notag
+\end{gather}
+
+Соберем под интегралом Гейзенберговское представление оператора дипольного момента:
+\vverh
+\begin{gather}
+	\exp \lb - \frac{i}{\hbar} E_j t \rb \ket{j} = \exp \lb - \frac{i}{\hbar} \mH t \rb \ket{j}, \quad \exp \lb \frac{i}{\hbar} E_k t \rb \bra{k} = \exp \lb \frac{i}{\hbar} \mH t \rb \bra{k} \notag \\
+	\exp \lb \frac{i}{\hbar} \lb E_k - E_j \rb t \rb \bra{k} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{j} = \bra{k} \boldsymbol{\varepsilon} \exp \lb \frac{i}{\hbar} \mH t \rb \mf{M} \exp \lb - \frac{i}{\hbar} \mH t \rb \ket{j} = \bra{k} \mf{M}(t) \cdot \boldsymbol{\varepsilon} \ket{j} \ket{j} \notag \\
+	J(\omega) = \frac{3}{2 \pi} \int\limits_{-\infty}^{\infty} \sum_{j, k} \rho_j \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \bra{k} \mf{M}(t) \cdot \boldsymbol{\varepsilon} \ket{j} \exp \lb - i \omega t \rb dt \label{eq:specfunc2} 
+\end{gather}
+
+Заметим, что в подынтгреальном выражении сумма по $k$ дает единичный проектор:
+\begin{gather}
+	\sum_k \ket{k} \bra{k} = 1 \notag \\
+	J(\omega) = \frac{3}{2 \pi} \int\limits_{-\infty}^{\infty} \sum_j \rho_j \bra{j}  \mf{M}(0) \cdot \boldsymbol{\varepsilon} \cdot \mf{M}(t) \cdot \boldsymbol{\varepsilon} \ket{j} \exp \lb - i \omega t \rb dt \notag
+\end{gather}
+
+Сумма в подынтегральном выражении является средним по ансамблю среднего значения опертора $\mf{M}(0) \cdot \boldsymbol{\varepsilon} \cdot \mf{M}(t) \cdot \boldsymbol{\varepsilon}$, далее будем обозначать его $\langle \mf{M}(0) \cdot \boldsymbol{\varepsilon} \cdot \mf{M}(t) \cdot \boldsymbol{\varepsilon} \rangle$. Считая среду изотропной, опустим единичные векторы $\boldsymbol{\varepsilon}$. 
+\vverh
+\begin{gather}
+	J(\omega) = \frac{3}{2 \pi} \int\limits_{-\infty}^{\infty} \langle \mf{M}(0) \mf{M}(t) \rangle \exp \lb - i \omega t \rb dt \notag
+\end{gather}
 
 \end{document}
 
