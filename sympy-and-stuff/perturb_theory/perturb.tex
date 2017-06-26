@@ -12,106 +12,166 @@
 \usepackage{amssymb}
 
 \usepackage{braket}
+\usepackage{dsfont}
 
 \newcommand{\lb}{\left(}
 \newcommand{\rb}{\right)}
 
 \newcommand{\mf}{\mathbf}
+\newcommand{\vverh}{\vspace*{-0.15cm}}
 
 \begin{document}
 
-\subsection*{Time-independent Hamiltonian with a time-dependent perturbation}
+\subsection*{Временная теория возмущений. Случай независимого от времени невозмущенного гамильтониана.}
 
 Рассмотрим вариант теории возмущений, полагая, что невозмущенный гамильтониан не зависит от времени, а возмущение зависит. Таким образом, возмущенный гамильтониан может быть разложен по степеням возмущения:
-
+\vverh
 \begin{gather}
 	\hat{H}(t) = \hat{H}^{(0)} + \lambda \hat{V} = \hat{H}^{(0)} + \lambda \hat{H}^{(1)}(t) + \lambda^2 \hat{H}^{(2)}(t) + \dots \notag
 \end{gather}
 
 Используя формализм временной теории возмущений, аппроксимируем решение $\Psi(\mf{r}, t)$ временного уравнения Шредингера:
+\vverh
 \begin{gather}
 	i \hbar \frac{\partial \Psi}{\partial t} = \hat{H}(t) \Psi \notag
 \end{gather}
 
-В произвольный момент $t$ функция $\Psi(\mf{r}, t)$ может быть разложена в полном базисе собственных функций $\psi_k^{(0)}(\mf{r})$ невозмущенного гамильтониана $\hat{H}^{(0)}$:
+В произвольный момент $t$ функция $\Psi(\mf{r}, t)$ может быть разложена в полном базисе собственных функций $\psi_m^{(0)}(\mf{r})$ невозмущенного гамильтониана $\hat{H}^{(0)}$:
+\vverh
 \begin{gather}
-	\Psi(\mf{r}, t) = \sum_k b_k(t) \psi_k^{(0)}(\mf{r}) \notag
+	\Psi(\mf{r}, t) = \sum_m b_m(t) \psi_m^{(0)}(\mf{r}) \notag
 \end{gather}
 
-Переобозначим коэффициенты разложения для упрощения дальнейших выкладок $b_k(t) = a_k(t) \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb$:
+Переобозначим коэффициенты разложения для упрощения дальнейших выкладок $b_m(t) = a_m(t) \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb$:
+\vverh \vverh \vverh
 \begin{gather}
-	\Psi(\mf{r}, t) = \sum_k a_k(t) \psi_k^{(0)} (\mf{r}) \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb \notag
+	\Psi(\mf{r}, t) = \sum_m a_m(t) \psi_m^{(0)} (\mf{r}) \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag
 \end{gather}
 
-Подставляя данное разложение во временное уравнение Шредингера, получаем (используем бракет нотацию $\psi_m = \ket{m^{(0)}}$) :
+Подставляя данное разложение во временное уравнение Шредингера, получаем (используем бракет нотацию $\psi_m = \ket{m^{(0)}}$):
+\vverh
 \begin{gather}
 	i \hbar \sum_m \frac{d a_m(t)}{dt} \ket{m^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb = \sum_m a_m(t) \lambda \hat{V}(t) \ket{m^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag  
 \end{gather}
 
-Умножаем слева обе части на бра-вектор $\bra{k^{(0)}}$ и используем ортогонормированность собственных функций невозмущенного гамильтониана:  
+Умножаем слева обе части на бра-вектор $\bra{k^{(0)}}$ и используем ортонормированность собственных функций невозмущенного гамильтониана:  
+\vverh
 \begin{gather}
 	i \hbar \frac{d a_k(t)}{dt} \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb = \sum_m a_m(t) \lambda \bra {k^{(0)}} \hat{V}(t) \ket{n^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag 
 \end{gather}
 
 При дальнейших преобразованиях будем использовать вариант теории возмущения первого порядка, возмущение будем считать линейным по параметру разложения $\lambda$: $\hat{H}(t) = \hat{H}^{(0)} + \lambda \hat{H}^{(1)}(t)$. Разрешаем уравнения относительно производных коэффициентов $a_k(t)$:
+\vverh
 \begin{gather}
-	\frac{d a_k(t)}{dt} = - \frac{i \lambda}{\hbar} \sum_m a_m(t) H_{km}^{(1)}(t) \exp \lb i \omega_{km} t \rb , \notag
+	\frac{d a_k(t)}{dt} = - \frac{i \lambda}{\hbar} \sum_m a_m(t) H_{mk}^{(1)}(t) \exp \lb i \omega_{mk} t \rb , \notag
 \end{gather}
-где были введены обозначения резонансной частоты $\omega_{kn} = \displaystyle \frac{1}{\hbar} \lb E_k^{(0)} - E_n^{(0)} \rb$ и матричного элемента $H_{kn}^{(1)}(t) = \bra{k^{(0)}} \hat{H}^{(1)} \ket{n^{(0)}}$.
+
+\vverh где были введены обозначения резонансной частоты $\omega_{mk} = \displaystyle \frac{1}{\hbar} \lb E_k^{(0)} - E_m^{(0)} \rb$ и матричного элемента $H_{mk}^{(1)}(t) = \bra{m^{(0)}} \hat{H}^{(1)} \ket{k^{(0)}}$.
 
 Интегрируя дифференциальные уравнения, получаем
+\vverh
 \begin{gather}
-	a_k(t) - a_k(0) = - \frac{i \lambda}{\hbar} \sum_m \int\limits_0^t a_m(t^\prime) H_{kn}^{(1)} (t^\prime) \exp \lb i \omega_{kn} t^\prime \rb d t^\prime \label{eq:diff1}
+	a_k(t) - a_k(0) = - \frac{i \lambda}{\hbar} \sum_m \int\limits_0^t a_m(t^\prime) H_{mk}^{(1)} (t^\prime) \exp \lb i \omega_{mk} t^\prime \rb d t^\prime \label{eq:diff1}
 \end{gather}
 
 Разложим коэффициенты $a_k(t)$ в ряд по степеням параметра возмущения $\lambda$:
+\vverh
 \begin{gather}
 	a_k(t) = a_k^{(0)}(t) + \lambda a_k^{(1)}(t) + \lambda^2 a_k^{(2)}(t) + \dots \label{eq:exp1}
 \end{gather}
 Имеем ввиду, что параметр возмущения $\lambda$ никак не связан со временем $t$. Считаем, что в момент времени $t$ система не возмущена и мы все о ней знаем, для коэффициентов $a_k(t)$ это имеет следующее значение:
+\vverh
 \begin{gather}
 	a_k(0) = a_k^{(0)}(0) \notag 
 \end{gather}
 
-
 Дополнительно положим 
+\vverh
 \begin{gather}
 	a_m^{(0)}(0) = \delta_{mj}, \label{eq:exp2}
 \end{gather}
 имея ввиду, что в момент времени $t = 0$ система находится исключительно в состоянии $\ket{j^{(0)}}$. Подставляя разложение \eqref{eq:exp1} в уравнения \eqref{eq:diff1}, получим
+\vverh
 \begin{gather}
 	a_k^{(0)}(t) - a_k^{(0)}(0) = 0 \notag \\
-	a_k^{(1)}(t) - a_k^{(1)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(0)}(t^\prime) H_{km}^{(1)} (t^\prime) \exp (i \omega_{km} t^\prime) dt^\prime \notag \\
-	a_k^{(2)}(t) - a_k^{(2)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(1)} (t^\prime) H_{km}^{(1)} (t^\prime) \exp (i \omega_{km} t^\prime) d t^\prime \notag \\
+	a_k^{(1)}(t) - a_k^{(1)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(0)}(t^\prime) H_{mk}^{(1)} (t^\prime) \exp (i \omega_{mk} t^\prime) dt^\prime \notag \\
+	a_k^{(2)}(t) - a_k^{(2)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(1)} (t^\prime) H_{mk}^{(1)} (t^\prime) \exp (i \omega_{mk} t^\prime) d t^\prime \notag \\
  \dots \notag 
 \end{gather}
 
-Полученные уравнения являются рекурсивными и позволяют найти значения коэффициентов более высокого порядка разложения $a_k^{(m + 1)}(t)$ при наличии коэффициентов предыдущего уровня $a_k^{(m)}(t)$. Используя дополнительное предположение \eqref{eq:exp2} о невозмущенном состоянии, преобразуем выражение для коэффициентов разложения первого порядка $a_k^{(1)}(t)$ :
+Полученные уравнения являются рекурсивными и позволяют найти значения коэффициентов более высокого порядка разложения $a_k^{(s + 1)}(t)$ при наличии коэффициентов предыдущего уровня $a_k^{(s)}(t)$. Используя дополнительное предположение \eqref{eq:exp2} о невозмущенном состоянии, преобразуем выражение для коэффициентов разложения первого порядка $a_k^{(1)}(t)$ :
+\vverh
 \begin{gather}
-	a_k^{(1)}(t) = - \frac{i}{\hbar} \sum_m \int\limits_{0}^{t} a_m^{(0)} (t^\prime) H_{km}^{(1)} (t^\prime) \exp \lb i \omega_{km} t^\prime \rb d t^\prime = - \frac{i}{\hbar} \int\limits_0^t H_{kj}^{(1)}(t^\prime) \exp \lb i \omega_{kj} t^\prime \rb d t^\prime \label{eq:exp3}
+	a_k^{(1)}(t) = - \frac{i}{\hbar} \sum_m \int\limits_{0}^{t} a_m^{(0)} (t^\prime) H_{mk}^{(1)} (t^\prime) \exp \lb i \omega_{mk} t^\prime \rb d t^\prime = - \frac{i}{\hbar} \int\limits_0^t H_{jk}^{(1)}(t^\prime) \exp \lb i \omega_{jk} t^\prime \rb d t^\prime \label{eq:exp3}
 \end{gather}
 
 Вероятность найти систему в состоянии $\ket{k^{(0)}}$ в момент времени $t$ определяется квадратом модуля коэффициента $a_k(t)$:
+\vverh
 \begin{gather}
 	P_{k}(t) = | a_k(t) |^2  = | a_k^{(0)}(t) + \lambda a_k^{(1)} + \lambda^2 a_k^{(2)}(t) + \dots |^2 \notag
 \end{gather}
 
-Полагая $ H_{kj}^{(1)}$ в \eqref{eq:exp3} не зависящим от $t$:
+Полагая $ H_{jk}^{(1)}$ в \eqref{eq:exp3} не зависящим от $t$:
+\vverh
 \begin{gather}
-	a_k^{(1)}(t) = - \frac{H_{kj}^{(1)}}{\hbar} \frac{\exp \lb i \omega_{kj} t \rb - 1}{\omega_{kj}}, \quad k \neq j \notag
+	a_k^{(1)}(t) = - \frac{H_{jk}^{(1)}}{\hbar} \frac{\exp \lb i \omega_{jk} t \rb - 1}{\omega_{jk}}, \quad k \neq j \notag
 \end{gather}
 
 Определим для этого случая вероятность нахождения частицы в состоянии $\ket{k}$ в момент времени $t$:
+\vverh
 \begin{gather}
-	P_k = |a _k^{(1)} |^2 = | H_{kj}^{(1)} |^2 \frac{1}{\omega_{kj}^2 \hbar^2} | \exp \lb i \omega_{kj} t \rb - 1 |^2 \notag \\
+	P_k = |a _k^{(1)} |^2 = | H_{jk}^{(1)} |^2 \frac{1}{\omega_{jk}^2 \hbar^2} | \exp \lb i \omega_{jk} t \rb - 1 |^2 \notag \\
 	\begin{aligned}
-		Re \left\{ \exp \lb i \omega_{kj} t \rb \right\} &= \cos \lb \omega_{kj} t \rb - 1 \\
-		Im \left\{ \exp \lb i \omega_{kj} t \rb \right\} &= \sin \lb \omega_{kj} t \rb 
+		Re \left\{ \exp \lb i \omega_{jk} t \rb \right\} &= \cos \lb \omega_{jk} t \rb - 1 \\
+		Im \left\{ \exp \lb i \omega_{jk} t \rb \right\} &= \sin \lb \omega_{jk} t \rb 
 	\end{aligned} \quad \implies \quad
-	| \exp \lb i \omega_{kj} t \rb - 1 |^2 = 2 - 2 \cos \lb \omega_{kj} t \rb = 4 \sin^2 \lb \frac{1}{2} \omega_{kj} t \rb \notag \\
-	P_k = 4 | H_{kj}^{(1)} |^2  \, \frac{\sin^2 \lb \frac{1}{2} \omega_{kj} t \rb}{\lb \omega_{kj} \hbar \rb^2} \notag
+	| \exp \lb i \omega_{jk} t \rb - 1 |^2 = 2 - 2 \cos \lb \omega_{jk} t \rb = 4 \sin^2 \lb \frac{1}{2} \omega_{jk} t \rb \notag \\
+	P_k = 4 | H_{jk}^{(1)} |^2  \, \frac{\sin^2 \lb \frac{1}{2} \omega_{jk} t \rb}{\lb \omega_{jk} \hbar \rb^2} \notag
 \end{gather} 
 
+Функция $\displaystyle \frac{\sin^2 \lb \frac{1}{2} \omega_{jk} t \rb}{\lb \omega_{jk} \hbar \rb^2}$ от $\omega_{jk}$ -- ядро Фейера (Fejer kernel) -- представляет собой периодическую функцию с центральным пиком и осциллирующим ``хвостом``, высота центрального пика растет как $t^2$, а ширина уменьшается как $1 / t$. Таким образом, наиболее вероятные переходы в состояния $\ket{k}$, которые лежат под центральным пиком: 
+\vverh
+\begin{gather}
+	| E_k - E_j | < \frac{2 \pi \hbar}{t} \notag
+\end{gather}
+
+Дополнительно полагая, что состояния распределены непрерывным образом вокруг $\ket{k}$, определим вероятность перехода в некоторую группу состояний вокруг $\ket{k}$. Обозначим плотность состояния вокруг $\ket{k}$ за $\rho (E_k)$, будем считать $|H_{jk}^{(1)}|^2$ слабо зависящей от $k$ (вынесем из под интеграла по $E_k$):
+\vverh
+\begin{gather}
+	P_k = \frac{1}{\hbar^2} |H_{jk}^{(1)} |^2 \int^{*} \rho (E_k) \left( \frac{\sin \lb \omega_{jk} t / 2 \rb}{ \omega_{jk} / 2} \rb ^2 d E_k \approx \frac{1}{\hbar^2} | H_{jk}^{(1)} |^2\rho(E_k) \int\limits_{-\infty}^{\infty} \lb \frac{ \sin( \omega_{jk} t / 2)}{\omega_{jk} / 2} \rb^2 d E_k = \notag \\
+		= \frac{t^2}{\hbar} | H_{jk}^{(1)} |^2 \rho(E_k) \int\limits_{-\infty}^{\infty} \lb \frac{\sin \lb \omega_{jk} \, t / 2 \rb}{\omega_{jk} \, t / 2}\rb d \omega_{jk} = \left[ x = \frac{\omega_{jk} t}{2} \right] = \frac{2 t}{\hbar} | H_{jk}^{(1)} |^2 \rho(E_k) \int\limits_{-\infty}^{\infty} \frac{\sin^2 x}{x^2} dx = \notag \\
+		= \frac{2 \pi t}{\hbar} | H_{jk}^{(1)} |^2 \rho (E_k), \notag
+\end{gather}
+
+где $*$ в первом интеграле означает интегрирование по близким к $E_k$ энергиям (при больших $t$ центральный пик ядра Фейера сужается и его интеграл становится практически равен интегралу от $-\infty$ до $+\infty$). Полученное выражение известно как \textit{Золотое правило Ферми}.    
+
+\subsection*{Поглощение излучения молекулярной системой}
+
+Рассмотрим систему $N$ взаимодействующих молекул в квантовом состоянии $\ket{j}$. Обозначим гамильтониан системы частицы $\hat{H}_0$. Пусть система подвергается воздействию электрического поля частоты $\omega$, которое вызывает переход в рассматриваемой системе в состояние $\ket{k}$, если частота (близка?) к $\lb E_k - E_j \rb / \hbar$. 
+\vverh
+\begin{gather}
+	\mf{E}(t) = E_0 \, \boldsymbol{\varepsilon} \cos \omega t = \frac{E_0 \, \boldsymbol{\varepsilon}}{2} \lb \exp \lb i \omega t \rb + \exp \lb - i \omega t \rb \rb , \notag
+\end{gather}
+где $E_0$ -- амплитуда волны, $\boldsymbol{\varepsilon}$ -- единичный вектор вдоль направления распространения волны. Будем считать, что длина волны рассматриваемого поля $\lambda$ много больше размеров молекул, с которыми оно взаимодействует, поэтому в локальной окрестности молекул поле можно считать однородным (и рассматривать лишь его изменение во времени, но не в пространстве). 
+
+Энергия взаимодействия молекулярной системы с электрическим полем в дипольном приближении равна
+\vverh
+\begin{gather}
+	\lambda V(t) = - E_0 \lb \mf{M} \cdot \boldsymbol{\varepsilon} \rb \cos \omega t = - \frac{E_0}{2} \lb \mf{M} \cdot \boldsymbol{\varepsilon} \rb \lb \exp \lb i \omega t \rb + \exp \lb - i \omega t \rb \rb .\notag
+\end{gather}
+
+Запишем матричный элемент $H_{jk}$  и используем его для нахождения коэффициента $a_k^{(1)}$:
+\vverh
+\begin{gather}
+	H_{jk}^{(1)} = -\frac{E_0}{2} \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \Big[ \exp \lb i \omega t \rb + \exp \lb - i \omega t \rb \Big] \notag \\
+	i \hbar \frac{d a_k^{(1)}}{dt} = H_{jk}^{(1)} \exp \lb i \omega_{jk} t \rb = -\frac{E_0}{2} \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \Big[ \exp \lb i \lb \omega_{jk} + \omega \rb t \rb + \exp \lb i \lb \omega_{jk} - \omega \rb t \rb \Big] \notag \\
+	a_k^{(1)} = - \frac{E_0}{2 \hbar} \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \Bigg[ \frac{ \exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1}{\lb \omega_{jk} + \omega \rb} + \frac{\exp \lb i \lb \omega_{jk} - \omega \rb t \rb - 1}{\lb \omega_{jk} - \omega \rb} \Bigg] \notag \\
+	| a_k^{(1)} |^2 = \frac{E_0^2}{4 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \Bigg[ \frac{ | \exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1 |^2 }{\lb \omega_{jk} + \omega \rb } + \frac{| \exp \lb i \lb \omega_{jk} - \omega \rb t \rb  - 1|^2 }{ \lb \omega_{jk} - \omega \rb}+ \notag \\ 
+	+ \frac{|\exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1 | | \exp \lb i \lb \omega_{jk} - \omega \rb t \rb - 1|}{\lb \omega_{jk} + \omega \rb \lb \omega_{jk} - \omega \rb} \Bigg] = \notag \\
+	= \frac{E_0^2}{\hbar^2} \Bigg[ \frac{\sin^2 \lb \frac{1}{2} \lb \omega_{jk} + \omega \rb t \rb}{\lb \omega_{jk} + \omega \rb^2} + \frac{ \sin^2 \lb \frac{1}{2} \lb \omega_{jk} - \omega \rb t \rb}{ \lb \omega_{jk} - \omega \rb^2 } + \frac{8 \cos \lb \omega t \rb \sin \lb \frac{1}{2} \lb \omega_{jk} + \omega \rb t \rb \sin \lb \frac{1}{2} \lb \omega_{jk} - \omega \rb t \rb }{ \lb \omega_{jk} + \omega \rb \lb \omega_{jk} - \omega \rb} \Bigg] \notag \\
+	P_{j \rightarrow k} = \frac{\pi E_0^2}{2 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2  \Big[ \delta(\omega_{jk} - \omega) + \delta( \omega_{jk} + \omega) \Big] \notag
+\end{gather}
+(Вот не могу понять откуда взялся $8 \cos \lb \omega t \rb$ в предпоследней строчке, мне кажется, что там должно быть просто произведение синусов. И, что более важно, не понимаю последний переход к дельта-функциям. Здесь же должно быть что-то сильно похожее на прием, примененный на предыдущей странице, где рассматривается непрерывный спектр в окрестности уровня $\ket{k}$. Но это приводит к появлению плотности уровней $\rho (E_k)$, ее здесь нет. И непонятно куда делось последнее слагаемое в скобке.) 
 
 
 \end{document}
