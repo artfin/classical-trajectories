@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1498513224 "perturb.tex" "perturb.pdf" "perturb" 1498513224
+["pdflatex"] 1498557083 "perturb.tex" "perturb.pdf" "perturb" 1498557083
   "/etc/texmf/web2c/texmf.cnf" 1491468032 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/labx1440.tfm" 1491517754 3304 6a543c07045572737981351171e0505e ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm1200.tfm" 1494161899 3240 c2435f2b5cd66d4930bc29b8df87967e ""
@@ -80,9 +80,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1458942643 31351 b32c45dce4a01cb7b53ed90c546614ca ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1494161846 1630811 1531377ddf3380885f90969e471a70e4 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1491515014 989979 bda82939c26bbb848813c241fdc0c6ec ""
-  "perturb.aux" 1498513224 466 5b71505c3cfe351bc98d1f8c72e6aa72 ""
-  "perturb.tex" 1498513221 24019 ff64a65a53a4b181770cbe721255a937 ""
+  "perturb.aux" 1498557083 466 5b71505c3cfe351bc98d1f8c72e6aa72 ""
+  "perturb.tex" 1498557082 24479 1b36d5793402202036367c80d2b26f75 ""
   (generated)
-  "perturb.pdf"
   "perturb.aux"
+  "perturb.pdf"
   "perturb.log"
