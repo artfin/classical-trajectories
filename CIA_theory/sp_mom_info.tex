@@ -1,0 +1,99 @@
+
+\section{Теория спектральных моментов}
+\subsection{Спектральные моменты. Эксперимент}
+Для характеристики спектров столкновительно-индуцированного поглощения часто применяются величины, называемые спектральными моментами. В общем виде выражение для $n-$го спектрального момента записывается следующим образом:
+
+\begin{equation}
+\label{Mn}
+M_n=\int_{-\infty}^{+\infty}\omega^nJ(\omega)d\omega
+\end{equation}
+Пользуясь выражением для коэффициента поглощения, выраженного через спектральную функцию (справедливое в дипольном приближении(\textbf{??}))
+\[
+\alpha(\omega)=\frac{(2\pi)^3N_a^2}{3\hbar}\rho_1\rho_2\omega\Big[1-exp(-\frac{hc\omega}{kT}) \Big]J(\omega)
+\]
+мы можем записать выражения для нулевого и первого (второго) спектральных моментов через коэффициент поглощения:
+\begin{equation}
+\label{eq:mom_exp}
+\begin{aligned}
+\gamma_0 = \frac{1}{\rho_1\rho_2}\int_0^{+\infty}\coth(\frac{hc\omega}{2kT})\alpha(\omega)\frac{d\omega}{\omega} \\
+\gamma_1 = \frac{1}{\rho_1\rho_2}\int_0^{+\infty}\alpha(\omega)d\omega
+\end{aligned}
+\end{equation}
+Подробнее о выводах этих формул в квантовом и классическом случае см. файл \textit{mom\_quan\_class.pdf}
+
+
+
+\subsection{Спектральные моменты. Теория}
+Как мы знаем, спектральная функция задается через преобразование Фурье от автокорреляционной функции диполя:
+\[
+J(\omega)=\int_{-\infty}^{+\infty}C(t)e^{-i\omega t}\frac{dt}{2\pi}
+\]
+Применяя обратное преобразование Фурье и пользуясь формулой (\ref{Mn}), мы можем записать:
+\begin{equation}
+\label{autocorr_expansion}
+C(t)=\int_{-\infty}^{+\infty}J(\omega)e^{i\omega t}\frac{d\omega}{2\pi} = \frac{1}{2\pi}\sum_n\frac{1}{n!}(it)^n M_n
+\end{equation}
+Данный переход следует из разложения экспоненты в ряд Тейлора:
+\[
+\begin{aligned}
+\int_{-\infty}^{+\infty}J(\omega)e^{i\omega t}\frac{dt}{2\pi} = \frac{1}{2\pi}\int_{-\infty}^{+\infty}J(\omega)\bigg(1+(it)\omega+\frac{1}{2}(it)^2\omega^2+\ldots \bigg)d\omega  =\\
+= \frac{1}{2\pi}\sum_n\frac{1}{n!}(it)^n\int_{-\infty}^{+\infty}J(\omega)\omega^n d\omega
+\end{aligned}
+\]
+Таким образом, знание всего набора спектральных моментов эквивалентно знанию спектрального профиля. Однако на практике моменты выше 2-го обычно не определяют.\\
+
+\par
+Из формулы (\ref{autocorr_expansion}) следует, что в теории общее выражение для $n\text{-го}$ спектрального момента записывается следующим образом:
+\begin{equation}
+M_n = V(2\pi c)^{-n}i^{-n}\frac{1}{4\pi \varepsilon_0}\Big\langle\vec{\mu}(0)\cdot \frac{d^n}{dt^n}\vec{\mu}(t) \Big\rangle\Big|_{t=0}
+\end{equation}
+Учитывая написанное в первом разделе, имеем, что в классическом пределе для спектральных моментов:
+\begin{equation}
+\label{eq:mom_classical}
+\begin{aligned}
+M_{2n} = V(2\pi c)^{-2n}\frac{1}{4\pi \varepsilon_0}\Big\langle\Big| \frac{d^n}{dt^n}\vec{\mu}(t)\Big|^2 \Big\rangle\Big|_{t=0}\\
+M_{2n+1} = 0
+\end{aligned}
+\end{equation}
+В случае второго момента в формуле (\ref{eq:mom_classical}) первая производная может быть представлена через скобку Пуассона с классической функцией Гамильтона для рассматриваемой системы
+\[
+\frac{d\vec{\mu}}{dt}=[\vec{\mu},H]= \sum_j\Big\{\frac{\partial\vec{\mu}}{\partial q_j}\frac{\partial H}{\partial p_j} - \frac{\partial\vec{\mu}}{\partial p_j}\frac{\partial H}{\partial q_j}\Big\}
+\]
+Таким образом, выражение для второго спектрального момента будет записано следующим образом:
+\begin{equation}
+\label{eq:M2}
+M_2 = \frac{\int\dot{\vec{\mu}}^2 e^{-H(\mathbf{p},\mathbf{q})/kT}d\mathbf{p}d\mathbf{q}}{\int e^{-H(\mathbf{p},\mathbf{q})/kT}d\mathbf{p}d\mathbf{q}}
+\end{equation}
+где интегрирование происходит по всем возможным начальным состояниям системы, то есть по всему фазовому пространству.
+Квадрат производной вектора дипольного момента в ЛСК может быть записан следующим образом:
+\[
+(\dot{\vec{\mu}}^{ЛСК})^2 = (\vec{\Pi}_q)^2 + 2\vec{\Pi}_q[\frac{\partial T}{\partial J}\times \vec{M}_q] + M_q^{+}\mathbf{I}_J M_q
+\]
+где $T$ - кинетическая энергия рассматриваемой системы в МСК, 
+\[
+\vec{M}_q \equiv\left(\begin{matrix}
+\mu_X \\
+\mu_Y \\
+\mu_Z
+\end{matrix} \right) 
+\]
+\[
+\vec{\Pi}_q \equiv\left(\begin{matrix}
+[\mu_X,T]_q \\
+[\mu_Y,T]_q \\
+[\mu_Z,T]_q 
+\end{matrix} \right) 
+\]
+
+\par
+Покажем, что это действительно так.
+\subsection{Выражение для квадарата производной дипольного момента}
+\input{general_spmom.tex}
+\subsection{Вывод выражений для квадарата производной дипольного момента с использованием тензорной нотации}
+\input{tensor.tex}
+
+\subsection{Вывод выражений для второго момента в частном случае Ar-CO${}_2$}
+\input{sp_moment.tex}
+\subsection{Размерности спектральных моментов}
+\input{moment_coefficient.tex}
+

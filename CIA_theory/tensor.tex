@@ -1,0 +1,130 @@
+
+
+Запишем вектор дипольного момента в МСК и его производную по времени в нотации Эйнштейна, $N_\alpha$ -- орты МСК:
+\begin{gather}
+	\mu = \mu^\alpha N_\alpha, \quad \dot{\mu} = \dot{\mu}^\alpha N_\alpha + \mu^\alpha \dot{N_\alpha} \notag
+\end{gather}
+
+Матрица $\bbS$ связывает координаты вектора в разных базисах: $N_\alpha = \bbS^\beta_\alpha n_\beta$. Производные ортов подвижной системы могут быть представлены с использованием скобки Пуссона по эйлеровым углам и импульсам:
+\begin{gather}
+	\dot{N}_\alpha = \lcb N_\alpha, \mH \rcb \notag
+\end{gather}
+
+Производная вектора дипольного момента преобразуется к виду:
+\begin{gather}
+	\dot{\mu} = \dot{\mu}^\alpha \bbS^\beta_\alpha n_\beta + \mu^\alpha \lcb \bbS^\beta_\alpha , \mH \rcb n_\beta \notag
+\end{gather}
+
+Несложно заметить, что матричный аналог первого слагаемого есть:
+\begin{gather}
+	\dot{\mu}^\alpha S^\beta_\alpha n_\beta = \bbS^\top 
+	\begin{bmatrix}
+		\dot{\mu}_X \\
+		\dot{\mu}_Y \\
+		\dot{\mu}_Z
+	\end{bmatrix} \notag
+\end{gather}
+
+Второе слагаемое может быть представлено в следующем виде:
+\begin{gather}
+	\lcb \bbS_\alpha^\beta , \mH \rcb = \lb \partial_k \bbS_\alpha^\beta \rb \lb \partial^l \mH \rb J^{k}_{l}, \notag
+\end{gather}
+где под $\partial$ понимается следующий дифференциальный оператор, действующий в фазовом пространстве: 
+\begin{gather}
+	\partial = 
+	\begin{bmatrix}
+		\dfrac{\strut\partial}{\strut\partial \mathbf{e}} \\
+		\dfrac{\strut\partial}{\strut\partial \mathbf{p}_e}
+	\end{bmatrix} \notag
+\end{gather}
+
+Несложно сообразить, что тензор $J^{k}_{l}$ имеет следующее матричное представление (в виде блочной матрицы):
+\begin{gather}
+	J^{k}_{l} =
+	\begin{bmatrix}
+		0 & \bbE \\
+		-\bbE & 0
+	\end{bmatrix} \notag
+\end{gather}
+
+Осуществим переход к дифференциальному оператору, содержащему производные по компонентам углового момента: 
+\begin{gather}
+	\widetilde{\partial} = 
+	\begin{bmatrix}
+		\dfrac{\strut\partial}{\strut\partial \mathbf{e}} \\
+		\dfrac{\strut\partial}{\partial \mathbf{J}} \\
+	\end{bmatrix} = \bbU \, \partial =  
+	\begin{bmatrix}
+		\bbE & 0 \\
+		0 & \bbG
+	\end{bmatrix}
+	\begin{bmatrix}
+		\dfrac{\strut\partial}{\strut\partial \mathbf{e}} \\
+		\dfrac{\strut\partial}{\strut\partial \mathbf{p}_e} \\
+	\end{bmatrix} \notag
+\end{gather}
+
+Осуществим замену дифференциального оператора в выражении для скобки Пуассона:
+\begin{gather}
+	\lcb \bbS^\beta_\alpha , \mH \rcb = \lb \partial_k \bbS^\beta_\alpha \rb \lb \partial^l \mH \rb J^k_l = \lb \partial_k \bbS^\beta_\alpha \rb \lb \bbU^l_m \widetilde{\partial}^m \mH \rb J^k_l = \lb \partial_k \bbS^\beta_\alpha \rb \lb \widetilde{\partial}^m \mH \rb \widetilde{J}^k_m, \quad \widetilde{J}^k_m = \bbU^l_m J^k_l \notag 
+\end{gather}
+
+Матричное представление тензора $\widetilde{J}_m^k$ выглядит следующим образом:
+\begin{gather}
+	\widetilde{J}_m^k = 
+	\begin{bmatrix}
+		0 & \bbE \\
+		-\bbE & 0
+	\end{bmatrix} 
+	\begin{bmatrix}
+		\bbE & 0 \\
+		0 & \bbG
+	\end{bmatrix} = 
+	\begin{bmatrix}
+		0 & \bbG \\
+		-\bbE & 0
+	\end{bmatrix} \notag
+\end{gather}
+
+Приходим к следующему выражению для скобки Пуассона:
+\begin{gather}
+	\lcb \bbS_\alpha^\beta, \mH \rcb = \lb \frac{\partial \bbS_\alpha^\beta}{\partial \mathbf{e}} \rb^\top \bbG \, \frac{\partial \mH}{\partial \bfJ}, \quad \bbG = \frac{1}{\sin \theta}
+\begin{bmatrix}
+	\sin \psi & \cos \psi \sin \theta & -\cos \theta \sin \psi \\
+	\cos \psi & \sin \psi \sin \theta & - \cos \theta \cos \psi \\
+	0 & 0 & \sin \theta
+\end{bmatrix} \notag
+\end{gather}
+
+Подставляя полученный результат в выражение для производной дипольного момента и переходя к матричной нотации:
+\begin{gather}
+	\dot{\mu} = \bbS^\top
+	\begin{bmatrix}
+		\dot{\mu_X} \\
+		\dot{\mu_Y} \\
+		\dot{\mu_Z}
+	\end{bmatrix} +
+        \mathbb{W}
+	\begin{bmatrix}
+		\mu_X \\
+		\mu_Y \\
+		\mu_Z
+	\end{bmatrix}, 
+	\quad 
+	\mathbb{W} = 
+	\begin{bmatrix}
+		\dfrac{\strut\partial \bbS^\top}{\strut\partial \varphi} &
+		\dfrac{\strut\partial \bbS^\top}{\strut\partial \theta} &
+		\dfrac{\strut\partial \bbS^\top}{\strut\partial \psi}
+	\end{bmatrix}
+	\bbG^\top
+	\begin{bmatrix}
+		\dfrac{\strut\partial \mH}{\strut\partial J_x} \\
+		\dfrac{\strut\partial \mH}{\strut\partial J_y} \\
+		\dfrac{\strut\partial \mH}{\strut\partial J_z}
+	\end{bmatrix} \notag
+\end{gather}
+
+(матрица $\mathbb{W}$ получается как результат произведения матричного вектора, обычной матрицы и обычного вектора)
+
+

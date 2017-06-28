@@ -1,0 +1,322 @@
+\section{Общетеоретическое введение}
+\subsection{Временная теория возмущений}
+
+Рассмотрим вариант теории возмущений, полагая, что невозмущенный гамильтониан не зависит от времени, а возмущение зависит. Возмущенный гамильтониан может быть разложен по степеням параметра возмущения $\lambda$:
+\vverh
+\begin{gather}
+	\hat{H}(t) = \hat{H}^{(0)} + \lambda \hat{V} = \hat{H}^{(0)} + \lambda \hat{H}^{(1)}(t) + \lambda^2 \hat{H}^{(2)}(t) + \dots \notag
+\end{gather}
+
+Используя формализм временной теории возмущений, аппроксимируем решение $\Psi(\mf{r}, t)$ временного уравнения Шредингера:
+\vverh
+\begin{gather}
+	i \hbar \frac{\partial \Psi}{\partial t} = \hat{H}(t) \Psi \notag
+\end{gather}
+
+В произвольный момент $t$ функция $\Psi(\mf{r}, t)$ может быть разложена в полном базисе собственных функций $\psi_m^{(0)}(\mf{r})$ невозмущенного гамильтониана $\hat{H}^{(0)}$:
+\vverh
+\begin{gather}
+	\Psi(\mf{r}, t) = \sum_m b_m(t) \psi_m^{(0)}(\mf{r}) \notag
+\end{gather}
+
+Переобозначим коэффициенты разложения для упрощения дальнейших выкладок $b_m(t) = a_m(t) \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb$:
+\vverh \vverh \vverh
+\begin{gather}
+	\Psi(\mf{r}, t) = \sum_m a_m(t) \psi_m^{(0)} (\mf{r}) \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag
+\end{gather}
+
+Подставляя данное разложение во временное уравнение Шредингера, получаем (используем бракет нотацию $\psi_m^{(0)} = \ket{m^{(0)}}$):
+\vverh
+\begin{gather}
+	i \hbar \sum_m \frac{d a_m(t)}{dt} \ket{m^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb = \sum_m a_m(t) \lambda \hat{V}(t) \ket{m^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag  
+\end{gather}
+
+Умножаем слева обе части на бра-вектор $\bra{k^{(0)}}$ и используем ортонормированность собственных функций невозмущенного гамильтониана:  
+\vverh
+\begin{gather}
+	i \hbar \frac{d a_k(t)}{dt} \exp \lb - \frac{i}{\hbar} E_k^{(0)} t \rb = \sum_m a_m(t) \lambda \bra {k^{(0)}} \hat{V}(t) \ket{n^{(0)}} \exp \lb - \frac{i}{\hbar} E_m^{(0)} t \rb \notag 
+\end{gather}
+
+При дальнейших преобразованиях будем использовать вариант теории возмущения первого порядка, возмущение будем считать линейным по параметру разложения $\lambda$: $\hat{H}(t) = \hat{H}^{(0)} + \lambda \hat{H}^{(1)}(t)$. Разрешаем уравнения относительно производных коэффициентов $a_k(t)$:
+\vverh
+\begin{gather}
+	\frac{d a_k(t)}{dt} = - \frac{i \lambda}{\hbar} \sum_m a_m(t) H_{mk}^{(1)}(t) \exp \lb i \omega_{mk} t \rb , \notag
+\end{gather}
+
+\vverh где были введены обозначения резонансной частоты $\omega_{mk} = \displaystyle \frac{1}{\hbar} \lb E_k^{(0)} - E_m^{(0)} \rb$ и матричного элемента $H_{mk}^{(1)}(t) = \bra{m^{(0)}} \hat{H}^{(1)} \ket{k^{(0)}}$.
+
+Интегрируя дифференциальные уравнения, получаем
+\vverh
+\begin{gather}
+	a_k(t) - a_k(0) = - \frac{i \lambda}{\hbar} \sum_m \int\limits_0^t a_m(t^\prime) H_{mk}^{(1)} (t^\prime) \exp \lb i \omega_{mk} t^\prime \rb d t^\prime \label{eq:diff1}
+\end{gather}
+
+Разложим коэффициенты $a_k(t)$ в ряд по степеням параметра возмущения $\lambda$:
+\vverh
+\begin{gather}
+	a_k(t) = a_k^{(0)}(t) + \lambda a_k^{(1)}(t) + \lambda^2 a_k^{(2)}(t) + \dots \label{eq:exp1}
+\end{gather}
+Имеем ввиду, что параметр возмущения $\lambda$ никак не связан со временем $t$. Считаем, что в момент времени $t$ система не возмущена и мы все о ней знаем, для коэффициентов $a_k(t)$ это имеет следующее значение:
+\vverh
+\begin{gather}
+	a_k(0) = a_k^{(0)}(0) \notag 
+\end{gather}
+
+Дополнительно положим 
+\vverh
+\begin{gather}
+	a_m^{(0)}(0) = \delta_{mj}, \label{eq:exp2}
+\end{gather}
+имея ввиду, что в момент времени $t = 0$ система находится исключительно в состоянии $\ket{j^{(0)}}$. Подставляя разложение \ref{eq:exp1} в уравнения \ref{eq:diff1}, получим
+\vverh
+\begin{gather}
+	a_k^{(0)}(t) - a_k^{(0)}(0) = 0 \notag \\
+	a_k^{(1)}(t) - a_k^{(1)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(0)}(t^\prime) H_{mk}^{(1)} (t^\prime) \exp (i \omega_{mk} t^\prime) dt^\prime \notag \\
+	a_k^{(2)}(t) - a_k^{(2)}(0) = - \frac{i}{\hbar} \sum_m \int\limits_0^t a_m^{(1)} (t^\prime) H_{mk}^{(1)} (t^\prime) \exp (i \omega_{mk} t^\prime) d t^\prime \notag \\
+ \dots \notag 
+\end{gather}
+
+Полученные уравнения являются рекурсивными и позволяют найти значения коэффициентов более высокого порядка разложения $a_k^{(s + 1)}(t)$ при наличии коэффициентов предыдущего уровня $a_k^{(s)}(t)$. Используя дополнительное предположение \ref{eq:exp2} о невозмущенном состоянии, преобразуем выражение для коэффициентов разложения первого порядка $a_k^{(1)}(t)$ :
+\vverh
+\begin{gather}
+	a_k^{(1)}(t) = - \frac{i}{\hbar} \sum_m \int\limits_{0}^{t} a_m^{(0)} (t^\prime) H_{mk}^{(1)} (t^\prime) \exp \lb i \omega_{mk} t^\prime \rb d t^\prime = - \frac{i}{\hbar} \int\limits_0^t H_{jk}^{(1)}(t^\prime) \exp \lb i \omega_{jk} t^\prime \rb d t^\prime \label{eq:exp3}
+\end{gather}
+
+Вероятность найти систему в состоянии $\ket{k^{(0)}}$ в момент времени $t$ определяется квадратом модуля коэффициента $a_k(t)$:
+\vverh
+\begin{gather}
+	P_{k}(t) = | a_k(t) |^2  = | a_k^{(0)}(t) + \lambda a_k^{(1)} + \lambda^2 a_k^{(2)}(t) + \dots |^2 \notag
+\end{gather}
+
+Полагая $ H_{jk}^{(1)}$ в \ref{eq:exp3} не зависящим от $t$:
+\vverh
+\begin{gather}
+	a_k^{(1)}(t) = - \frac{H_{jk}^{(1)}}{\hbar} \frac{\exp \lb i \omega_{jk} t \rb - 1}{\omega_{jk}}, \quad k \neq j \notag
+\end{gather}
+
+Определим для этого случая вероятность нахождения частицы в состоянии $\ket{k}$ в момент времени $t$:
+\vverh
+\begin{gather}
+	P_k = |a _k^{(1)} |^2 = | H_{jk}^{(1)} |^2 \frac{1}{\omega_{jk}^2 \hbar^2} | \exp \lb i \omega_{jk} t \rb - 1 |^2 \notag \\
+	\begin{aligned}
+		Re \left\{ \exp \lb i \omega_{jk} t \rb \right\} &= \cos \lb \omega_{jk} t \rb - 1 \\
+		Im \left\{ \exp \lb i \omega_{jk} t \rb \right\} &= \sin \lb \omega_{jk} t \rb 
+	\end{aligned} \quad \implies \quad
+	| \exp \lb i \omega_{jk} t \rb - 1 |^2 = 2 - 2 \cos \lb \omega_{jk} t \rb = 4 \sin^2 \lb \frac{1}{2} \omega_{jk} t \rb \notag \\
+	P_k = 4 | H_{jk}^{(1)} |^2  \, \frac{\sin^2 \lb \frac{1}{2} \omega_{jk} t \rb}{\lb \omega_{jk} \hbar \rb^2} \notag
+\end{gather} 
+
+Функция $\displaystyle \frac{\sin^2 \lb \frac{1}{2} \omega_{jk} t \rb}{\lb \omega_{jk} \hbar \rb^2}$ от $\omega_{jk}$ -- ядро Фейера (Fejer kernel) -- представляет собой периодическую функцию с центральным пиком и осциллирующим ``хвостом``, высота центрального пика растет как $t^2$, а ширина уменьшается как $1 / t$. Таким образом, наиболее вероятные переходы в состояния $\ket{k}$, которые лежат под центральным пиком: 
+\vverh
+\begin{gather}
+	| E_k - E_j | < \frac{2 \pi \hbar}{t} \notag
+\end{gather}
+
+Дополнительно полагая, что состояния распределены непрерывным образом вокруг $\ket{k}$, определим вероятность перехода в некоторую группу состояний вокруг $\ket{k}$. Обозначим плотность состояния вокруг $\ket{k}$ за $\rho (E_k)$, будем считать $|H_{jk}^{(1)}|^2$ слабо зависящей от $k$ (вынесем из под интеграла по $E_k$):
+\vverh
+\begin{gather}
+	P_k = \frac{1}{\hbar^2} |H_{jk}^{(1)} |^2 \int^{*} \rho (E_k) \left( \frac{\sin \lb \omega_{jk} t / 2 \rb}{ \omega_{jk} / 2} \rb ^2 d E_k \approx \frac{1}{\hbar^2} | H_{jk}^{(1)} |^2\rho(E_k) \int\limits_{-\infty}^{\infty} \lb \frac{ \sin( \omega_{jk} t / 2)}{\omega_{jk} / 2} \rb^2 d E_k = \notag \\
+		= \frac{t^2}{\hbar} | H_{jk}^{(1)} |^2 \rho(E_k) \int\limits_{-\infty}^{\infty} \lb \frac{\sin \lb \omega_{jk} \, t / 2 \rb}{\omega_{jk} \, t / 2}\rb d \omega_{jk} = \left[ x = \frac{\omega_{jk} t}{2} \right] = \frac{2 t}{\hbar} | H_{jk}^{(1)} |^2 \rho(E_k) \int\limits_{-\infty}^{\infty} \frac{\sin^2 x}{x^2} dx = \notag \\
+		= \frac{2 \pi t}{\hbar} | H_{jk}^{(1)} |^2 \rho (E_k), \notag
+\end{gather}
+
+где $*$ в первом интеграле означает интегрирование по близким к $E_k$ энергиям (при больших $t$ центральный пик ядра Фейера сужается и его интеграл становится практически равен интегралу от $-\infty$ до $+\infty$). Полученное выражение известно как \textit{Золотое правило Ферми}.    
+
+\subsection{Поглощение излучения молекулярной системой}
+
+Рассмотрим систему $N$ взаимодействующих молекул в квантовом состоянии $\ket{j}$. Обозначим гамильтониан системы частицы $\hat{H}_0$. Пусть система подвергается воздействию электрического поля частоты $\omega$, которое вызывает переход в рассматриваемой системе в состояние $\ket{k}$, если частота (близка?) к $\lb E_k - E_j \rb / \hbar$. 
+\vverh
+\begin{gather}
+	\mf{E}(t) = E_0 \, \boldsymbol{\varepsilon} \cos \omega t = \frac{E_0 \, \boldsymbol{\varepsilon}}{2} \lb \exp \lb i \omega t \rb + \exp \lb - i \omega t \rb \rb , \notag
+\end{gather}
+где $E_0$ -- амплитуда волны, $\boldsymbol{\varepsilon}$ -- единичный вектор вдоль направления распространения волны. Будем считать, что длина волны рассматриваемого поля $\lambda$ много больше размеров молекул, с которыми оно взаимодействует, поэтому в локальной окрестности молекул поле можно считать однородным (и рассматривать лишь его изменение во времени, но не в пространстве). 
+
+Энергия взаимодействия молекулярной системы с электрическим полем в дипольном приближении равна
+\vverh
+\begin{gather}
+	\lambda V(t) = - E_0 \lb \mf{M} \cdot \boldsymbol{\varepsilon} \rb \cos \omega t = - \frac{E_0}{2} \lb \mf{M} \cdot \boldsymbol{\varepsilon} \rb \lb \exp \lb i \omega t \rb + \exp \lb - i \omega t \rb \rb ,\notag
+\end{gather}
+где $\mf{M}$ -- суммарный дипольный момент системы.
+
+Запишем матричный элемент $H_{jk}$  и используем его для нахождения коэффициента $a_k^{(1)}$:
+\vverh
+\begin{gather}
+	H_{jk}^{(1)} = -\frac{E_0}{2} \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \Big[ \exp \lb i \omega t \rb + \exp \lb - i \omega t \rb \Big] \notag \\
+	i \hbar \frac{d a_k^{(1)}}{dt} = H_{jk}^{(1)} \exp \lb i \omega_{jk} t \rb = -\frac{E_0}{2} \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \Big[ \exp \lb i \lb \omega_{jk} + \omega \rb t \rb + \exp \lb i \lb \omega_{jk} - \omega \rb t \rb \Big] \notag \\
+	a_k^{(1)} = - \frac{E_0}{2 \hbar} \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \Bigg[ \frac{ \exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1}{\lb \omega_{jk} + \omega \rb} + \frac{\exp \lb i \lb \omega_{jk} - \omega \rb t \rb - 1}{\lb \omega_{jk} - \omega \rb} \Bigg] \notag \\
+	| a_k^{(1)} |^2 = \frac{E_0^2}{4 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \Bigg[ \frac{ | \exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1 |^2 }{\lb \omega_{jk} + \omega \rb } + \frac{| \exp \lb i \lb \omega_{jk} - \omega \rb t \rb  - 1|^2 }{ \lb \omega_{jk} - \omega \rb}+ \notag \\ 
+	+ \frac{|\exp \lb i \lb \omega_{jk} + \omega \rb t \rb - 1 | | \exp \lb i \lb \omega_{jk} - \omega \rb t \rb - 1|}{\lb \omega_{jk} + \omega \rb \lb \omega_{jk} - \omega \rb} \Bigg] = \notag \\
+	= \frac{E_0^2}{\hbar^2} \Bigg[ \frac{\sin^2 \lb \frac{1}{2} \lb \omega_{jk} + \omega \rb t \rb}{\lb \omega_{jk} + \omega \rb^2} + \frac{ \sin^2 \lb \frac{1}{2} \lb \omega_{jk} - \omega \rb t \rb}{ \lb \omega_{jk} - \omega \rb^2 } + \frac{8 \cos \lb \omega t \rb \sin \lb \frac{1}{2} \lb \omega_{jk} + \omega \rb t \rb \sin \lb \frac{1}{2} \lb \omega_{jk} - \omega \rb t \rb }{ \lb \omega_{jk} + \omega \rb \lb \omega_{jk} - \omega \rb} \Bigg] \notag \\
+	P_{j \rightarrow k} = \frac{\pi E_0^2}{2 \hbar^2} \, | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2  \Big[ \delta(\omega_{jk} - \omega) + \delta( \omega_{jk} + \omega) \Big] \label{eq:prob}
+\end{gather}
+
+
+\subsection{Спектральная функция и автокорреляция дипольного момента}
+
+Используя выражение \ref{eq:prob} получим скорость излучения энергии системой (скорость потому что вероятность $P_{j \rightarrow k}$ в выражении \ref{eq:prob} нормирована на единицу времени). Умножая вероятность $P_{j \rightarrow k}$ на $\hbar \omega_{jk}$, получаем скорость поглощения энергии системой в переходах $j \rightarrow k$; просуммировав по всем состояниям $\ket{k}$, получаем скорость поглощения в переходах с уровня $\ket{j}$. И, наконец, просуммировав по начальным состояниям $\ket{j}$ с соответствующими весами $\rho_j$ -- вероятностью нахождения системы в состоянии $\ket{j}$, получим суммарную скорость поглощения:
+\vverh
+\begin{gather}
+	- \dot{E}_{rad} = \sum_j \sum_k \rho_j \hbar \omega_{jk} P_{j \rightarrow k} = \frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{jk} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \Bigg[ \delta \lb \omega_{jk} - \omega \rb + \delta \lb \omega_{jk} + \omega \rb \Bigg] \label{eq:rad}
+\end{gather}
+
+Раскрыв скобку в \ref{eq:rad}, отдельно рассмотрим вторую сумму (первая замена возможна, поскольку оба суммирования производятся по всем квантовым состояниям системы, индексы неразличимы):
+\vverh
+\begin{gather}
+	\frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{jk} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} + \omega \rb = \left[ j \leftrightarrow k \right] = \frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{kj} \rho_k | \bra{k} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{j} |^2 \delta \lb \omega_{kj} + \omega \rb = \notag \\
+	= \left[ \omega_{kj} = - \omega_{jk}, \delta \lb \omega - \omega_{jk} \rb = \delta \lb \omega_{jk} - \omega \rb \right] = - \frac{\pi E_0^2}{2 \hbar} \sum_j \sum_k \omega_{jk} \rho_k | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \notag
+\end{gather}
+
+Подставляя полученный результат в \ref{eq:rad}, получаем:
+\vverh
+\begin{gather}
+	- \dot{E}_{rad} = \frac{\pi E_0^2}{2 \hbar} \sum_{j, k} \omega_{jk} \lb \rho_j - \rho_k \rb | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \notag 
+\end{gather}
+
+Применим Больцмановскую статистику предполагая, что система изначально находится в состоянии теплового равновесия:
+\vverh
+\begin{gather}
+	\rho_k = \rho_j \exp \lb - \beta \hbar \omega_{jk} \rb \notag \\
+	- \dot{E}_{rad} = \frac{\pi E_0^2}{2 \hbar} \sum_{j, k} \omega_{jk} \rho_j \lb 1 - \exp \lb - \beta \hbar \omega_{jk} \rb \rb | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb = \label{eq:rad2} \\
+	= \frac{\pi E_0^2}{2 \hbar} \lb 1 - \exp \lb - \beta \hbar \omega \rb \rb \omega \sum_{j, k} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \label{eq:rad3} 
+\end{gather}
+
+Переход от \ref{eq:rad2} к \ref{eq:rad3} обосновывается тем, что дельта-функционал $\delta \lb \omega_{jk} - \omega \rb$ отсечет все значения $\omega$ кроме $\omega_{jk}$.  
+
+Вектор Пойнтинга определяет поток энергии, переносимый волной ($S$ -- модуль вектора Пойнтинга):
+\vverh
+\begin{gather}
+	S = \frac{c}{8 \pi} n E_0^2, \notag
+\end{gather}
+
+где $n$ -- показатель преломления среды. Показатель поглощения среды $\alpha(\omega)$ определим как отношение энергии, поглощенной средой, и энергии, переносимой полем:
+\vverh
+\begin{gather}
+	\alpha(\omega) = \frac{4 \pi^2}{\hbar c n} \omega \lb 1 - \exp \lb - \beta \hbar \omega \rb \rb \sum_{j, k} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \notag
+\end{gather}
+
+``Удобно определить`` (?) спектральную функцию (absorption lineshape) $J(\omega)$ следующим образом  
+\vverh
+\begin{gather}
+	J(\omega) = \frac{3 \hbar c n \alpha(\omega)}{4 \pi^2 \omega \lb 1 - \exp \lb - \beta \hbar \omega \rb \rb} = 3 \sum_{j, k} \rho_j | \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} |^2 \delta \lb \omega_{jk} - \omega \rb \label{eq:specfunc} 
+\end{gather}
+
+В дальнейшем рассуждении применяется представление Гейзенберга квантовой механики, в котором эволюция системы заложена в операторах, а не в состояниях, которые остаются постоянными. Эволюция оператора, как в Шредингеровском представлении эволюция состояния, описывается оператором эволюции $U(t)$:
+\vverh
+\begin{gather}
+	A(t) = U^{*}(t) A(0) U(t) = \exp \lb \frac{i}{\hbar} \mH t \rb A(0) \exp \lb - \frac{i}{\hbar} \mH t \rb \notag
+\end{gather}
+
+В выражении \ref{eq:specfunc} подставим дельта-функционал как преобразование Фурье экспоненты: 
+\vverh
+\begin{gather}
+	\delta(\omega) = \frac{1}{2 \pi} \int\limits_{-\infty}^{\infty} \exp \lb i \omega t \rb dt \notag \\
+	J(\omega) = \frac{3}{2 \pi} \sum_{j, k} \rho_j \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \bra{k} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{j} \int\limits_{-\infty}^{\infty} \exp \lb i \lb \frac{E_k - E_j}{\hbar} - \omega \rb t \rb dt \notag
+\end{gather}
+
+Соберем под интегралом Гейзенберговское представление оператора дипольного момента:
+\vverh
+\begin{gather}
+	\exp \lb - \frac{i}{\hbar} E_j t \rb \ket{j} = \exp \lb - \frac{i}{\hbar} \mH t \rb \ket{j}, \quad \exp \lb \frac{i}{\hbar} E_k t \rb \bra{k} = \exp \lb \frac{i}{\hbar} \mH t \rb \bra{k} \notag \\
+	\exp \lb \frac{i}{\hbar} \lb E_k - E_j \rb t \rb \bra{k} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{j} = \bra{k} \boldsymbol{\varepsilon} \exp \lb \frac{i}{\hbar} \mH t \rb \mf{M} \exp \lb - \frac{i}{\hbar} \mH t \rb \ket{j} = \bra{k} \mf{M}(t) \cdot \boldsymbol{\varepsilon} \ket{j} \notag \\
+	J(\omega) = \frac{3}{2 \pi} \int\limits_{-\infty}^{\infty} \sum_{j, k} \rho_j \bra{j} \mf{M} \cdot \boldsymbol{\varepsilon} \ket{k} \bra{k} \mf{M}(t) \cdot \boldsymbol{\varepsilon} \ket{j} \exp \lb - i \omega t \rb dt \label{eq:specfunc2} 
+\end{gather}
+
+Заметим, что в подынтгреальном выражении сумма по $k$ дает единичный проектор:
+\begin{gather}
+	\sum_k \ket{k} \bra{k} = 1 \notag \\
+	J(\omega) = \frac{3}{2 \pi} \int\limits_{-\infty}^{\infty} \sum_j \rho_j \bra{j}  \mf{M}(0) \cdot \boldsymbol{\varepsilon} \cdot \mf{M}(t) \cdot \boldsymbol{\varepsilon} \ket{j} \exp \lb - i \omega t \rb dt \notag
+\end{gather}
+
+Сумма в подынтегральном выражении является средним по ансамблю значением оператора $\mf{M}(0) \cdot \boldsymbol{\varepsilon} \cdot \mf{M}(t) \cdot \boldsymbol{\varepsilon}$, далее будем обозначать его $\langle \mf{M}(0) \cdot \boldsymbol{\varepsilon} \cdot \mf{M}(t) \cdot \boldsymbol{\varepsilon} \rangle$. Считая среду изотропной, опустим единичные векторы $\boldsymbol{\varepsilon}$. Таким образом, спектральная функция $J(\omega)$ является преобразованием Фурье автокорреляционной функции дипольного момента (автокорреляции оператора дипольного момента). 
+\vverh
+\begin{gather}
+	J(\omega) = \frac{3}{2 \pi} \int\limits_{-\infty}^{\infty} \langle \mf{M}(0) \mf{M}(t) \rangle \exp \lb - i \omega t \rb dt \notag
+\end{gather}
+
+
+\subsection*{Корреляционная теорема и спектральная функция}
+
+\begin{gather}
+	f \bigstar g = \intty \bar{f}(\tau) g(t + \tau) d \tau = \intty \left[ \, \intty \bar{F}(\omega) \exp(-i \omega \tau) \frac{d \omega}{2 \pi} \right] \left[ \, \intty G(\omega^\prime) \exp \lb i \omega^\prime ( t + \tau) \rb \frac{d \omega^\prime}{2 \pi} \right] d \tau = \notag \\
+	= \intty \intty \bar{F}(\omega) G(\omega^\prime) \exp \lb i \omega^\prime t \rb \left[ \, \intty \exp \lb i \tau (\omega^\prime - \omega) \rb \frac{d \tau}{2 \pi} \right] \frac{d \omega}{2 \pi} \frac{d \omega^\prime}{2 \pi} = \intty \intty \bar{F}(\omega)G(\omega^\prime) \exp \lb i \omega^\prime t \rb  \delta \lb \omega - \omega^\prime \rb \frac{d \omega}{2 \pi} d \omega^\prime = \notag \\
+	= \intty \bar{F}(\omega) G(\omega) \exp \lb i \omega t \rb \frac{d \omega}{2 \pi} = F^{-1} \left[ \bar{F}(\omega) G(\omega) \right] \notag \\
+	F \left[ f \bigstar g \right] = \bar{F}(\omega) G(\omega) \notag
+\end{gather}
+
+Обозначим $C(t)$ автокорреляцию дипольного момента:
+\vverh
+\begin{gather}
+	C(t) = \intty \boldsymbol{\mu}(\tau) \boldsymbol{\mu}(t + \tau) d \tau = \sum_{\alpha = x, y, z} \intty \mu_\alpha(\tau) \mu_\alpha(t + \tau) d \tau = C_x (t) + C_y(t) + C_z(t) \notag
+\end{gather}
+
+Рассмотрим преобразование Фурье от автокорреляционной функции дипольного момента:
+\vverh \vverh 
+\begin{gather}
+	F[C(t)] = \intty C(t) \exp \lb - i \omega t \rb dt = \sum_{\alpha = x, y, z} \intty C_\alpha(t) \exp \lb - i \omega t \rb dt = \sum_{\alpha = x, y, z} \Bigg{|} \intty \mu_\alpha(t) \exp \lb - i \omega t \rb dt \Bigg{|}^2 \notag
+\end{gather}
+
+Заметим, что этот результат можно представить как комплексный скалярный квадрат вектора $\mf{F}$, определенного следующим образом:
+\vverh
+\begin{gather}
+	\mf{F}(\omega) = \intty \boldsymbol{\mu}(t) \exp \lb - i \omega t \rb dt = 
+\begin{bmatrix}
+	{\displaystyle \intty \mu_x(t) \exp \lb - i \omega t \rb dt} \\
+	{\displaystyle \intty \mu_y(t) \exp \lb - i \omega t \rb dt} \\
+	{\displaystyle \intty \mu_z(t) \exp \lb - i \omega t \rb dt} 
+\end{bmatrix}, \quad
+\mf{F}^{*}(\omega) =
+\begin{bmatrix}
+	{\displaystyle \intty \mu_x(t) \exp \lb + i \omega t \rb dt} \\
+	{\displaystyle \intty \mu_y(t) \exp \lb + i \omega t \rb dt} \\
+	{\displaystyle \intty \mu_z(t) \exp \lb + i \omega t \rb dt}
+\end{bmatrix} \notag \\
+F[C(t)] = \intty C(t) \exp \lb - i \omega \rb dt = \sum_{\alpha} F_\alpha^{*} F_\alpha = \lb \mf{F}, \mf{F} \rb_{\mathbb{C}^n} \notag
+\end{gather}
+
+\subsection{Некоторые выводы из теории временных функций корреляции}
+Рассмотрим корреляционную функцию:
+\[
+C(t) = \langle \mathcal{A}(0) \mathcal{B}(t)\rangle
+\]
+Угловые скобки означают здесь усреднение по фазовому пространству равновесного ансамбля. Поскольку имеем дело с равновесным ансамблем, то усреднение отвечает следующему свойству:
+\[
+\langle \mathcal{A}(0) \mathcal{B}(t)\rangle = \langle \mathcal{A}(s) \mathcal{B}(t+s)\rangle
+\]
+Такое усреднение называется \textit{стационарным} [McQuarrie, 1976]. В таком случае мы можем выбрать $s=-t$:
+\[
+\langle \mathcal{A}(0) \mathcal{B}(t)\rangle = \langle \mathcal{A}(-t) \mathcal{B}(0)\rangle
+\]
+Также нам пригодится разложение в ряд автокорреляционной функции:
+\[
+\begin{aligned}
+\langle \mathcal{A}(0) \mathcal{A}(t)\rangle = \big\langle \mathcal{A}(0) \big[ \mathcal{A}(0)+t\dot{\mathcal{A}}(0) + \frac{t^2}{2!}\ddot{\mathcal{A}}(0) + \ldots\big]\big\rangle =\\
+=\langle \mathcal{A}(0) \mathcal{A}(0)\rangle + t \langle \mathcal{A}(0) \dot{\mathcal{A}}(t)\rangle +\frac{t^2}{2!}\langle \mathcal{A}(0) \ddot{\mathcal{A}}(t)\rangle + \ldots
+\end{aligned}
+\]
+Далее заметим, что
+\[
+\begin{aligned}
+\langle \mathcal{A}(0) \ddot{\mathcal{A}}(t)\rangle  = \Big[\frac{d^2}{dt^2} \langle \mathcal{A}(0) \mathcal{A}(t)\rangle  \Big]_{t=0} = \Big[\frac{d}{dt} \langle \mathcal{A}(0) \dot{\mathcal{A}}(t)\rangle  \Big]_{t=0} = \\
+= \Big[\frac{d}{dt} \langle \mathcal{A}(-t) \dot{\mathcal{A}}(0)\rangle  \Big]_{t=0} = -\langle \dot{\mathcal{A}}(0) \dot{\mathcal{A}}(0)\rangle
+\end{aligned}
+\]
+а также
+\[
+\langle \mathcal{A}(0) \dot{\mathcal{A}}(t)\rangle = \frac{1}{2}\Big\langle\frac{d}{dt}A^2(t)\Big\rangle_{t=0} = 0
+\]
+поскольку скорость изменения какой-либо величины равна 0 при равновесии. В результате:
+\[
+\langle \mathcal{A}(0) \mathcal{A}(t)\rangle = \langle \mathcal{A}(0) \mathcal{A}(0)\rangle - \frac{t^2}{2!}\langle \dot{\mathcal{A}}(0) \dot{\mathcal{A}}(0)\rangle + \ldots
+\]
+Этот вывод понадобится нам в дальнейшем. Попутно отметим, что
+\[
+\begin{aligned}
+\langle \dot{\mathcal{A}}(0) \mathcal{A}(t) \rangle = \langle \dot{\mathcal{A}}(-t) \mathcal{A}(0) \rangle 
+= -\frac{d}{dt} \langle \mathcal{A}(-t) \mathcal{A}(0)\rangle = -\frac{d}{dt}\langle \mathcal{A}(0) \mathcal{A}(t)\rangle
+\end{aligned}
+\]
+
+
+
+
+

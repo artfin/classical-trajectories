@@ -1,0 +1,243 @@
+
+
+Рассмтрим, как можно получить аналитические выражения для второго спектрального момента пары Ar-$\mathrm{CO_2}$.
+Второй спектральный момент по определению представляет из себя следующее выражение:
+
+\[
+M_2 = \frac{\int \frac{\mathrm{d}\vec\mu}{\mathrm{d} t} e^{-{}^H/ \! {}_{kT}} \mathrm{d}q_1 \ldots \mathrm{d}q_n \mathrm{d}p_1 \ldots \mathrm{d}p_n}{\int e^{-{}^H/ \! {}_{kT}} \mathrm{d}q_1 \ldots \mathrm{d}q_n \mathrm{d}p_1 \ldots \mathrm{d}p_n}
+\]
+Производную дипольного момента от времени можно представить через скобку Пуассона:
+
+\[
+\frac{\mathrm{d}\vec\mu_L}{\mathrm{d} t} = [\vec\mu , H] = \left( \frac{\partial \vec\mu_{L}}{\partial R}\frac{\partial H}{\partial p_R}     + 
+\frac{\partial \vec\mu_{L}}{\partial \Theta}\frac{\partial H}{\partial p_{\Theta}} +
+\frac{\partial \vec\mu_{L}}{\partial \theta}\frac{\partial H}{\partial p_{\theta}} +
+\frac{\partial \vec\mu_{L}}{\partial \psi}\frac{\partial H}{\partial p_{\psi}}  +
+\frac{\partial \vec\mu_{L}}{\partial \phi}\frac{\partial H}{\partial p_{\phi}} \right)
+\]
+где $\vec\mu_L$ обозначает вектор дипольного момента в лабораторной системе координат. Нам удобнее работать в молекулярной системе координат, поэтому для перевода вектора из молекулярной в лабораторную систему координат мы воспользуемся матрицей углов Эйлера.
+
+
+\[
+\mathbb{S} = \left( \begin{matrix} \cos \psi \cos \phi - \cos \theta \sin \psi \sin \phi &&  \cos \psi \sin \phi + \cos \theta \sin \psi \cos \phi && \sin \theta \sin \psi \\
+- \sin \psi \cos \phi - \cos \theta \cos \psi \sin \phi && - \sin \psi \sin \phi + \cos \theta \cos \psi \cos \phi && -\sin \theta \cos \phi \\
+\sin \theta \sin \psi && \sin \theta \cos \psi && \cos \theta    \end{matrix} \right)
+\]
+
+Вектор дипольного момента в лабораторной системе выражается через вектор в молекулярной системе следующим образом:
+\[
+\mu_{L} = \mathbb{S}^{-1} \mu_{M}
+\]
+
+Если в явном виде расписать предыдущее равенство, учитывая, что в силу симметрии системы $\mu_Y$ отсутствует, то получим следующие выражения:
+
+\[
+\mu_x = (\cos \psi \cos \phi - \cos \theta \sin \psi \sin \phi)\mu_X + \sin \theta \sin \phi \mu_Z
+\]
+\[
+\mu_y = (\cos \psi \sin \phi + \cos \theta \sin \psi \cos \phi)\mu_X - \sin \theta \cos \phi \mu_Z
+\]
+\[
+\mu_z =( \sin\theta\sin\psi)\mu_X + \cos\theta \mu_Z
+\]
+
+Эйлеровы импульсы связаны с проекциями момента импульса в молекулярной системе координат при помощи следующей матрицы:
+\begin{equation}
+\label{eq:pJ}
+\vec p_{Eu} = \left( \begin{matrix} \sin\theta \sin\psi && \cos\psi && 0 \\
+ \sin\theta \cos\psi && -\sin\psi && 0 \\
+ \cos\theta  && 0 && 1
+  \end{matrix} \right) \vec J
+\end{equation}
+
+Представим вектор дипольного момента через проекции в лабораторной системе координат:
+
+\[
+\mu_L = \vec i\mu_x + \vec j\mu_y + \vec k\mu_z
+\]
+а также его производную по времени:
+
+\[
+\frac{\mathrm{d}\vec\mu}{\mathrm{d} t} =  \vec i \left( \frac{\partial \mu_{x}}{\partial R}\frac{\partial H}{\partial p_R} + \ldots \right) +
+ \vec j \left( \frac{\partial \mu_{y}}{\partial R}\frac{\partial H}{\partial p_R} + \ldots \right) +
+  \vec k \left( \frac{\partial \mu_{z}}{\partial R}\frac{\partial H}{\partial p_R} + \ldots \right)
+\]
+
+квадрат производной по времени примет следующий вид:
+
+\begin{equation}
+\label{eq:squared}
+\left(\frac{\mathrm{d}\vec\mu}{\mathrm{d} t}\right)^2 =   \left( \frac{\partial \mu_{x}}{\partial R}\frac{\partial H}{\partial p_R} + \ldots \right)^2 +
+  \left( \frac{\partial \mu_{y}}{\partial R}\frac{\partial H}{\partial p_R} + \ldots \right)^2 +
+   \left( \frac{\partial \mu_{z}}{\partial R}\frac{\partial H}{\partial p_R} + \ldots \right)^2
+\end{equation}
+
+
+Внутри каждой скобки содержатся производные Гамильтониана по всем импульсам. Перейдем от производных по Эйлеровым импульсам к производным по компонентам углового момента:
+
+\[
+\frac{\partial H}{\partial p_{\theta}} = 
+\frac{\partial H}{\partial J_X}\frac{\partial J_X}{\partial p_{\theta}} +
+\frac{\partial H}{\partial J_Y}\frac{\partial J_Y}{\partial p_{\theta}} + 
+\frac{\partial H}{\partial J_Z}\frac{\partial J_Z}{\partial p_{\theta}}
+\]
+
+Теперь если мы вычислим производные углового момента по эйлеровым импульсам исходя из формулы (\ref{eq:pJ}), то получим следующие выражения:
+
+\begin{equation}
+\label{eq:ham_diff}
+\begin{aligned}
+\frac{\partial H}{\partial p_{\theta}} = 
+\frac{\partial H}{\partial J_X}\cos\psi +
+\frac{\partial H}{\partial J_Y}(-\sin\psi) \\
+\frac{\partial H}{\partial p_{\psi}} = 
+\frac{\partial H}{\partial J_X}\left(\frac{-\cos\theta\sin\psi}{\sin\theta}\right) -
+\frac{\partial H}{\partial J_Y}\left(\frac{\cos\theta\cos\psi}{\sin\theta}\right) + 
+\frac{\partial H}{\partial J_Z} \\
+\frac{\partial H}{\partial p_{\phi}} = 
+\frac{\partial H}{\partial J_X}\frac{\sin\psi}{\sin\theta} -
+\frac{\partial H}{\partial J_Y}\frac{\cos\psi}{\sin\theta} 
+\end{aligned}
+\end{equation}
+
+Нетрудно проверить, что кинетическая энергия для Ar-$\mathrm{CO_2}$ может быть представлен в следующем виде
+\[
+H = kT (x_1^2+x_2^2+x_3^2+x_4^2+x_5^2)
+\]
+
+\begin{equation}
+\label{eq:system}
+\begin{cases}
+x_1=\frac{p_R}{\sqrt{2\mu_2 kT}} \\
+x_2=\frac{p_{\Theta}}{\sqrt{2\mu_1 l^2 kT}} \\
+x_3=\frac{p_{\Theta}-J_Y}{\sqrt{2\mu_2 R^2 kT}} \\
+x_4=\frac{J_X+J_Z \cot\Theta }{\sqrt{2\mu_2 R^2 kT}}\\
+x_5=\frac{J_Z}{\sqrt{2\mu_1 l^2 \sin^2\Theta kT}}
+\end{cases}
+\begin{cases}
+\frac{\partial H}{\partial p_R}=\frac{2x_1}{\sqrt{2\mu_2 kT}} \\
+\frac{\partial H}{\partial p_{\Theta}}=\frac{2x_2}{\sqrt{2\mu_1 l^2 kT}} + \frac{2x_3}{\sqrt{2\mu_2 R^2 kT}} \\
+\frac{\partial H}{\partial J_X}=\frac{2x_4}{\sqrt{2\mu_2 R^2 kT}} \\
+\frac{\partial H}{\partial J_Y}=\frac{-2x_3}{\sqrt{2\mu_2 R^2 kT}}\\
+\frac{\partial H}{\partial J_Z}=\frac{2x_5}{\sqrt{2\mu_1 l^2 \sin^2\Theta kT}}+\frac{2x_4\cot\Theta}{\sqrt{2\mu_2 R^2 kT}}
+\end{cases}
+\end{equation}
+
+Для краткости обозначим:
+\[
+\begin{cases}
+A=\sqrt{2\mu_2 kT} \\
+B={\sqrt{2\mu_2 R^2 kT}} \\
+C= {\sqrt{2\mu_1 l^2 kT}} \\
+D={\sqrt{2\mu_1 l^2 \sin^2\Theta kT}}
+\end{cases}
+\]
+
+Якобиан перехода от $\{p_R,p_{\Theta},J_X, J_Y, J_Z  \}$ к $\{x_1, x_2, x_3, x_4, x_5 \}$ $[Jac]=A\cdot B^2 \cdot C \cdot D$
+
+Числитель выражения для дипольного момента таким образом оказывается следующим:
+
+\begin{equation}
+\label{eq:mom_sphere}
+M_2 =  A\cdot B^2 \cdot C \cdot D {\int \frac{\mathrm{d}\vec\mu}{\mathrm{d} t} e^{-(x_1^2+x_2^2+x_3^2+x_4^2+x_5^2)} \mathrm{d}x_1 \mathrm{d}x_2 \mathrm{d}x_3 \mathrm{d}x_4 \mathrm{d}x_5  \sin\theta \mathrm{d}\theta \mathrm{d}\psi \mathrm{d}\phi}
+\end{equation}
+
+Подставив в (\ref{eq:squared}) выражения для дипольного момента в ЛСК через его компоненты в МСК и углы Эйлера, а также (\ref{eq:ham_diff}), получаем следующее выражение:
+\begin{equation*}
+\begin{aligned}
+\left(\frac{\mathrm{d}\vec\mu}{\mathrm{d} t}\right)^2=\left( \frac{\partial \mu_Z}{\partial R}  \right)^2\left( \frac{\partial H}{\partial p_R}  \right)^2 +
+\mu_Z^2\left( \frac{\partial H}{\partial J_Y}  \right)^2 +
+\left( \frac{\partial \mu_X}{\partial R}  \right)^2\left( \frac{\partial H}{\partial p_R}  \right)^2 +
+\mu_X^2\left( \frac{\partial H}{\partial J_Z}  \right)^2 + \\
+\mu_X^2\left( \frac{\partial H}{\partial J_Y}  \right)^2 + 
+ \left( \frac{\partial \mu_Z}{\partial \Theta}  \right)^2\left( \frac{\partial H}{\partial p_{\Theta}}  \right)^2 +
+\left( \frac{\partial \mu_X}{\partial \Theta}  \right)^2\left( \frac{\partial H}{\partial p_{\Theta}}  \right)^2 +
+\mu_Z^2\left( \frac{\partial H}{\partial J_X}  \right)^2 - \\
+- 2\left( \frac{\partial \mu_Z}{\partial R}  \right)\mu_X\frac{\partial H}{\partial J_Y}\frac{\partial H}{\partial p_R}  -
+2\left( \frac{\partial \mu_Z}{\partial \Theta}  \right)\mu_X\frac{\partial H}{\partial J_Y}\frac{\partial H}{\partial p_R} - \\
+- 2\left( \frac{\partial \mu_Z}{\partial \Theta}  \right)\mu_X\frac{\partial H}{\partial J_Y}\frac{\partial H}{\partial p_{\Theta}} -
+2\mu_X\mu_Z\frac{\partial H}{\partial J_X}\frac{\partial H}{\partial J_Z} +
+2\left( \frac{\partial \mu_X}{\partial R}  \right)\mu_Z\frac{\partial H}{\partial J_Y}\frac{\partial H}{\partial p_R} +  \\
++ 2\left( \frac{\partial \mu_X}{\partial \Theta}  \right)\mu_X\frac{\partial H}{\partial J_Y}\frac{\partial H}{\partial p_{\Theta}} +
+2\left( \frac{\partial \mu_Z}{\partial R}  \right)\frac{\partial\mu_Z}{\partial \Theta}\frac{\partial H}{\partial p_{\Theta}}\frac{\partial H}{\partial p_R} + \\
++ 2\left( \frac{\partial \mu_X}{\partial R}  \right)\frac{\partial\mu_X}{\partial \Theta}\frac{\partial H}{\partial p_{\Theta}}\frac{\partial H}{\partial p_R}
+\end{aligned}
+\end{equation*}
+Интересно отметить, что в него не вошел ни один из углов Эйлера, они взаимно сократились в ходе преобразований\\
+Теперь подставляем уже полученные производные гамильтониана (\ref{eq:system}). Получаем сумму нескольких членов, из которых мы выпишем только два для демонстрации дальнейших преобразований:
+
+\[
+\frac{4\mu_Z^2 x^2_4}{B^2}-\frac{8\frac{\partial \mu_X}{R}\mu_Z x_3x_1}{BA}
+\]
+Подставляем в (\ref{eq:mom_sphere}), опуская якобиан для наглядности:
+
+\begin{equation*}
+M_2 =   {\int \left( \frac{4\mu_Z^2 x^2_4}{B^2}-\frac{8\frac{\partial \mu_X}{R}\mu_Z x_3x_1}{BA} \right) e^{-(x_1^2+x_2^2+x_3^2+x_4^2+x_5^2)} \mathrm{d}x_1 \mathrm{d}x_2 \mathrm{d}x_3 \mathrm{d}x_4 \mathrm{d}x_5  \sin\theta \mathrm{d}\theta \mathrm{d}\psi \mathrm{d}\phi}
+\end{equation*}
+Переходим к повторным интегралам:
+
+\begin{equation*}
+\begin{aligned}
+M_2 = - \frac{8\frac{\partial \mu_X}{\partial R}}{BA}\mu_Z \int x_1e^{-x_1^2}  \mathrm{d}x_1 \int e^{-x_2^2}  \mathrm{d}x_2 \int x_3e^{-x_3^2}  \mathrm{d}x_3 \int e^{-x_4^2}  \mathrm{d}x_4  \int e^{-x_5^2}  \mathrm{d}x_5 \int \sin\theta \mathrm{d}\theta \mathrm{d}\psi \mathrm{d}\phi + \\
++ \frac{4\mu_Z^2}{B^2}\int e^{-x_1^2}  \mathrm{d}x_1 \int e^{-x_2^2}  \mathrm{d}x_2 \int e^{-x_3^2}  \mathrm{d}x_3 \int x_4^2 e^{-x_4^2}  \mathrm{d}x_4  \int e^{-x_5^2}  \mathrm{d}x_5 \int \sin\theta \mathrm{d}\theta \mathrm{d}\psi \mathrm{d}\phi
+ \end{aligned}
+\end{equation*}
+
+Для вычисления такого рода интегралов пользуемся известной формулой:
+
+\[
+\int^{\infty}_0 x^n e^{-ax^2} \mathrm{d}x = \frac{\Gamma\left( \frac{n+1}{2}\right)}{2a^{\frac{n+1}{2}}}
+\]
+
+
+В результате приходим к следующему конечному выражению:
+
+\begin{equation*}
+\begin{aligned}
+\mathbf{M_2} = 4\,{\frac {A{B}^{2}C{\pi }^{5/2} \left( \mu_{{X}} \left( R,\Theta
+ \right)  \right) ^{2}}{ \left( D \right) {\beta}^{7/2}{{\rm e}^{\beta
+\,V \left( R,\Theta \right) }}}}+4\,{\frac {A{B}^{2} \left( D \right) 
+{\pi }^{5/2} \left( {\frac {\partial }{\partial \Theta}}\mu_{{X}}
+ \left( R,\Theta \right)  \right) ^{2}}{C{\beta}^{7/2}{{\rm e}^{\beta
+\,V \left( R,\Theta \right) }}}}+ \\
++ 4\,{\frac {A{B}^{2} \left( D \right) 
+{\pi }^{5/2} \left( {\frac {\partial }{\partial \Theta}}\mu_{{Z}}
+ \left( R,\Theta \right)  \right) ^{2}}{C{\beta}^{7/2}{{\rm e}^{\beta
+\,V \left( R,\Theta \right) }}}}  +8\,{\frac {AC \left( D \right) {\pi }
+^{5/2} \left( \mu_{{Z}} \left( R,\Theta \right)  \right) ^{2}}{{\beta}
+^{7/2}{{\rm e}^{\beta\,V \left( R,\Theta \right) }}}}+4\,{\frac {AC
+ \left( D \right) {\pi }^{5/2} \left( {\frac {\partial }{\partial 
+\Theta}}\mu_{{Z}} \left( R,\Theta \right)  \right) ^{2}}{{\beta}^{7/2}
+{{\rm e}^{\beta\,V \left( R,\Theta \right) }}}}- \\
+-8\,{\frac {AC \left( D
+ \right) {\pi }^{5/2} \left( {\frac {\partial }{\partial \Theta}}\mu_{
+{X}} \left( R,\Theta \right)  \right) \mu_{{Z}} \left( R,\Theta
+ \right) }{{\beta}^{7/2}{{\rm e}^{\beta\,V \left( R,\Theta \right) }}}
+}+ 8\,{\frac {AC \left( D \right) {\pi }^{5/2} \left( {\frac {\partial 
+}{\partial \Theta}}\mu_{{Z}} \left( R,\Theta \right)  \right) \mu_{{X}
+} \left( R,\Theta \right) }{{\beta}^{7/2}{{\rm e}^{\beta\,V \left( R,
+\Theta \right) }}}} + \\
++ 4\,{\frac {AC \left( D \right) {\pi }^{5/2}
+ \left( \mu_{{X}} \left( R,\Theta \right)  \right) ^{2}}{{\beta}^{7/2}
+{{\rm e}^{\beta\,V \left( R,\Theta \right) }}}} + 4\,{\frac {AC \left( D
+ \right) {\pi }^{5/2} \left( {\frac {\partial }{\partial \Theta}}\mu_{
+{X}} \left( R,\Theta \right)  \right) ^{2}}{{\beta}^{7/2}{{\rm e}^{
+\beta\,V \left( R,\Theta \right) }}}}- \\
+- 8\,{\frac {AC \left( D \right) {
+\pi }^{5/2}\mu_{{X}} \left( R,\Theta \right) \mu_{{Z}} \left( R,\Theta
+ \right) \cos \left( \Theta \right) }{{\beta}^{7/2}{{\rm e}^{\beta\,V
+ \left( R,\Theta \right) }}\sin \left( \Theta \right) }}+4\,{\frac {AC
+ \left( D \right) {\pi }^{5/2} \left( \mu_{{X}} \left( R,\Theta
+ \right)  \right) ^{2} \left( \cos \left( \Theta \right)  \right) ^{2}
+}{{\beta}^{7/2}{{\rm e}^{\beta\,V \left( R,\Theta \right) }} \left( 
+\sin \left( \Theta \right)  \right) ^{2}}}+ \\
++ 4\,{\frac {{B}^{2}C \left( 
+D \right) {\pi }^{5/2} \left( {\frac {\partial }{\partial R}}\mu_{{Z}}
+ \left( R,\Theta \right)  \right) ^{2}}{A{\beta}^{7/2}{{\rm e}^{\beta
+\,V \left( R,\Theta \right) }}}}+4\,{\frac {{B}^{2}C \left( D \right) 
+{\pi }^{5/2} \left( {\frac {\partial }{\partial R}}\mu_{{X}} \left( R,
+\Theta \right)  \right) ^{2}}{A{\beta}^{7/2}{{\rm e}^{\beta\,V \left( 
+R,\Theta \right) }}}}
+\end{aligned}
+\end{equation*}
+

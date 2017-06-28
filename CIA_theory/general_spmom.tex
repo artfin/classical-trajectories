@@ -1,0 +1,311 @@
+
+Запишем вектор дипольного момента в подвижной (молекулярной) системе координат (МСК):
+\[
+\vec{\mu} = \mu_X\vec{n}_X + \mu_Y\vec{n}_Y + \mu_Z\vec{n}_Z
+\]
+Его производная по времени: 
+\begin{equation}
+\label{eq:mu_dot}
+\dot{\vec{\mu}} = \dot{\mu_X}\vec{n}_X + \mu_X\dot{\vec{n}}_X +
+\dot{\mu_Y}\vec{n}_Y + \mu_Y\dot{\vec{n}}_Y +
+\dot{\mu_Z}\vec{n}_Z + \mu_Z\dot{\vec{n}}_Z
+\end{equation}
+Используем следующие обозначения:
+\[
+H = H(\vec{q},\vec{p},\vec{J}),\: J_{\alpha} = J_{\alpha}(\vec{e},\vec{p}_e), \: \vec{e} = \{\phi,\theta,\psi \},\: \vec{p}_e = \{p_{\phi}, p_{\theta}, p_{\psi}  \}, \: \alpha = X, Y, Z
+\]
+$H$ - гамильтониан системы, 
+$\vec J$ -  вектор полного момента импульса в проекции на МСК,
+$\vec e$ - совокупность углов Эйлера
+$\vec p_e$ - совокупность сопряженных к ним импульсов,
+прописными буквами обозначаются оси МСК, строчными - оси ЛСК\\
+
+Производная по времени от некоторого свойства системы может быть выражена через скобку Пуассона:
+\[
+\dot{\vec{\mu}} = [\mu_X,T]_q\vec{n}_X + \mu_X[\vec{n}_X,T]_e +
+[\mu_Y,T]_q\vec{n}_Y + \mu_Y[\vec{n}_Y,T]_e +
+[\mu_Z,T]_q\vec{n}_Z + \mu_Z[\vec{n}_Z,T]_e
+\]
+Индексы $q$ и $e$ возле скобок Пуассона указывают по каким переменным берется дифференцирование (компоненты вектора $\vec\mu$ в МСК зависят только от внутренних переменных, а орты МСК зависят только от углов Эйлера). Мы имеем право писать только кинетическую энергию $T$ из функции Гамильтона, поскольку $\vec\mu$ и $\vec n$ не зависят от сопряженных импульсов, в результате чего производная функции Гамильтона будет вычисляться только по импульсам, и потенциальная энергия в выражение не войдет  \\
+
+Переход от ЛСК к МСК
+(ЛСК $\rightarrow$ МСК) осуществляется с помощью ортогональной матрицы поворота $\mathbb{S}$:
+
+\begin{equation}
+\left[\begin{matrix}
+\vec{n}_X \\
+\vec{n}_Y \\
+\vec{n}_Z \\
+\end{matrix} \right] = \mathbb{S}
+ \left[\begin{matrix}
+\vec{n}_x \\
+\vec{n}_y \\
+\vec{n}_z \\
+\end{matrix} \right]
+\end{equation}
+
+Перейдем в (\ref{eq:mu_dot}) из МСК в ЛСК: 
+\[
+[\mu_X,T]_q\vec{n}_X = [\mu_X,T]_q(S_{11}\vec{n}_x+S_{12}\vec{n}_y+S_{13}\vec{n}_z)
+\]
+\[
+[\mu_Y,T]_q\vec{n}_Y = [\mu_Y,T]_q(S_{21}\vec{n}_x+S_{22}\vec{n}_y+S_{23}\vec{n}_z)
+\]
+\[
+[\mu_Z,T]_q\vec{n}_Z = [\mu_Z,T]_q(S_{31}\vec{n}_x+S_{32}\vec{n}_y+S_{33}\vec{n}_z)
+\]
+
+
+\[
+\mu_X[\vec{n}_X,T]_e = \mu_X([S_{11},T]_e\vec{n}_x + [S_{12},T]_e\vec{n}_y +[S_{13},T]_e\vec{n}_z)
+\]
+\[
+\mu_Y[\vec{n}_Y,T]_e = \mu_Y([S_{21},T]_e\vec{n}_x + [S_{22},T]_e\vec{n}_y +[S_{23},T]_e\vec{n}_z)
+\]
+\[
+\mu_Z[\vec{n}_Z,T]_e = \mu_Z([S_{31},T]_e\vec{n}_x + [S_{32},T]_e\vec{n}_y +[S_{33},T]_e\vec{n}_z)
+\]
+
+Тогда производная вектора дипольного момента по времени выразится следующим образом:
+\begin{equation}
+\label{eq:mu_dot_expanded}
+\begin{aligned}
+\dot{\vec{\mu}} = \bigg \{  [\mu_X,T]_q S_{11}+  [\mu_Y,T]_q S_{21}+  [\mu_Z,T]_q S_{31} + \\
++ [S_{11},T]_e \mu_X +  [S_{21},T]_e \mu_Y +  [S_{31},T]_e \mu_Z   \bigg  \} \vec{n}_x + \\
+ + \bigg\{ [\mu_X,T]_q S_{12}+  [\mu_Y,T]_q S_{22}+  [\mu_Z,T]_q S_{32} + \\
+ + [S_{12},T]_e \mu_X +  [S_{22},T]_e \mu_Y +  [S_{32},T]_e \mu_Z    \bigg\} \vec{n}_y + \\
+ + \bigg\{ [\mu_X,T]_q S_{13}+  [\mu_Y,T]_q S_{23}+  [\mu_Z,T]_q S_{33} + \\
+ + [S_{13},T]_e \mu_X +  [S_{23},T]_e \mu_Y +  [S_{33},T]_e \mu_Z   \bigg \} \vec{n}_z 
+\end{aligned}
+\end{equation}
+
+Запишем производную в краткой форме:
+\[
+\dot{\vec{\mu}} = \Big\{ \ldots \Big\}_x \vec{n}_x + \Big\{ \ldots \Big\}_y \vec{n}_y 
++ \Big\{ \ldots \Big\}_z \vec{n}_z
+\]
+
+Тогда её квадрат будет выражен следующим образом:
+\[
+\dot{\vec{\mu}}^2 = \Big\{ \ldots \Big\}^2_x + \Big\{ \ldots \Big\}^2_y 
++ \Big\{ \ldots \Big\}^2_z 
+\]
+
+Выделим в (\ref{eq:mu_dot_expanded}) слагаемые, отвечающие дифференцированию только по внутренним переменным и только по углам Эйлера. Запишем их в матричной форме:
+
+\[
+\begin{aligned}
+\mathbb{S}^{+}\,\vec{\Pi}_q =  \bigg \{  [\mu_X,T]_q S_{11}+  [\mu_Y,T]_q S_{21}+  [\mu_Z,T]_q S_{31} \bigg  \} \vec{n}_x + \\
+ + \bigg\{ [\mu_X,T]_q S_{12}+  [\mu_Y,T]_q S_{22}+  [\mu_Z,T]_q S_{32} \bigg\} \vec{n}_y + \\
+ + \bigg\{ [\mu_X,T]_q S_{13}+  [\mu_Y,T]_q S_{23}+  [\mu_Z,T]_q S_{33}  \bigg \} \vec{n}_z 
+\end{aligned}
+\]
+
+знак <<$+$>> над вектором означает транспонирование, а вектор $\vec{\Pi}_q$ имеет следующий вид:
+\[
+\vec{\Pi}_q \equiv\left(\begin{matrix}
+[\mu_X,T]_q \\
+[\mu_Y,T]_q \\
+[\mu_Z,T]_q 
+\end{matrix} \right) 
+\]
+аналогично с дифференцированием по углам Эйлера:
+
+\begin{equation*}
+\begin{aligned}
+  \left[\mathbb{S}^{+},T\right]_e \vec{M}_q = \bigg \{ [S_{11},T]_e \mu_X +  [S_{21},T]_e \mu_Y +  [S_{31},T]_e \mu_Z   \bigg  \} \vec{n}_x + \\
+ + \bigg\{ [S_{12},T]_e \mu_X +  [S_{22},T]_e \mu_Y +  [S_{32},T]_e \mu_Z    \bigg\} \vec{n}_y + \\
+ + \bigg\{ [S_{13},T]_e \mu_X +  [S_{23},T]_e \mu_Y +  [S_{33},T]_e \mu_Z   \bigg \} \vec{n}_z  
+\end{aligned}
+\end{equation*}
+где вектор $\vec{M}_q$ имеет следующий вид:
+\[
+\vec{M}_q \equiv\left(\begin{matrix}
+\mu_X \\
+\mu_Y \\
+\mu_Z
+\end{matrix} \right) 
+\]
+
+Распишем скобку Пуассона с матрицей $\mathbb{S}^{+}$:
+
+\begin{equation}
+\label{eq:poisson_S}
+[\mathbb{S}^{+},T]_e  = \frac{\partial\mathbb{S}^{+}}{\partial\varphi}\frac{\partial T}{\partial p_{\varphi}} +
+\frac{\partial\mathbb{S}^{+}}{\partial\theta}\frac{\partial T}{\partial p_{\theta}} +
+\frac{\partial\mathbb{S}^{+}}{\partial\psi}\frac{\partial T}{\partial p_{\psi}} = 
+ \mathbb{S}^{+}_{\varphi}\frac{\partial T}{\partial p_{\varphi}} +
+ \mathbb{S}^{+}_{\theta}\frac{\partial T}{\partial p_{\theta}} +
+ \mathbb{S}^{+}_{\psi}\frac{\partial T}{\partial p_{\psi}}
+\end{equation}
+
+\begin{equation}
+\label{eq:S_e}
+\begin{aligned}
+\mathbb{S}^{+}_{\varphi} =  \frac{\partial\mathbb{S}^{+}}{\partial\varphi}\\
+\mathbb{S}^{+}_{\theta} =  \frac{\partial\mathbb{S}^{+}}{\partial\theta}\\
+ \mathbb{S}^{+}_{\psi} =  \frac{\partial\mathbb{S}^{+}}{\partial\psi}
+\end{aligned}
+\end{equation}
+
+Выразим производные кинетической энергии по эйлеровым импульсам через производные по компонентам момента импульса в МСК
+\[
+\frac{\partial T}{\partial p_{\varphi}} = \frac{\partial T}{\partial J_X}\frac{\partial J_X}{\partial p_{\varphi}} + 
+\frac{\partial T}{\partial J_Y}\frac{\partial J_Y}{\partial p_{\varphi}} + 
+\frac{\partial T}{\partial J_Z}\frac{\partial J_Z}{\partial p_{\varphi}}
+\]
+
+Возвращаясь к (\ref{eq:poisson_S}), введем следующие обозначения:
+\begin{equation}
+\label{eq:S_phi}
+\begin{aligned}
+\mathbb{S}^{+}_{\varphi}\frac{\partial T}{\partial p_{\varphi}} =
+\left(\mathbb{S}^{+}_{\varphi}\frac{\partial J_X}{\partial p_{\varphi}}\right) \frac{\partial T}{\partial J_X} +
+\left(\mathbb{S}^{+}_{\varphi}\frac{\partial J_Y}{\partial p_{\varphi}}\right) \frac{\partial T}{\partial J_Y} +
+\left(\mathbb{S}^{+}_{\varphi}\frac{\partial J_Z}{\partial p_{\varphi}}\right) \frac{\partial T}{\partial J_Z}  = \\
+ = \mathbb{S}^{+}_{\varphi X} \frac{\partial T}{\partial J_X} +
+\mathbb{S}^{+}_{\varphi Y} \frac{\partial T}{\partial J_Y} +
+\mathbb{S}^{+}_{\varphi Z} \frac{\partial T}{\partial J_Z}
+\end{aligned}
+\end{equation}
+
+Аналогично с производными по другим эйлеровым импульсам:
+\begin{equation}
+\mathbb{S}^{+}_{\theta}\frac{\partial T}{\partial p_{\varphi}} =
+\mathbb{S}^{+}_{\theta X} \frac{\partial T}{\partial J_X} +
+\mathbb{S}^{+}_{\theta Y} \frac{\partial T}{\partial J_Y} +
+\mathbb{S}^{+}_{\theta Z} \frac{\partial T}{\partial J_Z}
+\end{equation}
+
+\begin{equation}
+\label{eq:S_psi}
+\mathbb{S}^{+}_{\psi}\frac{\partial T}{\partial p_{\varphi}} =
+\mathbb{S}^{+}_{\psi X} \frac{\partial T}{\partial J_X} +
+\mathbb{S}^{+}_{\psi Y} \frac{\partial T}{\partial J_Y} +
+\mathbb{S}^{+}_{\psi Z} \frac{\partial T}{\partial J_Z}
+\end{equation}
+
+Компоненты момента импульса в МСК связаны с эйлеровыми импульсами следующей матрицей:
+\[
+\left(\begin{matrix}
+J_X \\
+J_Y \\
+J_Z 
+\end{matrix}\right)=
+ \left[ \begin {array}{ccc} {\frac {\sin \left( \psi \right) }{\sin
+ \left( \theta \right) }}&\cos \left( \psi \right) &-{\frac {\cos
+ \left( \theta \right) \sin \left( \psi \right) }{\sin \left( \theta
+ \right) }}\\ \noalign{\medskip}{\frac {\cos \left( \psi \right) }{
+\sin \left( \theta \right) }}&-\sin \left( \psi \right) &-{\frac {\cos
+ \left( \theta \right) \cos \left( \psi \right) }{\sin \left( \theta
+ \right) }}\\ \noalign{\medskip}0&0&1\end {array} \right] 
+ \left(\begin{matrix}
+p_{\varphi}\\
+ p_{\theta}\\
+  p_{\psi} 
+\end{matrix}\right)
+\]
+
+В результате члены $\mathbb{S}_{e\, \alpha}$ примут следующий вид:
+\begin{equation}
+\label{eq:S_ealpha}
+\begin {array}{ccc} \mathbb{S}^{+}_{\varphi X} = \frac{\sin\psi}{\sin\theta} \mathbb{S}^{+}_{\varphi} &\mathbb{S}^{+}_{\varphi Y} = \frac{\cos\psi}{\sin\theta} \mathbb{S}^{+}_{\varphi} & 
+\mathbb{S}^{+}_{\varphi Z} = \mathbf{0} \\
+ \noalign{\medskip}\mathbb{S}^{+}_{\theta X} = \cos\psi \:\mathbb{S}^{+}_{\theta} &
+ \mathbb{S}^{+}_{\theta Y} = -\sin\psi\: \mathbb{S}^{+}_{\theta} &
+ \mathbb{S}^{+}_{\theta Z} = \mathbf{0} \\
+  \noalign{\medskip}\mathbb{S}^{+}_{\psi X} = -\sin\psi\cot\theta \:\mathbb{S}^{+}_{\psi} &
+ \mathbb{S}^{+}_{\psi Y} =-\cos\psi\cot\theta\: \mathbb{S}^{+}_{\psi} &
+ \mathbb{S}^{+}_{\psi Z} = \mathbb{S}^{+}_{\psi}
+ \end {array}
+\end{equation}
+
+Возвращаясь к (\ref{eq:poisson_S}) и принимая во внимание соотношения (\ref{eq:S_phi})-(\ref{eq:S_psi}), получаем:
+\begin{equation}
+\label{eq:W}
+\begin{aligned}
+\left[\mathbb{S}^{+},T\right]_e = \Big( \mathbb{S}^{+}_{\varphi X} + \mathbb{S}^{+}_{\theta X}+ \mathbb{S}^{+}_{\psi X}\Big) \frac{\partial T}{\partial J_X} + \\
++ \Big( \mathbb{S}^{+}_{\varphi Y} + \mathbb{S}^{+}_{\theta Y}+ \mathbb{S}^{+}_{\psi Y}\Big) \frac{\partial T}{\partial J_Y} + \\
++ \Big( \mathbb{S}^{+}_{\varphi Z} + \mathbb{S}^{+}_{\theta Z}+ \mathbb{S}^{+}_{\psi Z}\Big) \frac{\partial T}{\partial J_Z} = \\
+\mathbb{S}^{+}_{X} \frac{\partial T}{\partial J_X} + \mathbb{S}^{+}_{Y} \frac{\partial T}{\partial J_Y} +
+\mathbb{S}^{+}_{Z} \frac{\partial T}{\partial J_Z} = \mathbb{W}
+\end{aligned}
+\end{equation}
+В результате всех преобразований производная вектора дипольного момента выражается следующим образом: 
+\[
+\dot{\vec{\mu}} = \mathbb{S}^{+}\vec{\Pi}_q + \mathbb{W} \vec{M}_q
+\]
+Квадрат вектора дпольного момента:
+
+\begin{equation}
+\begin{aligned}
+\dot{\vec\mu}^2 = \dot{\vec{\mu}}^{+}\dot{\vec{\mu}} =  \big(\mathbb{S}^{+}\vec{\Pi}_q + \mathbb{W} \vec{M}_q\big)^{+}\big(\mathbb{S}^{+}\vec{\Pi}_q + \mathbb{W} \vec{M}_q\big) = \\
+= \big(\vec{\Pi}_q^{+}\mathbb{S} +  \vec{M}_q^{+}\mathbb{W}^{+}\big)^{+}\big(\mathbb{S}^{+}\vec{\Pi}_q + \mathbb{W} \vec{M}_q\big) =\\
+= \vec{\Pi}_q^{+}\mathbb{S}\mathbb{S}^{+}\vec{\Pi}_q + \vec{\Pi}_q^{+}\mathbb{S} \mathbb{W} \vec{M}_q +
+ \vec{M}_q^{+}\mathbb{W}^{+}\mathbb{S}^{+}\vec{\Pi}_q +  \vec{M}_q^{+}\mathbb{W}^{+} \mathbb{W} \vec{M}_q
+\end{aligned}
+\end{equation}
+
+
+
+\begin{center}
+\line(1,0){350}
+\end{center}
+
+Подводя итоги:
+Квадрат производной вектора дипольного момента от времени:
+
+\begin{equation}
+\label{eq:dip_squared}
+\begin{aligned}
+\dot{\vec\mu}^2 =  \vec{\Pi}_q^{+}\mathbb{S}\mathbb{S}^{+}\vec{\Pi}_q + \vec{\Pi}_q^{+}\mathbb{S} \mathbb{W} \vec{M}_q +
+ \vec{M}_q^{+}\mathbb{W}^{+}\mathbb{S}^{+}\vec{\Pi}_q +  \vec{M}_q^{+}\mathbb{W}^{+} \mathbb{W} \vec{M}_q
+\end{aligned}
+\end{equation}
+
+\[
+\vec{\Pi}_q \equiv\left(\begin{matrix}
+[\mu_X,T]_q \\
+[\mu_Y,T]_q \\
+[\mu_Z,T]_q 
+\end{matrix} \right) 
+\]
+
+\[
+\vec{M}_q \equiv\left(\begin{matrix}
+\mu_X \\
+\mu_Y \\
+\mu_Z
+\end{matrix} \right) 
+\]
+Произведения матриц, входящие в выражение (\ref{eq:dip_squared}) расписываются следующим образом:
+\begin{equation}
+\begin{aligned}
+\mathbb{S}\mathbb{S}^{+} = 1\\
+\mathbb{S} \mathbb{W}  = \mathbb{S}\mathbb{S}^{+}_X  \frac{\partial T}{\partial J_X} +
+\mathbb{S}\mathbb{S}^{+}_Y  \frac{\partial T}{\partial J_Y} +
+\mathbb{S}\mathbb{S}^{+}_Z  \frac{\partial T}{\partial J_Z} \\
+\mathbb{W}^{+}\mathbb{S}^{+} = \mathbb{S}_X\mathbb{S}^{+}  \frac{\partial T}{\partial J_X} +
+\mathbb{S}_Y\mathbb{S}^{+}  \frac{\partial T}{\partial J_Y} +
+\mathbb{S}_Z\mathbb{S}^{+}  \frac{\partial T}{\partial J_Z} \\
+\mathbb{W}^{+} \mathbb{W} = \mathbb{S}_X\mathbb{S}^{+}_X  \left(\frac{\partial T}{\partial J_X}\right)^2 +
+\mathbb{S}_Y\mathbb{S}^{+}_Y  \left(\frac{\partial T}{\partial J_Y}\right)^2 +
+\mathbb{S}_Z\mathbb{S}^{+}_Z  \left(\frac{\partial T}{\partial J_Z}\right)^2 +\\
++ \big(\mathbb{S}_X\mathbb{S}^{+}_Y +\mathbb{S}_Y\mathbb{S}^{+}_X    \big)\frac{\partial T}{\partial J_X}\frac{\partial T}{\partial J_Y} +\\
++ \big(\mathbb{S}_X\mathbb{S}^{+}_Z +\mathbb{S}_Z\mathbb{S}^{+}_X    \big)\frac{\partial T}{\partial J_X}\frac{\partial T}{\partial J_Z} +\\
+\big(\mathbb{S}_Y\mathbb{S}^{+}_Z +\mathbb{S}_Z\mathbb{S}^{+}_Y    \big)\frac{\partial T}{\partial J_Y}\frac{\partial T}{\partial J_Z} 
+\end{aligned}
+\end{equation}
+
+где согласно уравнению (\ref{eq:W}):
+\[
+\mathbb{S}^{+}_{X} = \mathbb{S}^{+}_{\varphi X} + \mathbb{S}^{+}_{\theta X}+ \mathbb{S}^{+}_{\psi X}
+\]
+\[
+\mathbb{S}^{+}_{Y} = \mathbb{S}^{+}_{\varphi Y} + \mathbb{S}^{+}_{\theta Y}+ \mathbb{S}^{+}_{\psi Y}
+\]
+\[
+\mathbb{S}^{+}_{Z} = \mathbb{S}^{+}_{\varphi Z} + \mathbb{S}^{+}_{\theta Z}+ \mathbb{S}^{+}_{\psi Z}
+\]
+
+где члены вида $\mathbb{S}_{e\, \alpha}^{+}$ определены в (\ref{eq:S_ealpha}), а члены вида $\mathbb{S}_{e}^{+}$ -- в (\ref{eq:S_e}):

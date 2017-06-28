@@ -1,0 +1,110 @@
+\usepackage{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\usepackage{verbatim}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+% blackboard lettering
+\usepackage{dsfont}
+\usepackage{bbm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% modifying page layout using fancyhdr
+\fancyhf{}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}} % adding number to section name
+\renewcommand{\subsectionmark}[1]{\markright{\thesubsection\ #1}} % adding number to subsection name
+
+\rhead{\fancyplain{}{\rightmark }} % placing the section/subsection name in the right corner of the header
+\cfoot{\fancyplain{}{\thepage}}  % placing a page number in the center of the footer   
+
+% table packages
+\usepackage{tabularx, ragged2e, booktabs, caption}
+% includegraphics package
+\usepackage{graphicx}
+
+%appendices
+\usepackage[toc, page]{appendix}
+\usepackage{titlesec}
+
+% cures a bug inside titlesec package that overrides section numbering
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}
+\patchcmd{\ttlh@hang}{\noindent}{}{}{}
+\makeatother
+
+% commands
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+\newcommand{\mH}{\mathcal{H}}
+\newcommand{\mL}{\mathcal{L}}
+\newcommand{\mf}{\mathbf}
+
+\newcommand{\bbB}{\mathbb{B}}
+\newcommand{\bbG}{\mathbb{G}}
+\newcommand{\bbS}{\mathbb{S}}
+\newcommand{\bbV}{\mathbb{V}}
+\newcommand{\bbI}{\mathbb{I}}
+\newcommand{\bbA}{\mathbb{A}}
+\newcommand{\bba}{\mathbbm{a}}
+
+\newcommand{\intty}{\int\limits_{-\infty}^{\infty}}
+
+% displaystyle fraction
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+
+% positioning commands
+\newcommand{\vlevo}{\hspace*{-1pt}}
+\newcommand{\vpravo}{\hspace{1pt}}
+\newcommand{\vverh}{\vspace*{-0.1cm}}
+
+% table cell centering
+\newcolumntype{C}[1]{>{\Centering}m{#1}}
+\renewcommand\tabularxcolumn[1]{C{#1}}
+
+\makeatletter
+\providecommand\barcirc{\mathpalette\@barred\circ}%
+\def\@barred#1#2{\ooalign{\hfil$#1-$\hfil\cr\hfil$#1#2$\hfil\cr}}%
+\newcommand\stst{^{\protect\barcirc}}%
+\makeatother
+
+% tikz packages
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, decorations.markings}
+\usetikzlibrary{fit}
+\usepackage{microtype}
+\usepackage{framed}
+\usetikzlibrary{decorations.pathmorphing,calc,backgrounds}
+
+\usepackage[nottoc]{tocbibind}
+\usepackage{braket}
+
+\newcommand{\bbU}{\mathbb{U}}
+
+\newcommand{\bbE}{\mathbb{E}}
+
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfJ}{\mathbf{J}}
+
+
+\newcommand{\lcb}{\left\{}
+\newcommand{\rcb}{\right\}}
+\usepackage{amsthm}
+
+% for strut keyword
+\usepackage{mathtools}
+
+% blackboard lettering
+\usepackage{dsfont}
+\usepackage{bbm}

@@ -1,0 +1,138 @@
+Кроме того, интересный вопрос представляют из себя размерности спектральных моментов. Рассмотрим его на примере пары $\text{Ar-CO}_2$
+\paragraph{Исходные формулы}
+
+\begin{equation}
+\label{eq:gammaM}
+\gamma_n=\frac{4\pi^2}{3\hbar c}M_n
+\end{equation}
+
+В классическом случае спектральные моменты с нечетным $n$ становятся равными $0$, а четные обращаются в:
+
+\begin{equation}
+\label{eq:generalmom}
+M_{2n}=(2\pi c)^{-2n}V\frac{1}{4\pi\varepsilon_0}\left.\left\langle \left| \frac{d^n}{dt^n} \vec{\mu}(t) \right|^2 \right\rangle\right|_{t=0}
+\end{equation}
+
+\paragraph{Коэффициент преобразования размерностей нулевого момента} 
+
+
+Переходя от производной по времени в уравнении (\ref{eq:generalmom}) к зависимости от координат и угла, получаем:
+
+\begin{equation}
+\label{eq:zemom}
+M_0=\frac{1}{4\pi\varepsilon_0}\frac{4\pi}{2}\int^{\infty}_0(\mu(R,\theta))^2e^{\frac{-V(R,\theta)}{kT}}R^2sin(\theta)\mathrm{d}R\mathrm{d} \theta
+\end{equation}
+
+Размерности величин, входящих в подинтегральное выражение уравнения (\ref{eq:zemom}):\newline
+
+\begin{center}
+\begin{tabular}{|c|}
+%\text{\mu(R,\theta)}
+\hline
+\\
+\( \text{dim}[\mu(R,\theta)]=[I \cdot T \cdot L]\)\\
+\\
+\( \text{dim}[R]=[ L]\)\\
+\\
+\( \text{dim}[\mathrm{d}R]=[L]\)\\
+\\
+\hline
+\end{tabular}
+\end{center}
+
+Поэтому dim\([\int \ldots \mathrm{d}R\mathrm{d}\theta]=[I^2\cdot T^2\cdot L^5]\), причем dim\([I\cdot T]=[\text{заряд}]\)\newline
+
+Также необходимо учесть, что мы производим усреднение по фазовому пространству для одной пары частиц, притом что в нашей реальной системе их значительно больше. Это необходим учесть, домножив интеграл на произведение $n_An_B$ количеств каждой из частиц нашей пары в исследуемом объеме. Это можно представить как $\rho_A\rho_B\cdot n_o^2$, где $n_0$ -- константа Лошмидта.
+\par
+Поскольку в подинтегральном выражении все величины выражены в атомных единицах, для перевода значения нашего нулевого спектрального момента в единицы СИ, нам необходимо домножить значение интеграла, выраженное в атомных единицах на значения соответствующих атомных единиц, выраженных в СИ.
+\par
+Учитывя все вышесказанное, получаем для нулевого момента, выраженного в единицах СИ:
+\begin{displaymath}
+\gamma_0=\rho_A\rho_B \frac{4\pi^2}{3\hbar c} \frac{1}{4\pi\varepsilon_0}\frac{4\pi}{2}a_0^5\:n_0^2\:e^2\int^{\infty}_0(\mu(R,\theta))^2e^{\frac{-V(R,\theta)}{kT}}R^2sin(\theta)\mathrm{d}R\mathrm{d} \theta
+\end{displaymath}
+С учетом того, что \( \frac{e^2}{4\pi\varepsilon\hbar c}=\alpha_F\) -- постоянная тонкой структуры:
+\begin{equation}
+\gamma_0=\rho_A\rho_B \frac{4\pi^2}{3}\: \alpha_F \: a_0^5\:n_0^2\:4\pi\frac{1}{2}\int^{\infty}_0(\mu(R,\theta))^2e^{\frac{-V(R,\theta)}{kT}}R^2sin(\theta)\mathrm{d}R\mathrm{d} \theta
+\end{equation}
+что совпадает с уже известной формулой\footnote{Poll, Hunt, 1976, \textit{Can. J. Phys}}
+
+\paragraph{Коэффициент для второго спектрального момента.}
+
+В общем виде выражение для расчета второго спектрального момента методом интегрирования фазового пространства имеет следующую форму ({см. Frommhold стр. 215}) :
+
+\begin{equation}
+\label{eq:secmom}
+M_2=\frac{1}{4\pi\varepsilon_0}\frac{1}{(2\pi c)^2}\:V\:\frac{\iint {F}(R,\theta)\mathrm{d}R\mathrm{d} \theta}{\iint  {G}(R,\theta)\mathrm{d}R\mathrm{d} \theta}
+\end{equation}
+где $V$ -- объем, выраженный в атомных единицах.\\
+Обозначим интеграл из формулы (\ref{eq:secmom}) как
+\begin{displaymath}
+I_0=V \:\frac{\iint {F}(R,\theta)\mathrm{d}R\mathrm{d} \theta}{\iint  {G}(R,\theta)\mathrm{d}R\mathrm{d} \theta}
+\end{displaymath}
+
+Рассмотрим поочередно числитель и знаменатель под интегралами данной формулы.
+\subparagraph{Числитель.}
+Он состоит из суммы нескольких членов одинаковой размерности, из которых мы выпишем для примера только один:
+
+\begin{displaymath}
+Frac_1= \frac{4\pi^{^5\!/_2}D\left(\frac{\partial }{\partial \theta}\mu_X\left(R,\theta\right)\right)^2}{O\cdot F\cdot A\cdot C\cdot e^{\beta V(R,\theta)}\beta^{^7\!/_2}}
+\end{displaymath}
+
+Коэффициенты имеют следующий вид:
+ 
+\begin{displaymath}
+A=\frac{1}{\sin\theta}\sqrt{\frac{1}{2}\left( \frac{1}{\mu_1 l^2}+\frac{\cos\theta}{\mu_2R^2}  \right)}
+\end{displaymath} 
+\begin{displaymath}
+C=\sqrt{\frac{1}{2\mu_2R^2\left( 1-\frac{1}{\mu_2R^2}\frac{\cos^2\theta}{\frac{1}{\mu_1 l^2}+\frac{\cos\theta}{\mu_2R^2} }  \right)}}
+\end{displaymath}
+\begin{displaymath}
+D=\sqrt{\frac{1}{2\mu_2R^2}}
+\end{displaymath}
+\begin{displaymath}
+F=\sqrt{\frac{1}{2\mu_1l^2}}
+\end{displaymath}
+\begin{displaymath}
+O=\sqrt{\frac{1}{2\mu_2}}
+\end{displaymath}
+\begin{displaymath}
+\beta=\frac{1}{kT}
+\end{displaymath}
+
+Нетрудно заметить, что каждый из коэффициентов (кроме $\beta$, который имеет размерность $\frac{1}{J}$, где $J$ -- энергия)  имеет размерность $\frac{1}{\sqrt{ML^2}}$. Путем несложных преобразований находим размерность $Frac_1$:
+
+\begin{displaymath}
+\text{dim}[Frac_1]=L^4M^{^3\!/_2}Z^2J^{^7\!/_2}
+\end{displaymath}
+где $Z$ -- заряд.
+
+\subparagraph{Знаменатель.} Он представляет из себя одну дробь следующего вида:
+
+\begin{displaymath}
+G(R,\theta)= \frac{2\pi^{^5\!/_2} e^{-\beta V(R,\theta)}}{O\cdot D\cdot F\cdot C\cdot A\cdot\beta^{^5\!/_2}}
+\end{displaymath}
+
+
+Рассчитываем размерность:
+
+\begin{displaymath}
+\text{dim}[G(R,\theta)]=L^4M^{^5\!/_2}J^{^5\!/_2}
+\end{displaymath}
+
+Таким образом общая размерность $I_0$ равна:
+
+\begin{displaymath}
+\text{dim}[I_0]=\text{dim}[V]\frac{\text{dim}[Frac_1]\;\text{dim}[\mathrm{d}R]}{\text{dim}[G(R,\theta)]\;\text{dim}[\mathrm{d}R]}=\frac{Z^2J\: L^3}{M}
+\end{displaymath}
+
+Теперь вновь возвращаемся к формуле для $M_2$ (\ref{eq:secmom}) и выписываем коэффициент для преобразования размерности второго момента, принимая во внимание формулу (\ref{eq:gammaM}) и описанные в пункте про нулевой момент рассуждения относительно количества участвующих частиц
+
+\begin{equation}
+\gamma_2=\rho_A\rho_B \frac{1}{4\pi\varepsilon_0}\frac{1}{(2\pi c)^2}\: \frac{e^2E_h\:a_0^3\:n_0^2}{m_e} \frac{4\pi^2}{3\hbar c}    \frac{\iint {F}(R,\theta)\mathrm{d}R\mathrm{d} \theta}{\iint  {G}(R,\theta)\mathrm{d}R\mathrm{d} \theta}
+\end{equation}
+где $m_e$ -- масса электрона, $E_h$ -- энергия Хартри.\\
+Нетрудно видеть, что 
+\begin{displaymath}
+\text{dim}[\gamma_2]=\frac{1}{L^3}
+\end{displaymath}
+
