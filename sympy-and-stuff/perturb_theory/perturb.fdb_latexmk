@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1498557083 "perturb.tex" "perturb.pdf" "perturb" 1498557083
+["pdflatex"] 1498655388 "perturb.tex" "perturb.pdf" "perturb" 1498655388
   "/etc/texmf/web2c/texmf.cnf" 1491468032 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/labx1440.tfm" 1491517754 3304 6a543c07045572737981351171e0505e ""
   "/home/artfin/.texmf-var/fonts/tfm/lh/lh-t2a/larm1200.tfm" 1494161899 3240 c2435f2b5cd66d4930bc29b8df87967e ""
@@ -34,12 +34,14 @@
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb" 1248133631 30251 6afa5cb1d0204815a708a080681d4674 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb" 1248133631 36741 fa121aac0049305630cf160b86157ee4 ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb" 1248133631 37166 8ab3487cbe3ab49ebce74c29ea2418db ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1248133631 35469 70d41d2b9ea31d5d813066df7c99281c ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb" 1248133631 36912 b448ef9ad9d7228ec3c6e71005136d55 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1248133631 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb" 1248133631 32726 0a1aea6fcd6468ee2cf64d891f5c43c8 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1248133631 32626 4f5c1b83753b1dd3a97d1b399a005b4b ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb" 1248133631 31764 459c573c03a4949a528c2cc7f557e217 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1248133631 34694 ad62b13721ee8eda1dcc8993c8bd7041 ""
   "/usr/share/texlive/texmf-dist/tex/generic/babel-russian/russianb.ldf" 1455925129 23849 43780b8bceeadaab7a9e099226d0034a ""
   "/usr/share/texlive/texmf-dist/tex/generic/babel/babel.def" 1456440043 50112 f44490c2cb959606ae206a8f9f3f70e2 ""
@@ -80,8 +82,8 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1458942643 31351 b32c45dce4a01cb7b53ed90c546614ca ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1494161846 1630811 1531377ddf3380885f90969e471a70e4 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1491515014 989979 bda82939c26bbb848813c241fdc0c6ec ""
-  "perturb.aux" 1498557083 466 5b71505c3cfe351bc98d1f8c72e6aa72 ""
-  "perturb.tex" 1498557082 24479 1b36d5793402202036367c80d2b26f75 ""
+  "perturb.aux" 1498655388 466 5b71505c3cfe351bc98d1f8c72e6aa72 ""
+  "perturb.tex" 1498655386 27460 e0528fe14f2c5d31d4226d2a52c8b632 ""
   (generated)
   "perturb.aux"
   "perturb.pdf"
