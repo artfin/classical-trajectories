@@ -1,7 +1,7 @@
 all: trajectories clean
 
 CCXX = g++
-CXXFLAGS = -I /usr/local/include/eigen3/ -std=c++11 -O3 -march=native -mtune=native
+CXXFLAGS = -lfftw3 -I /usr/local/include/eigen3/ -std=c++11 -O3 -march=native -mtune=native
 
 trajectories: basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o f.o  leg_arr.o matrix.o co2_ar_dipole.o trajectories.o
 	$(CCXX) $(CXXFLAGS) trajectories.o basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o f.o  leg_arr.o matrix.o  co2_ar_dipole.o -o $@ 
