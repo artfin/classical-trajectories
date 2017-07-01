@@ -3,16 +3,19 @@
 #include <stdlib.h>
 #include <time.h>
 
+const int EXIT_TAG = 42; // exiting tag
 const int ICPERTRAJ = 2; // number of initial conditions per trajectory
-const int NTRAJ = 4; // number of trajectories to be calculated
+const int NTRAJ = 3; // number of trajectories to be calculated
 
 void fill_rand_nums(double* arr, int length ) {
     
 	srand(time(NULL));	
+	printf("-------------\n");
 	for ( int i = 0; i < length; i++ ) {
 		arr[i] = (rand() / (double) RAND_MAX);
 		printf("arr[%d] = %.4f\n", i, arr[i]);
 	}
+	printf("-------------\n");
 }
 
 void print_array(double* arr, int length) {
@@ -30,7 +33,7 @@ int main()
 	// getting id of the current process
 	int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-	printf("World rank: %d\n", world_rank);
+	// printf("World rank: %d\n", world_rank);
 
 	// getting number of running processes
 	int world_size;
@@ -47,15 +50,24 @@ int main()
 		double *ics = new double[NTRAJ * ICPERTRAJ];
 		fill_rand_nums(ics, NTRAJ * ICPERTRAJ);		
 		
+		// MAKE SURE THAT THAT ICS DIVIDES EQUALLY BETWEEN PROCESSES !
+
 		// sending initial conditions to slave processes
-		// i -- number of process we're sending ics to
 		int index = 0; // number of element in array to be sent  
+		while ( index < NTRAJ * ICPERTRAJ ) {
+			
+			// i -- number of process we're sending ics to
+			for ( int i = 1; i < world_size; i++ ) {
+				
+					MPI_Send(&ics[index], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+					printf("Master process send message %.4f ... to %d\n", ics[index], i);
+		    		index += ICPERTRAJ; // sending data by chunks of ICPERTRAJ
+			}
+		}
+		
+		// sending killing message
 		for ( int i = 1; i < world_size; i++ ) {
-			
-			MPI_Send(&ics[index], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD); 
-			index += ICPERTRAJ; // sending data in chunks of ICPERTRAJ
-			
-			printf("Root process send message %.4f ... to %d\n", ics[index], i);
+			MPI_Send(&ics[index], ICPERTRAJ, MPI_DOUBLE, i, EXIT_TAG, MPI_COMM_WORLD);
 		}
 	} 
 
@@ -64,16 +76,18 @@ int main()
 		// array of initial conditions for slave process
 		double *ics_sub = new double [ICPERTRAJ];
 		
-		MPI_Recv(&ics_sub[0], ICPERTRAJ, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	
-		printf("Process %d received message from root %.4f... \n", world_rank, ics_sub[0]);
+		while (true) {
 
-		print_array(ics_sub, ICPERTRAJ);
-		
-		// sending back that process has finished
-		int status = 1;
-		printf("Process %d sending root a message with status %d\n", world_rank, status); 
-		MPI_Send(&status, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+			MPI_Status status;
+			MPI_Recv(&ics_sub[0], ICPERTRAJ, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
+			if ( status.MPI_TAG == EXIT_TAG ) {
+				printf("Process %d exits work loop.\n", world_rank);
+				break;
+			}
+	
+			printf("Process %d received message from root %.4f... \n", world_rank, ics_sub[0]);
+		}
 	}
 
 	MPI_Finalize();
