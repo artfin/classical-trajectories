@@ -259,9 +259,9 @@ int gear4          /* Gear  method of 4th order for DESs of 1st order */
   /* ------------ allocate dynamic vectors and matrices ---------- */
 
   vmblock = vminit();
-  hilf = (REAL *) vmalloc(vmblock, VEKTOR,  n, 0);
+  hilf = (REAL *) vmalloc(vmblock, VEKTOR,  n+1, 0);
   f    = (REAL *) vmalloc(vmblock, VEKTOR,  n, 0);
-  ykp1 = (REAL *) vmalloc(vmblock, VEKTOR,  n, 0);
+  ykp1 = (REAL *) vmalloc(vmblock, VEKTOR,  n+1, 0);
   con  = (REAL *) vmalloc(vmblock, VEKTOR,  n, 0);
   perm = (int  *) vmalloc(vmblock, VVEKTOR, n, sizeof(*perm));
   zj   = (REAL **)vmalloc(vmblock, MATRIX,  5, n);
@@ -282,7 +282,7 @@ int gear4          /* Gear  method of 4th order for DESs of 1st order */
     dummy  = *h;
     amEnde = 1;
   }
-  copy_vector(hilf, y, n);
+  copy_vector(hilf, y, n+1);
   xka = *x;
   xke = xka;
   hka = (REAL)0.25 * *h;
@@ -339,6 +339,9 @@ int gear4          /* Gear  method of 4th order for DESs of 1st order */
 
     for (i = 0; i < n; i++)
       ykp1[i] = zj[0][i] + zj[1][i] + zj[2][i] + zj[3][i] + zj[4][i];
+
+    ykp1[n] = y[n];
+    
     dgl(*x + *h, ykp1, f);
     for (k = 0; k < n; k++)
     {

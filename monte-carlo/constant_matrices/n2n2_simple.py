@@ -88,11 +88,11 @@ def read_constants(filename):
 
 #save_constants('simple_n2n2.dat', temperatures, constants)
 
-temperatures, constants = read_constants('simple_n2n2.dat')
+#temperatures, constants = read_constants('simple_n2n2.dat')
 
-plt.plot(temperatures, constants, '--', color = 'k')
+#plt.plot(temperatures, constants, '--', color = 'k')
 
-patch = mpatches.Patch(color = 'k', label = 'Simple')
-plt.legend(handles = [patch])
-plt.grid()
-plt.show()
+#patch = mpatches.Patch(color = 'k', label = 'Simple')
+#plt.legend(handles = [patch])
+#plt.grid()
+#plt.show()

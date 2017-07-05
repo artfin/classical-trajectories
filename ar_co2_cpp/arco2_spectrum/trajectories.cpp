@@ -52,7 +52,7 @@ void syst (REAL t ,REAL *y, REAL *f)
   (void)(t); // avoid unused parameter warning 
 
   double *out = new double[6];
-  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], ANG);
+  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], y[6]);
   // R  Theta pR pT phi theta J
 
   f[0] = out[0]; // dR/dt  
@@ -84,10 +84,8 @@ int main() {
                          
   void     *vmblock;     /* List of dynamically allocated vectors     */
 
-  FILE *trajectory_file = fopen("_traj.txt", "w");
-  FILE *dipfft = fopen("dipfft.txt", "w"); 
-  FILE *testfft1 = fopen("testfft1.txt", "w");
-  FILE *testfft2 = fopen("testfft2.txt", "w");
+  FILE *trajectory_file = fopen("test_traj.txt", "w");
+  FILE *dipfft = fopen("test_dipfft.txt", "w"); 
   /* -------------------- read input  -------------------- */
 
   N = 6;
@@ -116,6 +114,8 @@ int main() {
   y0[3] = 1.0;
   y0[4] = 1.0;
   y0[5] = 1.0;
+
+  y0[6] = 30.0;
 
   h = 0.1;         // initial step size
   xend = step;     // initial right bound of integration

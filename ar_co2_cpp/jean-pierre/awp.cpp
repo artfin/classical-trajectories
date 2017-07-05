@@ -515,7 +515,8 @@ int awp                /* 1st order DESs with autom. step size control*/
   vmblock = vminit();                 /* initialize storage           */
   y_bad  = (REAL *)vmalloc(vmblock, VEKTOR, n, 0);
   y_good = (REAL *)vmalloc(vmblock, VEKTOR, n, 0);
-  yhilf  = (REAL *)vmalloc(vmblock, VEKTOR, n, 0);
+  yhilf  = (REAL *)vmalloc(vmblock, VEKTOR, n+1, 0);
+  yhilf[n] = y[n];
   k1     = (REAL *)vmalloc(vmblock, VEKTOR, n, 0);
   k2     = (REAL *)vmalloc(vmblock, VEKTOR, n, 0);
   k3     = (REAL *)vmalloc(vmblock, VEKTOR, n, 0);

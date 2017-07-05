@@ -38,11 +38,14 @@ def read_dip(filename):
     
     return dip, dip1
 
+#t0, dipx, dipy, dipz = read_traj('../output/trajectory.dat')
 dip, dip1 = read_dip('../dipfft.txt')
 
 lw = 1.5
-plt.plot(dip, color = 'k', linewidth = lw)
-plt.plot(dip1, color = 'r', linewidth = lw)
+#omega = np.linspace(0, 1.0/3000, len(dip)//2)
+#print(omega)
+
+plt.plot(dip[:len(dip)//2], color = 'k', linewidth = lw)
 plt.show()
 
 #t0, dipx, dipy, dipz = read_dipole('../_dip.txt')
