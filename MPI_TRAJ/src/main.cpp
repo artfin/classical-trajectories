@@ -177,10 +177,9 @@ int main()
     			return 0;
  			}
 
-		    double step = 3000;
-  			double end = 700000;
-
-  			int num_points = (end / step);
+			// according to Ivanov:
+			// delta(t) = 0.2 * 10**(-13) s = 200 fs
+		    double step = 800;
 
   			epsabs = 1E-13;
   			epsrel = 1E-13;
@@ -193,9 +192,9 @@ int main()
 			
   			double *dipole = new double [3];
 			
-  			vector<double> ddipx(num_points);
-  			vector<double> ddipy(num_points);
-  			vector<double> ddipz(num_points);
+  			vector<double> ddipx;
+  			vector<double> ddipy;
+  			vector<double> ddipz;
 			
 			y0[0] = ics[1];
 			y0[1] = ics[2];
@@ -204,11 +203,14 @@ int main()
 			y0[4] = ics[5];
 			y0[5] = ics[6];
   			y0[6] = ics[7];
-
-			for (int i = 0; i < num_points; ++i)
-  			{
+			
+			int counter = 0;
+			double end_value = ics[1] + 0.1;
+	
+			while ( y0[0] < end_value ) 
+			{
      			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
-     
+     			
      			if ( fehler != 0 ) 
 				{
      				printf(" Gear4: error n° %d\n", 10 + fehler);
@@ -222,10 +224,12 @@ int main()
      			ddipx.push_back(dipole[0]);
      			ddipy.push_back(dipole[1]);
      			ddipz.push_back(dipole[2]);
-
-     			xend = step * (i + 2);
+				
+     			xend = step * (counter + 2);
      			aufrufe = 0;  // actual number of calls
-  			}
+  				
+				counter++;
+			}
 			
 			fclose(trajectory_file);
 		    

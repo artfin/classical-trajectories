@@ -15,7 +15,7 @@ INC_PATH = -I ./include
 TARGET = main
 
 # Files to compile
-objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o f.o leg_arr.o matrix.o co2_ar_dipole.o
+objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o matrix.o co2_ar_dipole.o
 
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(objects))
 TARGET_PATH = $(patsubst %,$(SRC_PATH)%,$(TARGET).cpp)
