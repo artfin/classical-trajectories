@@ -1,3 +1,5 @@
+#include <vector>
+
 /* ------------------------ MODULE mgear.cpp ------------------------ */
 #include "../jean-pierre/basis.h"         
 /*  for umleiten, fprintf, stderr, scanf,  */
