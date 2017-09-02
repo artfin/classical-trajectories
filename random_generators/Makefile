@@ -8,4 +8,4 @@ ziggurat: ziggurat.cpp
 	$(CCXX) $(CXXFLAGS) $^ -o $@
 
 rand_rot: rand_rot.cpp
-	$(CCXX) $(CXXFLAGS) $^ -o $@
+	$(CCXX) $(CXXFLAGS) $(STFLAGS) $^ -o $@

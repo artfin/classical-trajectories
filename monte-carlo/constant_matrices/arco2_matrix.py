@@ -138,7 +138,7 @@ def save_constants(filename, temperatures, constants):
 
 temperatures = range(200, 201, 1)
 # calculating simple constants
-simple_constants = [simple_constant(temperature) for temperature in temperatures]
+#simple_constants = [simple_constant(temperature) for temperature in temperatures]
 #save_constants('simple_constants.dat', temperatures, simple_constants)
 
  #calculating super full phase constant
