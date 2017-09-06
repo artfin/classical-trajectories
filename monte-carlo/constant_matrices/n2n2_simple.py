@@ -8,6 +8,9 @@ from n2n2 import potinit, potn2n2
 # initializing procedure
 potinit()
 
+x = potn2n2(5.0, 0.5, 0.5, 0.5)
+print("potential value: {0}".format(x))
+
 # converts cm^-1 to hartree
 def potential(r, theta1, theta2, phi):
     return potn2n2(r, theta1, theta2, phi) * 4.55633 * 10**(-6)
@@ -82,6 +85,8 @@ def read_constants(filename):
             constants.append(float(data[1]))
 
     return temperatures, constants
+
+
 
 #temperatures = np.linspace(100, 500, 50)
 #constants = [simple_constant(_) for _ in temperatures]

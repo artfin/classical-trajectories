@@ -318,6 +318,11 @@ C POTENTIEL V(R,T1,T2,PHI)
          VOVL=VOVL+ALALBL*VOVERL*XNORM
          VPOT=VPOT+ALALBL*DPOT*XNORM
 
+      write(*,*) "VELE: ", VELE
+      write(*,*) "VDIS: ", VDIS
+      write(*,*) "VOVL: ", VOVL
+      write(*,*) "VPOT: ", VPOT 
+
       ENDDO			! ITERM
 	potn2n2=VPOT
       return

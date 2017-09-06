@@ -29,25 +29,30 @@ length_unit = 5.291772 * 10**(-11)
 
 def integrand(x, temperature):
     # x = [r, theta1, theta2, phi]
-    r = x[0]
-    theta1 = x[1]
-    theta2 = x[2]
-    potential_value = potential(*x) * htoj
     
-    if r > 4.4:
-        return (1 - np.exp(-potential_value / (k * temperature))) * r**2 * np.sin(theta1) * np.sin(theta2)
+    r = np.tan( x[0] * np.pi / 2) 
+    theta1 = np.pi * x[1]
+    theta2 = np.pi * x[2]
+    phi = 2 * np.pi * x[3]
+
+    potential_value = potential(r, theta1, theta2, phi) * htoj
+    
+    if ( r > 4.4 ):
+        in_braces = 1 - np.exp( - potential_value / (k * temperature) )
+
+        return np.pi**4 / 4 * r**2 * (1 + r**2) * np.sin(theta1) * np.sin(theta2) * in_braces
     else:
-        return r**2 * np.sin(theta1) * np.sin(theta2) 
+        return np.pi**4 / 4 * r**2 * (1 + r**2) * np.sin(theta1) * np.sin(theta2) 
 
 def cycle(temperature):
     _integrand = partial(integrand, temperature = temperature)
 
     start = time()
-    integ = vegas.Integrator([[0.0, 45.0], [0, np.pi], [0, np.pi], [0.0, 2 * np.pi]])
+    integ = vegas.Integrator([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
     result = integ(_integrand, nitn = 10, neval = 5 * 10**4)
     print('result: {0}; Q: {1}'.format(result, result.Q))
 
-    SVC = avogadro / 4 * result.mean * length_unit**3 * 10**6
+    SVC = avogadro * result.mean * length_unit**3 * 10**6
     print('temperature: {0}; SVC: {1}'.format(temperature, SVC))
     print('Time needed: {0}'.format(time() - start))
     print('*'*30)
@@ -76,20 +81,22 @@ def read_data(filename):
 
     return temperatures, svcs
 
-temperatures = [75.0 + i * 5.0 for i in range(50)]
+temperatures = [100.0 + i * 5.0 for i in range(50)]
+
+print(potn2n2( 5.0, 0.5, 0.5, 0.5))
 
 #svcs = [cycle(temperature) for temperature in temperatures]
 #save_data(temperatures, svcs)
 
-article_temperatures = [75.0, 80.0, 90.0, 100.0, 110.0, 125.0, 150.0, 200.0, 250.0, 300.0]
-article_svcs = [-280.2, -247.0, -196.8, -161.0, -134.1, -104.4, -71.77, -35.79, -16.58, -4.75]
+#article_temperatures = [75.0, 80.0, 90.0, 100.0, 110.0, 125.0, 150.0, 200.0, 250.0, 300.0]
+#article_svcs = [-280.2, -247.0, -196.8, -161.0, -134.1, -104.4, -71.77, -35.79, -16.58, -4.75]
 
-temperatures, svcs = read_data('SVC.dat')
+#temperatures, svcs = read_data('SVC.dat')
 
-plt.plot(temperatures, svcs, '--', color = 'k')
-plt.scatter(article_temperatures, article_svcs, marker = '*', color = 'r')
-plt.grid()
-plt.show()
+#plt.plot(temperatures, svcs, '--', color = 'k')
+#plt.scatter(article_temperatures, article_svcs, marker = '*', color = 'r')
+#plt.grid()
+#plt.show()
 
 
 

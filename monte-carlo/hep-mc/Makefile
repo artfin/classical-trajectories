@@ -1,4 +1,4 @@
-EXECS = introduction introduction_mpi stop_after_precision vegas_write_pdf 
+EXECS = introduction introduction_mpi stop_after_precision vegas_write_pdf my_example 
 
 MPICC = mpic++
 CCXX = g++
@@ -16,4 +16,7 @@ stop_after_precision: stop_after_precision.cc
 	$(CCXX) $(CXXFLAGS) $^ -o $@
 
 vegas_write_pdf: vegas_write_pdf.cc
+	$(CCXX) $(CXXFLAGS) $^ -o $@
+
+my_example: my_example.cc
 	$(CCXX) $(CXXFLAGS) $^ -o $@

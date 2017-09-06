@@ -24,7 +24,7 @@ def cycle(T):
     
     start = time()
     integ = vegas.Integrator([[0., 100.], [0., np.pi]])
-    result = integ(_integrand, nitn = 50, neval = 5 * 10**4)
+    result = integ(_integrand, nitn = 15, neval = 5 * 10**4)
     print 'result = %s Q = %.2f' % (result, result.Q)
 
     SVC = np.pi * avogadro * result.mean * length_unit**3 * 10**(-4) # 10**6 to convert from m3/mol to cm3/mol
