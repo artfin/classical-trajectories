@@ -179,7 +179,9 @@ int main()
 
 			// according to Ivanov:
 			// delta(t) = 0.2 * 10**(-13) s = 200 fs
-		    double step = 800;
+            // delta(t) = sampling time determines the sampling rate = 1 / Ts = 5 * 10**12 Hz = 166.7 cm^-1
+		    const double step = 800;
+            const double Fs = 5 * pow(10, 12);
 
   			epsabs = 1E-13;
   			epsrel = 1E-13;
@@ -233,7 +235,7 @@ int main()
 			
 			fclose(trajectory_file);
 		    
-			// length of dipole vector
+			// length of dipole vector = number of samples
  		    size_t n = ddipx.size();
  
 			// input and output arrays
@@ -278,15 +280,19 @@ int main()
 			// auxiliary variables to store interim variables
 			// for the DFT(autocorrelation dipole function)
 		  	double p, px, py, pz;
-		 
+		    vector<double> freqs(n);
+
 		  	for ( int i = 0; i < n; i++ )
 		  	{
+                // frequency vector
+                f[i] = i / n * Fs;
+
 				px = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
 			  	py = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
 			  	pz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
 
 			  p = px + py + pz;
-			  fprintf(dipfft, "%.12f\n", p);
+			  fprintf(dipfft, "%.12f %.12f\n", f[i], p);
 		  	}
 
 		  	fclose(dipfft);

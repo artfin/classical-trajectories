@@ -26,7 +26,7 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 	@$(CCXX) $(CXXFLAGS) -o $@ -c $< $(INC_PATH)
 
 # Build final binary using MPI compiler wrapper
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJ) $(SRC_PATH)main.cpp
 	@echo [INFO] Creating Binary Executable [$(TARGET)]
 	@$(MPICC) $(CXXFLAGS) $(TARGET_PATH) -o $@ $^ $(INC_PATH) 
 
