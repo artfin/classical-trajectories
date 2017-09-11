@@ -67,8 +67,13 @@ Vector3d nextGaussianVec( const double &mean, const double &sigma )
     
 int main( int argc, char* argv[] )
 {
+	if ( argc != 2 )
+	{
+		cout << "USAGE: ./... (int) n" << endl;
+	}
+
     int n = atoi( argv[1] );
-    cout << "Given value of n: " << n << endl;
+    cout << "# Given value of n: " << n << endl;
 
     Matrix3d s;
     Vector3d rdot;
@@ -77,7 +82,8 @@ int main( int argc, char* argv[] )
     const double R = 20 * ALU;
     const double R2 = pow(R, 2);
     const double temperature = 300; // K
-    double sigma = sqrt( BOLTZCONST * temperature / MU );
+	// double sigma = sqrt( BOLTZCONST * temperature / MU );
+	double sigma = 10.0;
 
     /*
     cout << "Boltzmann constant: " << BOLTZCONST << endl;
@@ -102,22 +108,24 @@ int main( int argc, char* argv[] )
         // generating random vector \dot{\vec{r}}
         rdot = nextGaussianVec( 0.0, sigma );
 
-        // v = s * rdot;
-        v = rdot;
-        omega_y = v(0) / R;
-        omega_x = - v(1) / R;
-        Rdot = v(2);
+        v = s * rdot;
+		cout << v(0) << " " << rdot(0) << endl;
 
-        jx = MU * R2 * omega_x;
-        jy = MU * R2 * omega_y;
+        //v = rdot;
+        //omega_y = v(0) / R;
+        //omega_x = - v(1) / R;
+        //Rdot = v(2);
 
-        pR = MU * Rdot;
+        //jx = MU * R2 * omega_x;
+        //jy = MU * R2 * omega_y;
 
-        jx_au = jx / HBAR;
-        jy_au = jy / HBAR;
-        pR_au = pR / HBAR * ALU;
+        //pR = MU * Rdot;
 
-        cout << jx_au << " " << jy_au << " " << pR_au << endl;
+        //jx_au = jx / HBAR;
+        //jy_au = jy / HBAR;
+        //pR_au = pR / HBAR * ALU;
+
+        //cout << jx_au << " " << jy_au << " " << pR_au << endl;
 
         // cout << "jx_au: " << jx_au << endl;
         // cout << "jy_au: " << jy_au << endl;

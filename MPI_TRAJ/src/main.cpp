@@ -35,7 +35,23 @@ const int ICPERTRAJ = 8; // number of initial conditions per trajectory
 
 using namespace std;
 
-void syst(REAL t, REAL *y, REAL *f);
+void syst (REAL t, REAL *y, REAL *f)
+{
+  (void)(t); // avoid unused parameter warning 
+
+  double *out = new double[6];
+  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], y[6]);
+  // R  Theta pR pT phi theta J
+
+  f[0] = out[0]; // dR/dt  
+  f[1] = out[1]; // d(Theta)/dt
+  f[2] = out[2]; // d(pR)/dt
+  f[3] = out[3]; // d(pT)/dt
+  f[4] = out[4]; // d(phi)/dt
+  f[5] = out[5]; // d(theta)/dt
+
+  delete [] out;
+}
 
 int main()
 {
@@ -179,9 +195,10 @@ int main()
 
 			// according to Ivanov:
 			// delta(t) = 0.2 * 10**(-13) s = 200 fs
-            // delta(t) = sampling time determines the sampling rate = 1 / Ts = 5 * 10**12 Hz = 166.7 cm^-1
+            // delta(t) = sampling time determines the sampling rate = 1 / Ts = 5 * 10**12 Hz
+			// 5 * 10**(12) Hz * 3.33565 * 10**(-11) Hz to cm^(-1) = 166.782 cm^(-1)
 		    const double step = 800;
-            const double Fs = 5 * pow(10, 12);
+            const double Fs = 166.782; 
 
   			epsabs = 1E-13;
   			epsrel = 1E-13;
@@ -280,19 +297,19 @@ int main()
 			// auxiliary variables to store interim variables
 			// for the DFT(autocorrelation dipole function)
 		  	double p, px, py, pz;
-		    vector<double> freqs(n);
+		    vector<double> freqs;
 
 		  	for ( int i = 0; i < n; i++ )
 		  	{
                 // frequency vector
-                f[i] = i / n * Fs;
+                freqs.push_back( (double) i / n * Fs );
 
 				px = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
 			  	py = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
 			  	pz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
 
 			  p = px + py + pz;
-			  fprintf(dipfft, "%.12f %.12f\n", f[i], p);
+			  fprintf(dipfft, "%.12f %.12f\n", freqs[i], p);
 		  	}
 
 		  	fclose(dipfft);
@@ -306,23 +323,3 @@ int main()
 	
 	return 0;
 }
-
-void syst (REAL t, REAL *y, REAL *f)
-{
-  (void)(t); // avoid unused parameter warning 
-
-  double *out = new double[6];
-  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], y[6]);
-  // R  Theta pR pT phi theta J
-
-  f[0] = out[0]; // dR/dt  
-  f[1] = out[1]; // d(Theta)/dt
-  f[2] = out[2]; // d(pR)/dt
-  f[3] = out[3]; // d(pT)/dt
-  f[4] = out[4]; // d(phi)/dt
-  f[5] = out[5]; // d(theta)/dt
-
-  delete [] out;
-}
-
-

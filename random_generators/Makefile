@@ -1,5 +1,5 @@
 CCXX = g++
-CXXFLAGS = -std=c++11 -lm
+CXXFLAGS = -std=c++11 -lm -O3
 STFLAGS = -I /usr/local/include/eigen3
 
 all: ziggurat rand_rot diatomics_distr
@@ -12,3 +12,4 @@ rand_rot: rand_rot.cpp
 
 diatomics_distr: diatomics_distr.cpp
 	$(CCXX) $(CXXFLAGS) $(STFLAGS) $^ -o $@
+
