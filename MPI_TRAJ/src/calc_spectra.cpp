@@ -6,42 +6,15 @@
 #include <sstream>
 
 #include <vector>
-
 #include <algorithm>
+
+#include <chrono>
 
 using namespace std;
 
-template <typename T, typename Compare>
-vector<size_t> sort_permutation(
-	const vector<T>& vec, Compare& compare )
+bool compareFunc( pair<double, double> &a, pair<double, double> &b )
 {
-	vector<size_t> p( vec.size() );
-	iota( p.begin(), p.end(), 0 );
-	sort ( 	p.begin(), p.end(),
-		[&] ( size_t i, size_t j )
-		{
-			return compare( vec[i], vec[j] );
-		}	
-	);
-
-	return p;
-}
-
-template <typename T>
-vector<T> apply_permutation(
-	const vector<T>& vec,
-	const vector<size_t>& p)
-{
-	vector<T> sorted_vec( vec.size() );
-	transform( 
-		p.begin(), p.end(), sorted_vec.begin(),
-		[&] ( size_t i )
-		{
-			return vec[i];
-		}
-	);
-
-	return sorted_vec;
+	return a.first > b.first;
 }
 
 int main( int argc, char* argv[] )
@@ -54,6 +27,8 @@ int main( int argc, char* argv[] )
 
 	int start = atoi( argv[1] );
 	int end = atoi( argv[2] );
+
+	auto startTime = chrono::high_resolution_clock::now();
 
 	vector<double> freqs;
 	vector<double> intensities;
@@ -118,16 +93,24 @@ int main( int argc, char* argv[] )
 		}
 	}
 
-	auto p = sort_permutation( freqs,  );
+	// creating a pair
+	vector< pair<double, double> > data ( freqs.size() );
+	for ( size_t i = 0; i < freqs.size(); i++ )
+	{
+		data[i] = make_pair( freqs[i], intensities[i] );
+	}
 	
-	freqs = apply_permutation( freqs, p );
-	intensities = apply_permutation( intensities, p );	
+	// sorting by first component
+	sort( data.begin(), data.end(), compareFunc );
 
 	for ( int i = 0; i < freqs.size(); i++ )
 	{
-			//cout << "i: " << i << "; freq: " << freqs[i] << "; intensity: " << intensities[i] << endl;
-		cout << freqs[i] << " " << intensities[i] << endl;
+		cout << data[i].first << " " << data[i].second << endl; 
 	}
+
+	auto endTime = chrono::high_resolution_clock::now();
+
+	cerr << "Time elapsed: " << chrono::duration_cast<chrono::milliseconds> ( endTime - startTime ).count() / 1000.0 << "s" << endl;;
 
 	return 0;
 }
