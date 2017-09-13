@@ -7,6 +7,9 @@
 #include <sstream>
 #include <string>
 
+// for binary writing
+#include <fstream>
+
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,6 +35,9 @@
 
 const int EXIT_TAG = 42; // exiting tag
 const int ICPERTRAJ = 8; // number of initial conditions per trajectory
+
+// cm^-1 to Hz
+const double CMTOHZ = 2.99793 * pow(10, 10);
 
 using namespace std;
 
@@ -79,7 +85,7 @@ int main()
 	{
 		const clock_t begin_time = clock();
 		
-		FILE* inputfile = fopen("input/ics.txt", "r");
+		FILE* inputfile = fopen("input/co2ar_small.txt", "r");
 
 		// counter of calculated trajectories
 		int NTRAJ = 0;
@@ -93,10 +99,9 @@ int main()
 		for ( int i = 1; i < world_size; i++ ) 
 		{
 			scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);
-			printf("MASTER reads IC number %.1lf : %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf\n", ics[0], ics[1], ics[2], ics[3], ics[4], ics[5], ics[6], ics[7]);  
-
+			//printf("MASTER reads IC number %.1lf : %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf\n", ics[0], ics[1], ics[2], ics[3], ics[4], ics[5], ics[6], ics[7]);  
 			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-			
+
 			NTRAJ++;
 		}
 		
@@ -111,14 +116,14 @@ int main()
 			// receiving message from any of slaves
 			MPI_Recv(&output, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 			source = status.MPI_SOURCE;
-			printf("MASTER received report from %d\n", source);
+			//printf("MASTER received report from %d\n", source);
 			
 			// reading another line from file
 			scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);	
 			// if it's not ended yet then sending new chunk of work to slave
 			if ( scanfResult != -1)
 	   		{
-				printf("MASTER reads IC number %.1lf: %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf\n", ics[0], ics[1], ics[2], ics[3], ics[4], ics[5], ics[6], ics[7]);
+					//printf("MASTER reads IC number %.1lf: %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf\n", ics[0], ics[1], ics[2], ics[3], ics[4], ics[5], ics[6], ics[7]);
 				MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, 0, MPI_COMM_WORLD);
 				NTRAJ++;
 			}
@@ -128,6 +133,8 @@ int main()
 				MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, EXIT_TAG, MPI_COMM_WORLD);
 				alive--;
 			}
+
+			cout << "Processing " << NTRAJ << " trajectory..." << endl;
 		}
 		
 		fclose(inputfile);
@@ -179,8 +186,13 @@ int main()
 			string dip_filepath = "output/dips/" + strs.str() + ".txt";
 			
 			// .c_str() converts string to const char*
-			FILE *trajectory_file = fopen(traj_filepath.c_str(), "w");
-			FILE *dipfft = fopen(dip_filepath.c_str(), "w");
+			//FILE *trajectory_file = fopen(traj_filepath.c_str(), "w");
+			//FILE *dipfft = fopen(dip_filepath.c_str(), "w");
+
+			// ios::out -- open for output operations
+			// ios::binary -- ipen in binary mode
+			ofstream trajectory_file ( traj_filepath.c_str(), ios::out | ios::binary );
+			ofstream dipfft( dip_filepath.c_str(), ios::out | ios::binary );
 
 			N = 6;
 			vmblock = vminit();
@@ -207,7 +219,7 @@ int main()
 			
   			h = 0.1;         // initial step size
   			xend = step;     // initial right bound of integration
-  			fmax = 1000000;  // maximal number of calls 
+  			fmax = 5000000;  // maximal number of calls 
 			
   			double *dipole = new double [3];
 			
@@ -238,7 +250,13 @@ int main()
      
      			hamiltonian(dipole, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], y0[6], true);
 
-     			fprintf(trajectory_file, "%f %.12f %.12f %.12f %.12f %.12f\n", t0, y0[0], y0[1], dipole[0], dipole[1], dipole[2]);
+				trajectory_file.write( (char*) &t0, sizeof(double) );
+				trajectory_file.write( (char*) &y0[0], sizeof(double) );
+				trajectory_file.write( (char*) &y0[1], sizeof(double) );
+				trajectory_file.write( (char*) &dipole[0], sizeof(double) );
+				trajectory_file.write( (char*) &dipole[1], sizeof(double) );
+				trajectory_file.write( (char*) &dipole[2], sizeof(double) );	
+				//fprintf(trajectory_file, "%f %.12f %.12f %.12f %.12f %.12f\n", t0, y0[0], y0[1], dipole[0], dipole[1], dipole[2]);
 
      			ddipx.push_back(dipole[0]);
      			ddipy.push_back(dipole[1]);
@@ -250,11 +268,16 @@ int main()
 				counter++;
 			}
 			
-			fclose(trajectory_file);
-		    
+		   	trajectory_file.close();
+
 			// length of dipole vector = number of samples
  		    size_t n = ddipx.size();
- 
+			cout << "length of dipole: " << n << endl;
+			if ( n > 500 )
+			{
+				cout << "Quasi complex?" << endl;
+			}	
+
 			// input and output arrays
 		  	fftw_complex _ddipx[n];
 		  	fftw_complex _ddipx_fftw[n];
@@ -296,23 +319,32 @@ int main()
 			
 			// auxiliary variables to store interim variables
 			// for the DFT(autocorrelation dipole function)
+			double omega;
 		  	double p, px, py, pz;
-		    vector<double> freqs;
 
-		  	for ( int i = 0; i < n; i++ )
-		  	{
-                // frequency vector
-                freqs.push_back( (double) i / n * Fs );
+			if ( dipfft.is_open() )
+			{
+		  		for ( int i = 0; i < n; i++ )
+		  		{
+                	// frequency vector
+					omega = (double) i / n * Fs;
+					px = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
+			  		py = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
+			  		pz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
 
-				px = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
-			  	py = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
-			  	pz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
+					// dividing autocorrelation by the omega squared
+			  		p = ( px + py + pz ) / pow(omega, 2);
+				
+					if ( i != 0 )	
+					{
+			  			dipfft.write( (char*) &omega, sizeof(double) );
+						dipfft.write( (char*) &p, sizeof(double) );
+					}
+		  		}
+			}
 
-			  p = px + py + pz;
-			  fprintf(dipfft, "%.12f %.12f\n", freqs[i], p);
-		  	}
-
-		  	fclose(dipfft);
+		  	// closing dipole fft file
+			dipfft.close();
 
 			// sending a report to master
 			MPI_Send(&report, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);

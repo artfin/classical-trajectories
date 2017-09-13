@@ -2,7 +2,7 @@
 import subprocess
 
 programs = {
-    'main': ('main', 2),
+    'main': ('main', 4),
 }
 
 sys_call = '{0} -n {1} ./{2}'.format('mpirun', programs['main'][1], programs['main'][0])
