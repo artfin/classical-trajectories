@@ -542,21 +542,21 @@ double hamiltonian(double R, double theta, double pR, double pT, double Jx, doub
 	return ang_term + kin_term + cor_term + ab_initio_pot(R, theta) / 2.1947 * pow(10, -5);
 }
 
-//int main()
-//{
-	//double R = 5.0;
-	//double theta = 1.0;
-	//double Jx = 10.0;
-	//double Jy = 0.5;
-	//double Jz = 5.8;
-	//double pR = -10.0;
-	//double pT = 0.1;
+int main()
+{
+double R = 20.0;
+double theta = 5.0;
+double Jx = 5.0;
+double Jy = 5.0;
+double Jz = 5.0;
+double pR = 5.0;
+double pT = 5.0;
 
-	//double h = hamiltonian(R, theta, pR, pT, Jx, Jy, Jz);
-	//cout << "hamiltonian value: " << h << endl;
+double h = hamiltonian(R, theta, pR, pT, Jx, Jy, Jz);
+cout << "hamiltonian value: " << h << endl;
 
-	//return 0;
-//}
+return 0;
+}
 
 
 
