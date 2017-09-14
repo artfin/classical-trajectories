@@ -182,8 +182,8 @@ int main()
 			// output files
 			ostringstream strs;
 			strs << ics[0];
-			string traj_filepath = "output/trajs/" + strs.str() + ".txt";
-			string dip_filepath = "output/dips/" + strs.str() + ".txt";
+			string traj_filepath = "output/trajs/" + strs.str() + ".bin";
+			string dip_filepath = "output/dips/" + strs.str() + ".bin";
 			
 			// .c_str() converts string to const char*
 			//FILE *trajectory_file = fopen(traj_filepath.c_str(), "w");
@@ -219,7 +219,7 @@ int main()
 			
   			h = 0.1;         // initial step size
   			xend = step;     // initial right bound of integration
-  			fmax = 5000000;  // maximal number of calls 
+  			fmax = 100000000;  // maximal number of calls 
 			
   			double *dipole = new double [3];
 			

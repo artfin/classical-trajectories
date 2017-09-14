@@ -38,7 +38,7 @@ int main( int argc, char* argv[] )
 		ostringstream strs;
 		
 		strs << n;
-		string filename = "output/dips/" + strs.str() + ".txt";
+		string filename = "output/dips/" + strs.str() + ".bin";
 
 		//cout << "filename: " << filename << endl;
 

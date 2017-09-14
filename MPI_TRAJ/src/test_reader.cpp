@@ -19,7 +19,7 @@ int main( int argc, char* argv[] )
 
 	ostringstream strs;
 	strs << n;
-	string filename = "output/dips/" + strs.str() + ".txt";
+	string filename = "output/dips/" + strs.str() + ".bin";
 
 	ifstream file( filename, ios::in | ios::binary | ios::ate );
 

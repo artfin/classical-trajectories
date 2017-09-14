@@ -6,4 +6,4 @@ learning-stuff/Fortran/fortran_notebook/odepack/
 *.exe
 *.dat
 *.txt
-
+*.bin
