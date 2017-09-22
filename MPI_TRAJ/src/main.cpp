@@ -206,10 +206,10 @@ int main()
  			}
 
 			// according to Ivanov:
-			// delta(t) = 0.2 * 10**(-13) s = 200 fs
-            // delta(t) = sampling time determines the sampling rate = 1 / Ts = 5 * 10**12 Hz
-			// 5 * 10**(12) Hz * 3.33565 * 10**(-11) Hz to cm^(-1) = 166.782 cm^(-1)
-		    const double step = 800;
+			// delta(t) = 0.2 * 10**(-13) / 4 s = 50 fs
+            // delta(t) = sampling time determines the sampling rate = 1 / Ts = 20 * 10**12 Hz
+			// 20 * 10**(12) Hz * 3.33565 * 10**(-11) Hz to cm^(-1) = 667.128 cm^(-1)
+		    const double step = 200;
             const double Fs = 166.782; 
 
   			epsabs = 1E-13;
@@ -273,10 +273,6 @@ int main()
 			// length of dipole vector = number of samples
  		    size_t n = ddipx.size();
 			cout << "length of dipole: " << n << endl;
-			if ( n > 500 )
-			{
-				cout << "Quasi complex?" << endl;
-			}	
 
 			// input and output arrays
 		  	fftw_complex _ddipx[n];
@@ -316,7 +312,7 @@ int main()
 		 	fftw_destroy_plan(planz);
 		 
 		  	fftw_cleanup(); 
-			
+
 			// auxiliary variables to store interim variables
 			// for the DFT(autocorrelation dipole function)
 			double omega;
@@ -324,7 +320,8 @@ int main()
 
 			if ( dipfft.is_open() )
 			{
-		  		for ( int i = 0; i < n; i++ )
+				// nyquist frequency = sampling frequency / 2
+		  		for ( int i = 0; i < (int) n / 2; i++ )
 		  		{
                 	// frequency vector
 					omega = (double) i / n * Fs;

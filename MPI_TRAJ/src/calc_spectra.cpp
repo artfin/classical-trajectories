@@ -74,24 +74,26 @@ int main( int argc, char* argv[] )
 			curr_freq = arr[counter];
 			curr_int = arr[counter + 1];
 
-			vector<double>::iterator iter = find( freqs.begin(), freqs.end(), curr_freq );
-			size_t index = distance( freqs.begin(), iter );
+			//vector<double>::iterator iter = find( freqs.begin(), freqs.end(), curr_freq );
+			//size_t index = distance( freqs.begin(), iter );
 		
 			// means that element is found 	
-			if ( index != freqs.size() )
-			{
-				intensities[ index ] += curr_int; 
-			}
+			//if ( index != freqs.size() )
+			//{
+			//intensities[ index ] += curr_int; 
+			//}
 			// adding freq to freqs vector
-			else
-			{
-				freqs.push_back( curr_freq );
-				intensities.push_back( curr_int );
-			}
+			//else
+			//{
+			freqs.push_back( curr_freq );
+			intensities.push_back( curr_int );
+			//}
 				
 			counter += 2;
 		}
 	}
+
+	cout << "Binary files are read." << endl;
 
 	// creating a pair
 	vector< pair<double, double> > data ( freqs.size() );
