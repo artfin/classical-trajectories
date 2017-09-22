@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <cmath>
+
 // string conversion
 #include <string>
 #include <sstream>
@@ -10,7 +12,17 @@
 
 #include <chrono>
 
+#include "psp_pes.h"
+#include <hamiltonian.hpp>
+
 using namespace std;
+
+// hartree to joules
+const double HTOJ = 4.35974417 * pow(10, -18);
+// boltzmann constant
+const long double BOLTZCONST = 1.38064852 * pow(10, -23);
+
+const double Temperature = 70; // K
 
 bool compareFunc( pair<double, double> &a, pair<double, double> &b )
 {
@@ -28,17 +40,89 @@ int main( int argc, char* argv[] )
 	int start = atoi( argv[1] );
 	int end = atoi( argv[2] );
 
+	string line;
+	ifstream myfile( "input/ics.txt" );
+
+	vector<double> theta( 50000 );
+	vector<double> pr( 50000 );
+	vector<double> ptheta( 50000 );
+	vector<double> jphi( 50000 );
+	vector<double> jtheta( 50000 );
+	vector<double> jtot( 50000 );
+
+	vector<double> ham_values( 50000 );
+
+	double RDIST = 20.0;
+	double jx, jy, jz;
+
+	int i = 0;
+
+	if ( myfile.is_open() )
+	{
+		while ( getline(myfile, line) )
+		{
+			istringstream sin(line);
+
+			double temp;
+			
+			// it is number of trajectory N and R
+			sin >> temp;
+			sin >> temp;
+			
+			sin >> temp;
+			theta[i] = temp;
+
+			sin >> temp;
+		   	pr[i] = temp;
+
+			sin >> temp; 
+			ptheta[i] = temp;
+
+			sin >> temp;
+		   	jphi[i] = temp;
+
+			sin >> temp;
+			jtheta[i] = temp;
+
+			sin >> temp;
+			jtot[i] = temp;
+
+			i++;
+		}
+
+		myfile.close();
+	}
+	else
+	{
+		cout << "Unable to open file" << endl;
+	}
+
+	double h;
+	for ( int i = 0; i < theta.size(); i++ )
+	{
+		jx = jtot[i] * sin(jtheta[i]) * cos(jphi[i]);
+		jy = jtot[i] * sin(jtheta[i]) * sin(jphi[i]);
+		jz = jtot[i] * cos(jtheta[i]);
+
+		h = ham_value(RDIST, theta[i], pr[i], ptheta[i], jx, jy, jz);
+		ham_values[i] = h;
+	}	
+
 	auto startTime = chrono::high_resolution_clock::now();
+
+	double exp_hkt;
 
 	vector<double> freqs;
 	vector<double> intensities;
 
 	for ( int n = start; n < end + 1; n++ )
 	{
+		exp_hkt = exp( - ham_values[n] * HTOJ / (BOLTZCONST * Temperature) );
+		
 		ostringstream strs;
 		
 		strs << n;
-		string filename = "output/dips/" + strs.str() + ".bin";
+		string filename = "first_exp/dips/" + strs.str() + ".bin";
 
 		//cout << "filename: " << filename << endl;
 
@@ -86,14 +170,14 @@ int main( int argc, char* argv[] )
 			//else
 			//{
 			freqs.push_back( curr_freq );
-			intensities.push_back( curr_int );
+			intensities.push_back( curr_int * exp_hkt );
 			//}
 				
 			counter += 2;
 		}
 	}
 
-	cout << "Binary files are read." << endl;
+	cerr << "Binary files are read." << endl;
 
 	// creating a pair
 	vector< pair<double, double> > data ( freqs.size() );

@@ -1,5 +1,7 @@
 #include <mpi.h>
 
+#include "hamiltonian.hpp"
+
 // should be included BEFORE Gear header files
 // due to namespace overlap
 #include <vector>
@@ -29,6 +31,7 @@
 // program timing
 #include <time.h>
 
+
 // macros for real and imaginary parts
 #define REALPART 0
 #define IMAGPART 1
@@ -38,6 +41,13 @@ const int ICPERTRAJ = 8; // number of initial conditions per trajectory
 
 // cm^-1 to Hz
 const double CMTOHZ = 2.99793 * pow(10, 10);
+
+// hartree to joules
+const double HTOJ = 4.35974417 * pow(10, -18);
+// boltzmann constant
+const long double BOLTZCONST = 1.38064852 * pow(10, -23);
+
+const double Temperature = 70; // K
 
 using namespace std;
 
@@ -226,7 +236,8 @@ int main()
   			vector<double> ddipx;
   			vector<double> ddipy;
   			vector<double> ddipz;
-			
+		
+			// r, theta, pr, ptheta, phi, theta, j
 			y0[0] = ics[1];
 			y0[1] = ics[2];
 			y0[2] = ics[3];
@@ -234,7 +245,17 @@ int main()
 			y0[4] = ics[5];
 			y0[5] = ics[6];
   			y0[6] = ics[7];
-			
+		
+			// j == ics[7]
+			// theta == ics[6]
+			// phi == ics[5]
+				
+			double jx = ics[7] * sin(ics[6]) * cos(ics[5]);
+			double jy = ics[7] * sin(ics[6]) * sin(ics[5]);
+			double jz = ics[7] * cos(ics[6]);
+			double h0 = ham_value( ics[1], ics[2], ics[3], ics[4], jx, jy, jz);
+			double exp_hkt = exp( - h0 * HTOJ / ( BOLTZCONST * Temperature ));
+				
 			int counter = 0;
 			double end_value = ics[1] + 0.1;
 	
@@ -331,6 +352,9 @@ int main()
 
 					// dividing autocorrelation by the omega squared
 			  		p = ( px + py + pz ) / pow(omega, 2);
+
+					// multiplying each intensity by boltzmann factor
+					p = p * exp_hkt;
 				
 					if ( i != 0 )	
 					{

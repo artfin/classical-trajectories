@@ -59,22 +59,23 @@ def calc_alpha( freqs, ints ):
     
     return alpha
 
-freqs, ints = read_file( '../output/exp' )
+
+freqs, ints = read_file( '../first_exp/spectra_weighted' )
 
 freqs_range, ints_range = move_to_bins(np.array( freqs ), np.array( ints ))
 
 # ----------------------------------------------
 # absorption coefficient
-alpha = calc_alpha( freqs_range, ints_range )
+#alpha = calc_alpha( freqs_range, ints_range )
 
-plt.plot( freqs_range, alpha, color = 'k' )
-plt.show()
+#plt.plot( freqs_range, alpha, color = 'k' )
+#plt.show()
 # ----------------------------------------------
 
 
 # ----------------------------------------------
 # Spectral function
-#plt.plot( freqs_range, ints_range, color = 'k' )
+plt.plot( freqs_range[10:], ints_range[10:], color = 'k' )
 
 #plt.title(r"\Large Spectral function $J(\omega)$")
 #plt.semilogy( freqs_range, ints_range, color = 'k' )
@@ -84,8 +85,8 @@ plt.show()
 
 #plt.xlabel(r"$\omega$, \textbf{cm}$^{-1}$")
 
-#plt.grid( linestyle = ':', alpha = 0.7 )
-#plt.show()
+plt.grid( linestyle = ':', alpha = 0.7 )
+plt.show()
 # ----------------------------------------------
 
 
