@@ -4,8 +4,9 @@ MPICC = mpic++
 # usual compiler
 CCXX = g++
 
-CXXFLAGS = -std=c++11 -O3 -lstdc++ -lfftw3 -march=native -mtune=native -lm
+CXXFLAGS = -std=c++11 -O3 -lstdc++ -march=native -mtune=native -lm
 
+INCLUDE_FFTW = -lfftw3
 INCLUDE_EIGEN = -I/usr/local/include/eigen3
 
 # Path for .c, .h and .o Files
@@ -15,8 +16,6 @@ INC_PATH = -I ./include
 
 # Executable name
 TARGET = main
-
-all: $(TARGET) test_reader calc_spectra
 
 # Files to compile
 objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o matrix.o co2_ar_dipole.o hamiltonian.o 
@@ -32,13 +31,13 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 # Build final binary using MPI compiler wrapper
 $(TARGET): $(OBJ)
 	@echo [INFO] Creating Binary Executable [$(TARGET)]
-	@$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(TARGET_PATH) -o $@ $^ $(INC_PATH) 
-
-test_reader: $(SRC_PATH)test_reader.cpp
-	$(CCXX) $(CXXFLAGS) $^ -o $@
+	@$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(TARGET_PATH) -o $@ $^ $(INC_PATH) 
 
 calc_spectra: $(OBJ) $(SRC_PATH)calc_spectra.cpp 
 	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INC_PATH) $^ -o $@
+
+mpi_reader: $(SRC_PATH)mpi_reader.cpp
+	$(MPICC) $(CXXFLAGS) $^ -o $@
 
 clean:
 	rm -r $(OBJ)
