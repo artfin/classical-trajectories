@@ -28,9 +28,8 @@
 // library for FFT
 #include <fftw3.h>
 
-// program timing
-#include <time.h>
-
+// gsl histogram
+#include <gsl/gsl_histogram.h>
 
 // macros for real and imaginary parts
 #define REALPART 0
@@ -48,6 +47,10 @@ const double HTOJ = 4.35974417 * pow(10, -18);
 const long double BOLTZCONST = 1.38064852 * pow(10, -23);
 
 const double Temperature = 70; // K
+
+const int NBINS = 400;
+const double LBOUND = 0.0;
+const double RBOUND = 200.0;
 
 using namespace std;
 
@@ -69,10 +72,313 @@ void syst (REAL t, REAL *y, REAL *f)
   delete [] out;
 }
 
-int main()
+void save_histogram( gsl_histogram *histogram )
+{
+	ofstream file( "spectrum.txt" );
+
+	double lower_bound, higher_bound, bin_content;
+	for ( int counter = 0; counter < NBINS; counter++ )
+	{
+		gsl_histogram_get_range( histogram, counter, &lower_bound, &higher_bound );
+		bin_content = gsl_histogram_get( histogram, counter );
+
+		file << lower_bound << " " << higher_bound << " " << bin_content << endl;
+	}
+	
+	file.close();	
+}
+
+void master_code( int world_size )
+{
+	MPI_Status status;
+	int source;
+
+	FILE* inputfile = fopen("input/ics.txt", "r");
+
+	// counter of calculated trajectories
+	int NTRAJ = 0;
+
+	double *ics = new double[ICPERTRAJ];
+
+	// result of reading values from file
+	int scanfResult;
+
+	// sending first message to slaves
+	for ( int i = 1; i < world_size; i++ ) 
+	{
+		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);
+		MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+
+		NTRAJ++;
+	}
+	
+	// number of alive processes
+	int alive = world_size - 1;
+
+	// prepare bins
+	gsl_histogram *histogram = gsl_histogram_alloc( NBINS );
+	gsl_histogram_set_ranges_uniform( histogram, LBOUND, RBOUND );
+
+	while ( true )
+	{	
+		// exit when all slaves are killed
+		if ( alive == 0 )
+		{
+			break;
+		}
+	
+		if ( NTRAJ % 1000 == 0 )
+		{
+			cout << ">> Saving histogram... " << endl;
+			save_histogram( histogram );
+		}
+
+		// receiving message from any of slaves	
+		int package_size;
+		MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+		source = status.MPI_SOURCE;
+	
+		//cout << "Master received a package size = " << package_size << " from process " << source << endl;
+
+		vector<double> freqs_package( package_size );
+		vector<double> intensities_package( package_size );
+
+		if ( package_size != 0 )
+		{
+			MPI_Recv( &freqs_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			//cout << "Master received frequency package from process " << source << endl;
+			
+			MPI_Recv( &intensities_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			//cout << "Master received intensities_package from process " << source << endl;
+		}
+		
+		// applying immediate binning of values
+		for ( int i = 0; i < freqs_package.size(); i++ )
+		{
+			// increases the value of appropriate bin by intensity
+			gsl_histogram_accumulate( histogram, freqs_package[i], intensities_package[i] );
+		}
+
+		// reading another line from file
+		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);	
+		// if it's not ended yet then sending new chunk of work to slave
+		if ( scanfResult != -1)
+   		{
+			//cout << "Master sends new initial conditions to process " << source << endl;
+			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, 0, MPI_COMM_WORLD);
+			NTRAJ++;
+		}
+		// work is done, sending a killing message
+		else
+		{
+			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, EXIT_TAG, MPI_COMM_WORLD);
+			alive--;
+		}
+
+		cout << "Processing " << NTRAJ << " trajectory..." << endl;
+	}
+		
+	fclose(inputfile);
+}
+
+void slave_code( int world_rank )
+{
+	ostringstream strs;
+	strs << world_rank;
+
+	REAL epsabs;    //  absolute error bound
+	REAL epsrel;    //  relative error bound    
+	REAL t0;        // left edge of integration interval
+	REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
+	REAL h;         // initial, final step size
+	REAL xend;      // right edge of integration interval 
+
+	long fmax;      // maximal number of calls of right side in gear4()
+	long aufrufe;   // actual number of function calls
+	int  N;         // number of DEs in system
+	int  fehler;    // error code from umleiten(), gear4()
+	int  i;         // loop counter
+								 
+	void *vmblock;  // List of dynamically allocated vectors
+	
+	// array to store initial conditions
+	double *ics = new double [ICPERTRAJ];
+
+	// auxiliary variable to store status of message
+	MPI_Status status;
+		
+	while ( true )
+	{
+		MPI_Recv(&ics[0], ICPERTRAJ, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+		//cout << ">> Process " << world_rank << " received new initial conditions." << endl; 
+
+		if ( status.MPI_TAG == EXIT_TAG )
+		{
+			break;
+		}
+
+		N = 6;
+		vmblock = vminit();
+		y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
+			
+		// out of memory?
+  		if (! vmcomplete(vmblock))
+		{ 
+   			printf("mgear: out of memory.\n");
+   			return;
+ 		}
+
+		// according to Ivanov:
+		// delta(t) = 0.2 * 10**(-13) / 4 s = 50 fs
+          // delta(t) = sampling time determines the sampling rate = 1 / Ts = 20 * 10**12 Hz
+		// 20 * 10**(12) Hz * 3.33565 * 10**(-11) Hz to cm^(-1) = 667.128 cm^(-1)
+	    const double step = 200;
+        const double Fs = 166.782; 
+
+  		epsabs = 1E-13;
+  		epsrel = 1E-13;
+  
+  		t0 = 0.0;
+			
+  		h = 0.1;         // initial step size
+  		xend = step;     // initial right bound of integration
+  		fmax = 1e8;  // maximal number of calls 
+			
+  		double *dipole = new double [3];
+			
+  		vector<double> ddipx;
+  		vector<double> ddipy;
+  		vector<double> ddipz;
+		
+		// r, theta, pr, ptheta, phi, theta, j
+		for ( int i = 0; i < 7; i++ )
+		{
+			y0[i] = ics[i + 1];
+		}
+	
+		// calculating initial weight of trajectory
+		// j == ics[7]; theta == ics[6]; phi == ics[5]
+		double jx = ics[7] * sin(ics[6]) * cos(ics[5]);
+		double jy = ics[7] * sin(ics[6]) * sin(ics[5]);
+		double jz = ics[7] * cos(ics[6]);
+		double h0 = ham_value( ics[1], ics[2], ics[3], ics[4], jx, jy, jz);
+		double exp_hkt = exp( - h0 * HTOJ / ( BOLTZCONST * Temperature ));
+				
+		int counter = 0;
+		double end_value = ics[1] + 0.01;
+
+		while ( y0[0] < end_value ) 
+		{
+     		fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
+     			
+     		if ( fehler != 0 ) 
+			{
+     			printf(" Gear4: error n° %d\n", 10 + fehler);
+				break;
+     		}
+     
+     		hamiltonian(dipole, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], y0[6], true);
+     		
+			// collecting derivatives of dipole
+			ddipx.push_back(dipole[0]);
+     		ddipy.push_back(dipole[1]);
+     		ddipz.push_back(dipole[2]);
+				
+     		xend = step * (counter + 2);
+     		aufrufe = 0;  // actual number of calls
+  				
+			counter++;
+		}
+			
+		// length of dipole vector = number of samples
+ 	    size_t n = ddipx.size();
+		//cout << "length of dipole: " << n << endl;
+
+		// input and output arrays
+	  	fftw_complex _ddipx[n];
+	  	fftw_complex _ddipx_fftw[n];
+
+	 	fftw_complex _ddipy[n];
+	  	fftw_complex _ddipy_fftw[n];
+
+	  	fftw_complex _ddipz[n];
+	  	fftw_complex _ddipz_fftw[n];
+
+  		// filling arrays for fftw
+  		for ( int i = 0; i < n; i++ )
+  		{
+	  		_ddipx[i][REALPART] = ddipx[i];
+	  		_ddipx[i][IMAGPART] = 0; 
+
+	  		_ddipy[i][REALPART] = ddipy[i];
+	  		_ddipy[i][IMAGPART] = 0; 
+
+		 	_ddipz[i][REALPART] = ddipz[i];
+ 			_ddipz[i][IMAGPART] = 0;
+		}
+
+	  	// planning the FFT and executing it
+	  	fftw_plan planx = fftw_plan_dft_1d(n, _ddipx, _ddipx_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
+	  	fftw_plan plany = fftw_plan_dft_1d(n, _ddipy, _ddipy_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
+	  	fftw_plan planz = fftw_plan_dft_1d(n, _ddipz, _ddipz_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
+
+	  	fftw_execute(planx);
+	  	fftw_execute(plany);
+	  	fftw_execute(planz);
+
+	  	// do some cleaning
+	  	fftw_destroy_plan(planx);
+	  	fftw_destroy_plan(plany);
+	 	fftw_destroy_plan(planz);
+		 
+	  	fftw_cleanup(); 
+
+		// auxiliary variables to store interim variables
+		// for the DFT(autocorrelation dipole function)
+		double omega;
+	  	double autocor, autocorx, autocory, autocorz;
+
+		vector<double> freqs_package;
+		vector<double> intensities_package; 
+
+		// nyquist frequency = sampling frequency / 2
+	  	for ( int i = 1; i < (int) n / 2; i++ )
+	  	{
+           	// frequency vector
+			omega = (double) i / n * Fs;
+			autocorx = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
+	  		autocory = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
+	  		autocorz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
+
+			// dividing autocorrelation by the omega squared
+	  		autocor = ( autocorx + autocory + autocorz ) / pow(omega, 2);
+
+			// multiplying each intensity by boltzmann factor
+			autocor *= exp_hkt;
+				
+			freqs_package.push_back( omega );
+			intensities_package.push_back( autocor );	
+		}
+	
+		int package_size = freqs_package.size();
+		MPI_Send( &package_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+		//cout << ">> Process " << world_rank << " sends package size = " << package_size << " to root." << endl;
+
+		if ( package_size != 0 )
+		{
+			MPI_Send( &freqs_package[0], package_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			//cout << ">> Process " << world_rank << " sends frequency package to root" << endl;
+
+			MPI_Send( &intensities_package[0], package_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			//cout << ">> Process " << world_rank << " sends intensities package to root" << endl;
+		}	
+	}
+}
+
+int main( int argc, char* argv[] )
 {
 	// Initialize the MPI environment
-	MPI_Init(NULL, NULL);
+	MPI_Init( &argc, &argv );
 
 	// getting id of the current process
 	int world_rank;
@@ -82,294 +388,13 @@ int main()
 	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size); 
 	
-	// number of alive processes
-	int alive = world_size - 1;
-
-	// auxiliary variables
-	int source;
-	int output;
-	MPI_Status status;
-	
-	// on the root process
 	if ( world_rank == 0 ) 
 	{
-		const clock_t begin_time = clock();
-		
-		FILE* inputfile = fopen("input/co2ar_small.txt", "r");
-
-		// counter of calculated trajectories
-		int NTRAJ = 0;
-
-		double *ics = new double[ICPERTRAJ];
-
-		// result of reading values from file
-		int scanfResult;
-
-		// sending first message to slaves
-		for ( int i = 1; i < world_size; i++ ) 
-		{
-			scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);
-			//printf("MASTER reads IC number %.1lf : %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf\n", ics[0], ics[1], ics[2], ics[3], ics[4], ics[5], ics[6], ics[7]);  
-			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-
-			NTRAJ++;
-		}
-		
-		while ( true )
-		{	
-			// exit when all slaves are killed
-			if ( alive == 0 )
-			{
-				break;
-			}
-
-			// receiving message from any of slaves
-			MPI_Recv(&output, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			source = status.MPI_SOURCE;
-			//printf("MASTER received report from %d\n", source);
-			
-			// reading another line from file
-			scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);	
-			// if it's not ended yet then sending new chunk of work to slave
-			if ( scanfResult != -1)
-	   		{
-					//printf("MASTER reads IC number %.1lf: %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf %.4lf\n", ics[0], ics[1], ics[2], ics[3], ics[4], ics[5], ics[6], ics[7]);
-				MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, 0, MPI_COMM_WORLD);
-				NTRAJ++;
-			}
-			// work is done, sending a killing message
-			else
-			{
-				MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, EXIT_TAG, MPI_COMM_WORLD);
-				alive--;
-			}
-
-			cout << "Processing " << NTRAJ << " trajectory..." << endl;
-		}
-		
-		fclose(inputfile);
-		
-		cout << ">> Used " << world_size - 1 << " slave processes." << endl;
-		cout << ">> Program took " << float( clock() - begin_time ) / CLOCKS_PER_SEC << "s to process " << NTRAJ << " trajectories." << endl;
-	}
-
-	// on the slave process
+		master_code( world_size );
+	}	
 	else
 	{
-		REAL epsabs;    // absolute error bound
-		REAL epsrel;    // relative error bound    
-		REAL t0;        // left edge of integration interval
-		REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
-		REAL h;         // initial, final step size
-		REAL xend;      // right edge of integration interval 
-
-		long fmax;      // maximal number of calls of right side in gear4()
-		long aufrufe;   // actual number of function calls
-		int  N;         // number of DEs in system
-		int  fehler;    // error code from umleiten(), gear4()
-		int  i;         // loop counter
-								 
-		void *vmblock;  // List of dynamically allocated vectors
-	
-		// array to store initial conditions
-		double *ics = new double [ICPERTRAJ];
-
-		// auxiliary variable to store status of message
-		MPI_Status status;
-		// reported value, indicates that the work is done
-		int report = 1;
-		
-		while ( true )
-		{
-			MPI_Recv(&ics[0], ICPERTRAJ, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-
-			if ( status.MPI_TAG == EXIT_TAG )
-			{
-				printf("Process %d exits work loop.\n", world_rank);
-				break;
-			}
-			
-			// output files
-			ostringstream strs;
-			strs << ics[0];
-			string traj_filepath = "output/trajs/" + strs.str() + ".bin";
-			string dip_filepath = "output/dips/" + strs.str() + ".bin";
-			
-			// .c_str() converts string to const char*
-			//FILE *trajectory_file = fopen(traj_filepath.c_str(), "w");
-			//FILE *dipfft = fopen(dip_filepath.c_str(), "w");
-
-			// ios::out -- open for output operations
-			// ios::binary -- ipen in binary mode
-			ofstream trajectory_file ( traj_filepath.c_str(), ios::out | ios::binary );
-			ofstream dipfft( dip_filepath.c_str(), ios::out | ios::binary );
-
-			N = 6;
-			vmblock = vminit();
-			y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
-			
-			// out of memory?
-  			if (! vmcomplete(vmblock))
-			{ 
-    			printf("mgear: out of memory.\n");
-    			return 0;
- 			}
-
-			// according to Ivanov:
-			// delta(t) = 0.2 * 10**(-13) / 4 s = 50 fs
-            // delta(t) = sampling time determines the sampling rate = 1 / Ts = 20 * 10**12 Hz
-			// 20 * 10**(12) Hz * 3.33565 * 10**(-11) Hz to cm^(-1) = 667.128 cm^(-1)
-		    const double step = 200;
-            const double Fs = 166.782; 
-
-  			epsabs = 1E-13;
-  			epsrel = 1E-13;
-  
-  			t0 = 0.0;
-			
-  			h = 0.1;         // initial step size
-  			xend = step;     // initial right bound of integration
-  			fmax = 100000000;  // maximal number of calls 
-			
-  			double *dipole = new double [3];
-			
-  			vector<double> ddipx;
-  			vector<double> ddipy;
-  			vector<double> ddipz;
-		
-			// r, theta, pr, ptheta, phi, theta, j
-			y0[0] = ics[1];
-			y0[1] = ics[2];
-			y0[2] = ics[3];
-			y0[3] = ics[4];
-			y0[4] = ics[5];
-			y0[5] = ics[6];
-  			y0[6] = ics[7];
-		
-			// j == ics[7]
-			// theta == ics[6]
-			// phi == ics[5]
-				
-			double jx = ics[7] * sin(ics[6]) * cos(ics[5]);
-			double jy = ics[7] * sin(ics[6]) * sin(ics[5]);
-			double jz = ics[7] * cos(ics[6]);
-			double h0 = ham_value( ics[1], ics[2], ics[3], ics[4], jx, jy, jz);
-			double exp_hkt = exp( - h0 * HTOJ / ( BOLTZCONST * Temperature ));
-				
-			int counter = 0;
-			double end_value = ics[1] + 0.1;
-	
-			while ( y0[0] < end_value ) 
-			{
-     			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
-     			
-     			if ( fehler != 0 ) 
-				{
-     				printf(" Gear4: error n° %d\n", 10 + fehler);
-					break;
-     			}
-     
-     			hamiltonian(dipole, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], y0[6], true);
-
-				trajectory_file.write( (char*) &t0, sizeof(double) );
-				trajectory_file.write( (char*) &y0[0], sizeof(double) );
-				trajectory_file.write( (char*) &y0[1], sizeof(double) );
-				trajectory_file.write( (char*) &dipole[0], sizeof(double) );
-				trajectory_file.write( (char*) &dipole[1], sizeof(double) );
-				trajectory_file.write( (char*) &dipole[2], sizeof(double) );	
-				//fprintf(trajectory_file, "%f %.12f %.12f %.12f %.12f %.12f\n", t0, y0[0], y0[1], dipole[0], dipole[1], dipole[2]);
-
-     			ddipx.push_back(dipole[0]);
-     			ddipy.push_back(dipole[1]);
-     			ddipz.push_back(dipole[2]);
-				
-     			xend = step * (counter + 2);
-     			aufrufe = 0;  // actual number of calls
-  				
-				counter++;
-			}
-			
-		   	trajectory_file.close();
-
-			// length of dipole vector = number of samples
- 		    size_t n = ddipx.size();
-			cout << "length of dipole: " << n << endl;
-
-			// input and output arrays
-		  	fftw_complex _ddipx[n];
-		  	fftw_complex _ddipx_fftw[n];
-
-		 	fftw_complex _ddipy[n];
-		  	fftw_complex _ddipy_fftw[n];
-
-		  	fftw_complex _ddipz[n];
-		  	fftw_complex _ddipz_fftw[n];
-
-  			// filling arrays for fftw
-  			for ( int i = 0; i < n; i++ )
-  			{
-	  			_ddipx[i][REALPART] = ddipx[i];
-	  			_ddipx[i][IMAGPART] = 0; 
-
-	  			_ddipy[i][REALPART] = ddipy[i];
-	  			_ddipy[i][IMAGPART] = 0; 
-
-	 		 	_ddipz[i][REALPART] = ddipz[i];
-	 			_ddipz[i][IMAGPART] = 0;
-  			}
-
-		  	// planning the FFT and executing it
-		  	fftw_plan planx = fftw_plan_dft_1d(n, _ddipx, _ddipx_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
-		  	fftw_plan plany = fftw_plan_dft_1d(n, _ddipy, _ddipy_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
-		  	fftw_plan planz = fftw_plan_dft_1d(n, _ddipz, _ddipz_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
-
-		  	fftw_execute(planx);
-		  	fftw_execute(plany);
-		  	fftw_execute(planz);
-
-		  	// do some cleaning
-		  	fftw_destroy_plan(planx);
-		  	fftw_destroy_plan(plany);
-		 	fftw_destroy_plan(planz);
-		 
-		  	fftw_cleanup(); 
-
-			// auxiliary variables to store interim variables
-			// for the DFT(autocorrelation dipole function)
-			double omega;
-		  	double p, px, py, pz;
-
-			if ( dipfft.is_open() )
-			{
-				// nyquist frequency = sampling frequency / 2
-		  		for ( int i = 0; i < (int) n / 2; i++ )
-		  		{
-                	// frequency vector
-					omega = (double) i / n * Fs;
-					px = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
-			  		py = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
-			  		pz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
-
-					// dividing autocorrelation by the omega squared
-			  		p = ( px + py + pz ) / pow(omega, 2);
-
-					// multiplying each intensity by boltzmann factor
-					p = p * exp_hkt;
-				
-					if ( i != 0 )	
-					{
-			  			dipfft.write( (char*) &omega, sizeof(double) );
-						dipfft.write( (char*) &p, sizeof(double) );
-					}
-		  		}
-			}
-
-		  	// closing dipole fft file
-			dipfft.close();
-
-			// sending a report to master
-			MPI_Send(&report, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-		}
+		slave_code( world_rank );
 	}
 
 	MPI_Finalize();

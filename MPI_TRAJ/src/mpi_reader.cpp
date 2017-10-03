@@ -15,9 +15,13 @@ using namespace std;
 // exiting tag
 const int EXIT_TAG = 42;
 
+const int ASSIGNMENT_TAG = 1;
+const int PACKAGE_SIZE_TAG = 2;
+const int PACKAGE_TAG = 3;
+
 // output directory to process
-//const string OUTPUT_DIR = "output/dips/";
-const string OUTPUT_DIR = "first_exp/dips/";
+const string OUTPUT_DIR = "output/dips/";
+//const string OUTPUT_DIR = "first_exp/dips/";
 
 // frequency bins bounds
 const double MIN_FREQ = 0.0;
@@ -82,9 +86,9 @@ int main( int argc, char* argv[] )
 		// sending first message to slaves
 		for ( int i = 1; i < world_size; i++ )
 		{
-			//cout << "Root sends curr_filenumber = " << curr_filenumber << " to process " << i << endl;
+			cout << "Root sends curr_filenumber = " << curr_filenumber << " to process " << i << endl;
 
-			MPI_Send( &curr_filenumber, 1, MPI_INT, i, 0, MPI_COMM_WORLD );
+			MPI_Send( &curr_filenumber, 1, MPI_INT, i, ASSIGNMENT_TAG, MPI_COMM_WORLD );
 		   	curr_filenumber++;	
 		}
 
@@ -107,10 +111,11 @@ int main( int argc, char* argv[] )
 	
 			// size of vector to get
 			int package_size; 
-			MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-		   	
+			MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, PACKAGE_SIZE_TAG, MPI_COMM_WORLD, &status );
+		   
 			source = status.MPI_SOURCE;
-			//cout << ">> Root received report from process " << source << endl;
+
+			cout << ">> Root received PACKAGE_SIZE_TAG message from " << source << "; package_size = " << package_size << endl;
 			
 			vector<double> freqs_package( package_size );
 			vector<double> intensities_package( package_size );
@@ -118,11 +123,11 @@ int main( int argc, char* argv[] )
 			// file is not empty
 			if ( package_size != 0 )
 			{
-				MPI_Recv( &freqs_package[0], package_size, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-				//cout << ">> Root received frequency package of size " << package_size << endl;
+				MPI_Irecv( &freqs_package[0], package_size, MPI_DOUBLE, MPI_ANY_SOURCE, PACKAGE_TAG, MPI_COMM_WORLD, &status );
+				cout << ">> Root received frequency package of size " << package_size << endl;
 
-				MPI_Recv( &intensities_package[0], package_size, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-				//cout << ">> Root received intensities package of size " << package_size << endl;
+				MPI_Irecv( &intensities_package[0], package_size, MPI_DOUBLE, MPI_ANY_SOURCE, PACKAGE_TAG, MPI_COMM_WORLD, &status );
+				cout << ">> Root received intensities package of size " << package_size << endl;
 			}
 
 			for ( int i = 0; i < package_size; i++ )
@@ -136,20 +141,20 @@ int main( int argc, char* argv[] )
 				}
 			}
 
-			//cout << ">> Root've done binning." << endl;
+			cout << ">> Root've done binning." << endl;
 
 			// if there is file to be processed
 			if ( curr_filenumber <= END_filenumber )
 			{
-				MPI_Send( &curr_filenumber, 1, MPI_INT, source, 0, MPI_COMM_WORLD );
-				//cout << "Root send curr_filenumber = " << curr_filenumber << " to process " << source << endl;
+				MPI_Send( &curr_filenumber, 1, MPI_INT, source, ASSIGNMENT_TAG, MPI_COMM_WORLD );
+				cout << "Root send curr_filenumber = " << curr_filenumber << " to process " << source << endl;
 				curr_filenumber++;
 			}
 			// if not -- killing slave
 			else
 			{
 				MPI_Send( &curr_filenumber, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
-				//cout << ">> Root sends killing message to process " << source << endl; 
+				cout << ">> Root sends killing message to process " << source << endl; 
 				// decrementing alive processes counter
 				alive--;
 			}
@@ -182,11 +187,11 @@ int main( int argc, char* argv[] )
 
 			if ( status.MPI_TAG == EXIT_TAG )
 			{
-				//cout << "Slave process " << world_rank << " receives kill message." << endl;
+				cout << "Slave process " << world_rank << " receives kill message." << endl;
 				break;
 			}	
 
-			//cout << "Slave process: " << world_rank << "; received curr_filenumber = " << curr_filenumber << " from root" << endl;
+			cout << "Slave process: " << world_rank << "; received curr_filenumber = " << curr_filenumber << " from root" << endl;
 
 			ostringstream strs;
 			strs << curr_filenumber;
@@ -210,7 +215,10 @@ int main( int argc, char* argv[] )
 			if ( ndoubles == 0 )
 			{
 				package_size = 0;
-				MPI_Send( &package_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+				
+				cout << "Slave process: " << world_rank << "; sends PACKAGE_SIZE_TAG message: package_size = " << package_size << endl;
+				
+				MPI_Send( &package_size, 1, MPI_INT, 0, PACKAGE_SIZE_TAG, MPI_COMM_WORLD );
 			}
 			else
 			{
@@ -223,20 +231,17 @@ int main( int argc, char* argv[] )
 					intensities[vec_counter] = arr[cycle_counter + 1];
 				}
 
-				//for ( int i = 0; i < freqs.size(); i++ )
-				//{
-						//cout << "ON SLAVE i: " << i << 
-								//"; freqs: " << freqs[i] << 
-								//"; intensities: " << intensities[i] << endl;
-				//}
-
 				// sending read data
 				package_size = ndoubles / 2; 
-				MPI_Send( &package_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+				
+				cout << "Slave process: " << world_rank << "; sends PACKAGE_SIZE_TAG message: package_size = " << package_size << endl;
+				
+				MPI_Send( &package_size, 1, MPI_INT, 0, PACKAGE_SIZE_TAG, MPI_COMM_WORLD );
 			
-				//cout << "Slave sending packages of size " << package_size << endl; 
-				MPI_Send( &freqs[0], package_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-				MPI_Send( &intensities[0], package_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+				cout << "Slave process: " << world_rank << "; sending PACKAGE_TAG messages" << endl;
+
+				MPI_Send( &freqs[0], package_size, MPI_DOUBLE, 0, PACKAGE_TAG, MPI_COMM_WORLD );
+				MPI_Send( &intensities[0], package_size, MPI_DOUBLE, 0, PACKAGE_TAG, MPI_COMM_WORLD );
 
 			}
 		}
