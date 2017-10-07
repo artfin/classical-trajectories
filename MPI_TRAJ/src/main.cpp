@@ -1,6 +1,8 @@
 #include <mpi.h>
 
-#include "hamiltonian.hpp"
+//#include "hamiltonian.hpp"
+// matrix multiplication
+#include "matrix.h"
 
 // should be included BEFORE Gear header files
 // due to namespace overlap
@@ -21,9 +23,6 @@
 #include "vmblock.h"
 #include "gear.h"
 #include "t_dgls.h"
-
-// matrix multiplication
-#include "matrix.h"
 
 // library for FFT
 #include <fftw3.h>
@@ -48,9 +47,9 @@ const long double BOLTZCONST = 1.38064852 * pow(10, -23);
 
 const double Temperature = 70; // K
 
-const int NBINS = 400;
+const int NBINS = 1200;
 const double LBOUND = 0.0;
-const double RBOUND = 200.0;
+const double RBOUND = 600.0;
 
 using namespace std;
 
@@ -127,7 +126,7 @@ void master_code( int world_size )
 			break;
 		}
 	
-		if ( NTRAJ % 1000 == 0 )
+		if ( NTRAJ % 100 == 0 )
 		{
 			cout << ">> Saving histogram... " << endl;
 			save_histogram( histogram );
@@ -279,7 +278,7 @@ void slave_code( int world_rank )
      
      		hamiltonian(dipole, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], y0[6], true);
      		
-			// collecting derivatives of dipole
+			// collecting derivatives of dipole in laboratory frame
 			ddipx.push_back(dipole[0]);
      		ddipy.push_back(dipole[1]);
      		ddipz.push_back(dipole[2]);
@@ -291,75 +290,71 @@ void slave_code( int world_rank )
 		}
 			
 		// length of dipole vector = number of samples
- 	    size_t n = ddipx.size();
-		//cout << "length of dipole: " << n << endl;
+ 	    int N = ddipx.size(); // size of input array
+		int NC = ( N / 2 ) + 1; // size of output array 
 
-		// input and output arrays
-	  	fftw_complex _ddipx[n];
-	  	fftw_complex _ddipx_fftw[n];
+		fftw_plan plan_x, plan_y, plan_z; // plan of FFT transform
+		
+		double *_ddipx = (double*) fftw_malloc( sizeof( double ) * N );
+		double *_ddipy = (double*) fftw_malloc( sizeof( double ) * N );
+		double *_ddipz = (double*) fftw_malloc( sizeof( double ) * N );
 
-	 	fftw_complex _ddipy[n];
-	  	fftw_complex _ddipy_fftw[n];
+		fftw_complex *ddipx_out = (fftw_complex*) fftw_malloc( sizeof( fftw_complex ) * NC );
+		fftw_complex *ddipy_out = (fftw_complex*) fftw_malloc( sizeof( fftw_complex ) * NC );
+		fftw_complex *ddipz_out = (fftw_complex*) fftw_malloc( sizeof( fftw_complex ) * NC );
 
-	  	fftw_complex _ddipz[n];
-	  	fftw_complex _ddipz_fftw[n];
-
-  		// filling arrays for fftw
-  		for ( int i = 0; i < n; i++ )
-  		{
-	  		_ddipx[i][REALPART] = ddipx[i];
-	  		_ddipx[i][IMAGPART] = 0; 
-
-	  		_ddipy[i][REALPART] = ddipy[i];
-	  		_ddipy[i][IMAGPART] = 0; 
-
-		 	_ddipz[i][REALPART] = ddipz[i];
- 			_ddipz[i][IMAGPART] = 0;
+		// filling input arrays of derivatives of dipole
+		for ( int i = 0; i < N; i++ )
+		{
+			_ddipx[i] = ddipx[i];
+			_ddipy[i] = ddipy[i];
+			_ddipz[i] = ddipz[i];
 		}
 
-	  	// planning the FFT and executing it
-	  	fftw_plan planx = fftw_plan_dft_1d(n, _ddipx, _ddipx_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
-	  	fftw_plan plany = fftw_plan_dft_1d(n, _ddipy, _ddipy_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
-	  	fftw_plan planz = fftw_plan_dft_1d(n, _ddipz, _ddipz_fftw, FFTW_FORWARD, FFTW_ESTIMATE);
+		// simple heuristic to find optimal algorithm for the given array
+		plan_x = fftw_plan_dft_r2c_1d( N, _ddipx, ddipx_out, FFTW_BACKWARD && FFTW_ESTIMATE );
+		plan_y = fftw_plan_dft_r2c_1d( N, _ddipy, ddipy_out, FFTW_BACKWARD && FFTW_ESTIMATE );
+		plan_z = fftw_plan_dft_r2c_1d( N, _ddipz, ddipz_out, FFTW_BACKWARD && FFTW_ESTIMATE );
 
-	  	fftw_execute(planx);
-	  	fftw_execute(plany);
-	  	fftw_execute(planz);
+		// actually performing FFT
+	  	fftw_execute(plan_x);
+	  	fftw_execute(plan_y);
+	  	fftw_execute(plan_z);
 
 	  	// do some cleaning
-	  	fftw_destroy_plan(planx);
-	  	fftw_destroy_plan(plany);
-	 	fftw_destroy_plan(planz);
+	  	fftw_destroy_plan( plan_x );
+	  	fftw_destroy_plan( plan_y );
+	 	fftw_destroy_plan( plan_z );
 		 
 	  	fftw_cleanup(); 
 
 		// auxiliary variables to store interim variables
-		// for the DFT(autocorrelation dipole function)
 		double omega;
-	  	double autocor, autocorx, autocory, autocorz;
+	  	double autocorr, autocorr_x, autocorr_y, autocorr_z;
 
 		vector<double> freqs_package;
 		vector<double> intensities_package; 
 
 		// nyquist frequency = sampling frequency / 2
-	  	for ( int i = 1; i < (int) n / 2; i++ )
+		// turns out that process is similar to producting power spectrum
+	  	for ( int i = 1; i < NC; i++ )
 	  	{
            	// frequency vector
-			omega = (double) i / n * Fs;
-			autocorx = _ddipx_fftw[i][REALPART] * _ddipx_fftw[i][REALPART] + _ddipx_fftw[i][IMAGPART] * _ddipx_fftw[i][IMAGPART];
-	  		autocory = _ddipy_fftw[i][REALPART] * _ddipy_fftw[i][REALPART] + _ddipy_fftw[i][IMAGPART] * _ddipy_fftw[i][IMAGPART];
-	  		autocorz = _ddipz_fftw[i][REALPART] * _ddipz_fftw[i][REALPART] + _ddipz_fftw[i][IMAGPART] * _ddipz_fftw[i][IMAGPART];
+			omega = (double) 2 * M_PI * i / N * Fs;
+			autocorr_x = ddipx_out[i][REALPART] * ddipx_out[i][REALPART] + ddipx_out[i][IMAGPART] * ddipx_out[i][IMAGPART];
+	  		autocorr_y = ddipy_out[i][REALPART] * ddipy_out[i][REALPART] + ddipy_out[i][IMAGPART] * ddipy_out[i][IMAGPART];
+	  		autocorr_z = ddipz_out[i][REALPART] * ddipz_out[i][REALPART] + ddipz_out[i][IMAGPART] * ddipz_out[i][IMAGPART];
 
 			// dividing autocorrelation by the omega squared
-	  		autocor = ( autocorx + autocory + autocorz ) / pow(omega, 2);
+	  		autocorr = ( autocorr_x + autocorr_y + autocorr_z ) / pow(omega, 2);
 
 			// multiplying each intensity by boltzmann factor
-			autocor *= exp_hkt;
+			autocorr *= exp_hkt;
 				
 			freqs_package.push_back( omega );
-			intensities_package.push_back( autocor );	
+			intensities_package.push_back( autocorr );	
 		}
-	
+
 		int package_size = freqs_package.size();
 		MPI_Send( &package_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 		//cout << ">> Process " << world_rank << " sends package size = " << package_size << " to root." << endl;

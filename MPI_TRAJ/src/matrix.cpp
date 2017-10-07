@@ -74,6 +74,47 @@ void fill_A_matrix(Matrix<double, 3, 2> &A, double &R, double &Theta)
     A(2, 0) = A(2, 1) = 0;
 }
 
+double ham_value(double R, double theta, double pR, double pT, double Jx, double Jy, double Jz)
+{
+	Vector3d j_vector(Jx, Jy, Jz);
+	Vector2d p_vector(pR, pT);
+
+	Matrix<double, 3, 3> I;
+	Matrix<double, 2, 2> a;
+	Matrix<double, 3, 2> A;
+
+	inertia_tensor(I, R, theta);
+	fill_a_matrix(a, R, theta);
+	fill_A_matrix(A, R, theta);
+
+	Matrix<double, 3, 3> I_inv = I.inverse();
+	Matrix<double, 2, 2> a_inv = a.inverse();
+
+	Matrix<double, 3, 3> G11;
+	Matrix<double, 2, 2> G22;
+	Matrix<double, 3, 2> G12;
+
+	Matrix<double, 3, 3> t1;
+	Matrix<double, 2, 2> t2;
+
+	t1 = I;
+	t1.noalias() -= A * a_inv * A.transpose();
+	G11 = t1.inverse();
+
+	t2 = a;
+	t2.noalias() -= A.transpose() * I_inv * A;
+	G22 = t2.inverse();
+
+	G12.noalias() = - G11 * A * a.inverse();
+
+	double ang_term = 0.5 * j_vector.transpose() * G11 * j_vector;
+	double kin_term = 0.5 * p_vector.transpose() * G22 * p_vector;
+	double cor_term = j_vector.transpose() * G12 * p_vector;
+
+	return ang_term + kin_term + cor_term + psp_pes(R, theta); 
+}
+
+
 void hamiltonian(double* out, double R, double Theta, double pR, double pT, double phi, double theta, double J, bool dip_calc)
 {
     //declaring angular momentum and its derivatives
@@ -158,26 +199,26 @@ void hamiltonian(double* out, double R, double Theta, double pR, double pT, doub
     	cor_term = j_vector.transpose() * G12_dr * p_vector;
     	double h_dr = ang_term + kin_term + cor_term;
     
-   	ang_term = 0.5 * j_vector.transpose() * G11_dTheta * j_vector;
-   	kin_term = 0.5 * p_vector.transpose() * G22_dTheta * p_vector;
+   		ang_term = 0.5 * j_vector.transpose() * G11_dTheta * j_vector;
+   		kin_term = 0.5 * p_vector.transpose() * G22_dTheta * p_vector;
     	cor_term = j_vector.transpose() * G12_dTheta * p_vector;
     	double h_dTheta = ang_term + kin_term + cor_term;
     	
-	// derivatives dH/dphi and dH/dtheta
-	ang_term = j_vector.transpose() * G11 * j_vector_dphi;
-	cor_term = j_vector_dphi.transpose() * G12 * p_vector;
-	double h_dphi = ang_term + cor_term;
+		// derivatives dH/dphi and dH/dtheta
+		ang_term = j_vector.transpose() * G11 * j_vector_dphi;
+		cor_term = j_vector_dphi.transpose() * G12 * p_vector;
+		double h_dphi = ang_term + cor_term;
 
-	ang_term = j_vector.transpose() * G11 * j_vector_dtheta;
-	cor_term = j_vector_dtheta.transpose() * G12 * p_vector;
-	double h_dtheta = ang_term + cor_term;
+		ang_term = j_vector.transpose() * G11 * j_vector_dtheta;
+		cor_term = j_vector_dtheta.transpose() * G12 * p_vector;
+		double h_dtheta = ang_term + cor_term;
 	    
-	out[0] = h_dr; 
-	out[1] = h_dTheta;
-	out[2] = h_dp(0);
-	out[3] = h_dp(1);
-	out[4] = h_dphi;
-	out[5] = h_dtheta;
+		out[0] = h_dr; 
+		out[1] = h_dTheta;
+		out[2] = h_dp(0);
+		out[3] = h_dp(1);
+		out[4] = h_dphi;
+		out[5] = h_dtheta;
     }
     	
     // calculating derivatives of dipole moment in laboratory frame
@@ -185,35 +226,36 @@ void hamiltonian(double* out, double R, double Theta, double pR, double pT, doub
     {
     	Vector3d omega = G11 * j_vector + G12 * p_vector;
 	
-	// ! R, Theta -- internal coordinates ! 
-	// values of dipole components
-	double dipole_x = dipx(R, Theta);
-	double dipole_y = 0;
-	double dipole_z = dipz(R, Theta);
+		// ! R, Theta -- internal coordinates ! 
+		// values of dipole components
+		double dipole_x = dipx(R, Theta);
+		double dipole_y = 0;
+		double dipole_z = dipz(R, Theta);
 
-	// values of dipole derivatives
-	double ddipolex_dR = ddipxdR(R, Theta);
-	double ddipoley_dR = 0; 
-	double ddipolez_dR = ddipzdR(R, Theta);
+		// values of dipole derivatives
+		double ddipolex_dR = ddipxdR(R, Theta);
+		double ddipoley_dR = 0; 
+		double ddipolez_dR = ddipzdR(R, Theta);
 
-	double ddipolex_dTheta = ddipxdTheta(R, Theta);
-	double ddipoley_dTheta = 0; 
-	double ddipolez_dTheta = ddipzdTheta(R, Theta);
+		double ddipolex_dTheta = ddipxdTheta(R, Theta);
+		double ddipoley_dTheta = 0; 
+		double ddipolez_dTheta = ddipzdTheta(R, Theta);
 
-	// derivatives of dipole in molecular frame
-	// h_dp(0) == dH/dpR, h_dp(1) == dH/dpTheta
-	double ddipolex_dt = ddipolex_dR * h_dp(0) + ddipolex_dTheta * h_dp(1);
-	double ddipoley_dt = ddipoley_dR * h_dp(0) + ddipoley_dTheta * h_dp(1);
-	double ddipolez_dt = ddipolez_dR * h_dp(0) + ddipolez_dTheta * h_dp(1);
+		// derivatives of dipole in molecular frame
+		// h_dp(0) = dH/dpR, \dot{R} = - dH/dpR
+		// h_dp(1) = dH/dpTheta, \dot{\theta} = - dH/dpTheta
+		double ddipolex_dt = - ddipolex_dR * h_dp(0) - ddipolex_dTheta * h_dp(1);
+		double ddipoley_dt = - ddipoley_dR * h_dp(0) - ddipoley_dTheta * h_dp(1);
+		double ddipolez_dt = - ddipolez_dR * h_dp(0) - ddipolez_dTheta * h_dp(1);
 
-	// derivatives of dipole in laboratory frame
-	double ddipolex_dt_lab = ddipolex_dt + omega(1) * dipole_z - omega(2) * dipole_y;
-	double ddipoley_dt_lab = ddipoley_dt + omega(2) * dipole_x - omega(0) * dipole_z;
-	double ddipolez_dt_lab = ddipolez_dt + omega(0) * dipole_y - omega(1) * dipole_x;
+		// derivatives of dipole in laboratory frame
+		double ddipolex_dt_lab = ddipolex_dt + omega(1) * dipole_z - omega(2) * dipole_y;
+		double ddipoley_dt_lab = ddipoley_dt + omega(2) * dipole_x - omega(0) * dipole_z;
+		double ddipolez_dt_lab = ddipolez_dt + omega(0) * dipole_y - omega(1) * dipole_x;
    	
-	out[0] = ddipolex_dt_lab;
-	out[1] = ddipoley_dt_lab;
-	out[2] = ddipolez_dt_lab;
+		out[0] = ddipolex_dt_lab;
+		out[1] = ddipoley_dt_lab;
+		out[2] = ddipolez_dt_lab;
     }
 }
 

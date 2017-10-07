@@ -19,20 +19,18 @@ INC_PATH = -I ./include
 TARGET = main
 
 # Files to compile
-objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o matrix.o co2_ar_dipole.o hamiltonian.o 
+objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o matrix.o co2_ar_dipole.o # hamiltonian.o 
 
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(objects))
 TARGET_PATH = $(patsubst %,$(SRC_PATH)%,$(TARGET).cpp)
 
 # Build .o first
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
-	@echo [CCXX] $<
-	@$(CCXX) $(CXXFLAGS) $(INC_PATH) $(INCLUDE_EIGEN) -o $@ -c $< 
+	$(CCXX) $(CXXFLAGS) $(INC_PATH) $(INCLUDE_EIGEN) -o $@ -c $< 
 
 # Build final binary using MPI compiler wrapper
 $(TARGET): $(OBJ)
-	@echo [INFO] Creating Binary Executable [$(TARGET)]
-	@$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) -o $@ $^ $(INC_PATH) 
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) -o $@ $^ $(INC_PATH) 
 
 calc_spectra: $(OBJ) $(SRC_PATH)calc_spectra.cpp 
 	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INC_PATH) $^ -o $@
