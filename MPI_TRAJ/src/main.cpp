@@ -92,7 +92,9 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/ics.txt", "r");
+	//FILE* inputfile = fopen("input/ics.txt", "r");
+	//FILE* inputfile = fopen("input/ics_bound.txt", "r");
+	FILE* inputfile = fopen("input/ics_lconst.txt", "r");
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -126,7 +128,7 @@ void master_code( int world_size )
 			break;
 		}
 	
-		if ( NTRAJ % 100 == 0 )
+		if ( NTRAJ % 500 == 0 )
 		{
 			cout << ">> Saving histogram... " << endl;
 			save_histogram( histogram );
