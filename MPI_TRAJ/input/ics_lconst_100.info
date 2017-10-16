@@ -1,0 +1,5 @@
+# Metropolis-Hastings sample for co2-ar
+# nsteps = 100000
+# alpha = 7
+# temperature = 300
+# R(a.u) = 20

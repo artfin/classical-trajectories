@@ -1,9 +1,4 @@
-# Metropolis-Hasitngs sample for CO2-Ar
 # nsteps = 50000
-# burnin = 5000000
-# alpha = 10
-# temperature = 70
-# R (a. u.) = 20
-# file structure: 
-# number R theta pR pT jphi jtheta j
-
+# alpha = 4.0
+# tempreature = 70
+# R (a.u) = 20

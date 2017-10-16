@@ -30,16 +30,7 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 
 # Build final binary using MPI compiler wrapper
 $(TARGET): $(OBJ)
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) -o $@ $^ $(INC_PATH) 
-
-calc_spectra: $(OBJ) $(SRC_PATH)calc_spectra.cpp 
-	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INC_PATH) $^ -o $@
-
-mpi_reader: $(SRC_PATH)mpi_reader.cpp
-	$(MPICC) $(CXXFLAGS) $^ -o $@
-
-master_slave: $(SRC_PATH)master_slave.cpp
-	$(MPICC) $(CXXFLAGS) $^ -o $@
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) -o $@.x $^ $(INC_PATH) 
 
 clean:
 	rm -r $(OBJ)

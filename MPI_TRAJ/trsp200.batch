@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#SBATCH -J trsp_200
+#SBATCH -o trsp_200.out
+#SBATCH -e trsp_200.err
+#SBATCH -n 20 
+#SBATCH -p general
+#SBATCH --contiguous
+#SBATCH -t 0-00:45
+#SBATCH --mem-per-cpu=400
+
+srun -n $SLURM_NTASKS --mpi=pmi2 ./main200.x
