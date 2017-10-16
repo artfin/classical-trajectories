@@ -73,7 +73,7 @@ void syst (REAL t, REAL *y, REAL *f)
 
 void save_histogram( gsl_histogram *histogram )
 {
-	ofstream file( "spectrum.txt" );
+	ofstream file( "spectrum_200.txt" );
 
 	double lower_bound, higher_bound, bin_content;
 	for ( int counter = 0; counter < NBINS; counter++ )
@@ -92,7 +92,8 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/ics.txt", "r");
+	// FILE* inputfile = fopen("input/ics.txt", "r");
+	FILE* inputfile = fopen( "input/ics_lconst_200.txt", "r" );	
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -126,7 +127,7 @@ void master_code( int world_size )
 			break;
 		}
 	
-		if ( NTRAJ % 100 == 0 )
+		if ( NTRAJ % 1000 == 0 )
 		{
 			cout << ">> Saving histogram... " << endl;
 			save_histogram( histogram );
@@ -228,11 +229,15 @@ void slave_code( int world_rank )
  		}
 
 		// according to Ivanov:
-		// delta(t) = 0.2 * 10**(-13) / 4 s = 50 fs
-          // delta(t) = sampling time determines the sampling rate = 1 / Ts = 20 * 10**12 Hz
-		// 20 * 10**(12) Hz * 3.33565 * 10**(-11) Hz to cm^(-1) = 667.128 cm^(-1)
-	    const double step = 200;
-        const double Fs = 166.782; 
+		// delta(t) = 50 fs
+          
+		// atomic time unit = 2.418884326505 * 10**(-17) s
+		// CM TO HZ =  29979245800 cm/s | 3.335641 * 10**(-11) 
+		// delta(t) = sampling time determines the sampling rate = 1 / Ts
+	   	const double step = 2250; 
+        	const double ATU = 2.418884326505 * pow( 10, -17 );
+		const double CMTOHZ = 3.335631 * pow( 10, -11 );
+		const double Fs = 1.0 / ( step * ATU ) * CMTOHZ / 2.0; // sampling rate in cm^-1 
 
   		epsabs = 1E-13;
   		epsrel = 1E-13;
