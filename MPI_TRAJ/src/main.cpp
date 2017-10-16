@@ -92,8 +92,8 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	// FILE* inputfile = fopen("input/ics.txt", "r");
 	FILE* inputfile = fopen( "input/ics_lconst_200.txt", "r" );	
+	//FILE* inputfile = fopen("input/ics_bound.txt", "r");
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
