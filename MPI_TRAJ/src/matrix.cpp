@@ -242,11 +242,11 @@ void hamiltonian(double* out, double R, double Theta, double pR, double pT, doub
 		double ddipolez_dTheta = ddipzdTheta(R, Theta);
 
 		// derivatives of dipole in molecular frame
-		// h_dp(0) = dH/dpR, \dot{R} = - dH/dpR
-		// h_dp(1) = dH/dpTheta, \dot{\theta} = - dH/dpTheta
-		double ddipolex_dt = - ddipolex_dR * h_dp(0) - ddipolex_dTheta * h_dp(1);
-		double ddipoley_dt = - ddipoley_dR * h_dp(0) - ddipoley_dTheta * h_dp(1);
-		double ddipolez_dt = - ddipolez_dR * h_dp(0) - ddipolez_dTheta * h_dp(1);
+		// h_dp(0) = dH/dpR, \dot{R} = dH/dpR
+		// h_dp(1) = dH/dpTheta, \dot{\theta} = dH/dpTheta
+		double ddipolex_dt = ddipolex_dR * h_dp(0) + ddipolex_dTheta * h_dp(1);
+		double ddipoley_dt = ddipoley_dR * h_dp(0) + ddipoley_dTheta * h_dp(1);
+		double ddipolez_dt = ddipolez_dR * h_dp(0) + ddipolez_dTheta * h_dp(1);
 
 		// derivatives of dipole in laboratory frame
 		double ddipolex_dt_lab = ddipolex_dt + omega(1) * dipole_z - omega(2) * dipole_y;

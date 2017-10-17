@@ -235,7 +235,7 @@ void slave_code( int world_rank )
 		// CM TO HZ =  29979245800 cm/s | 3.335641 * 10**(-11) 
 		// delta(t) = sampling time determines the sampling rate = 1 / Ts
 	   	const double step = 2250; 
-        	const double ATU = 2.418884326505 * pow( 10, -17 );
+        const double ATU = 2.418884326505 * pow( 10, -17 );
 		const double CMTOHZ = 3.335631 * pow( 10, -11 );
 		const double Fs = 1.0 / ( step * ATU ) * CMTOHZ / 2.0; // sampling rate in cm^-1 
 
