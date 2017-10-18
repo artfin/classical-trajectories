@@ -73,7 +73,7 @@ void syst (REAL t, REAL *y, REAL *f)
 
 void save_histogram( gsl_histogram *histogram )
 {
-	ofstream file( "spectrum_200.txt" );
+	ofstream file( "test" );
 
 	double lower_bound, higher_bound, bin_content;
 	for ( int counter = 0; counter < NBINS; counter++ )
@@ -92,8 +92,7 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen( "input/ics_lconst_200.txt", "r" );	
-	//FILE* inputfile = fopen("input/ics_bound.txt", "r");
+	FILE* inputfile = fopen("input/test", "r");
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -127,7 +126,7 @@ void master_code( int world_size )
 			break;
 		}
 	
-		if ( NTRAJ % 1000 == 0 )
+		if ( NTRAJ % 100 == 0 )
 		{
 			cout << ">> Saving histogram... " << endl;
 			save_histogram( histogram );
@@ -175,7 +174,7 @@ void master_code( int world_size )
 			alive--;
 		}
 
-		cout << "Processing " << NTRAJ << " trajectory..." << endl;
+		//cout << "Processing " << NTRAJ << " trajectory..." << endl;
 	}
 		
 	fclose(inputfile);
@@ -269,7 +268,7 @@ void slave_code( int world_rank )
 		double exp_hkt = exp( - h0 * HTOJ / ( BOLTZCONST * Temperature ));
 				
 		int counter = 0;
-		double end_value = ics[1] + 0.01;
+		double end_value = ics[1] + 0.1;
 
 		while ( y0[0] < end_value ) 
 		{
@@ -284,9 +283,9 @@ void slave_code( int world_rank )
      		hamiltonian(dipole, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], y0[6], true);
      		
 			// collecting derivatives of dipole in laboratory frame
-			ddipx.push_back(dipole[0]);
-     		ddipy.push_back(dipole[1]);
-     		ddipz.push_back(dipole[2]);
+			ddipx.push_back( dipole[0] );
+     		ddipy.push_back( dipole[1] );
+     		ddipz.push_back( dipole[2] );
 				
      		xend = step * (counter + 2);
      		aufrufe = 0;  // actual number of calls
@@ -297,6 +296,8 @@ void slave_code( int world_rank )
 		// length of dipole vector = number of samples
  	    int N = ddipx.size(); // size of input array
 		int NC = ( N / 2 ) + 1; // size of output array 
+		
+		cout << "Processing " << ics[0] << " trajectory. N = " << N << endl;
 
 		fftw_plan plan_x, plan_y, plan_z; // plan of FFT transform
 		
