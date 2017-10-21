@@ -1,17 +1,16 @@
 #include <mpi.h>
 
-//#include "hamiltonian.hpp"
 // matrix multiplication
 #include "matrix.h"
 
 // should be included BEFORE Gear header files
 // due to namespace overlap
 #include <vector>
+
 // to perform double to string conversion
 #include <sstream>
 #include <string>
 
-// for binary writing
 #include <fstream>
 
 #include <iostream>
@@ -38,18 +37,21 @@ const int EXIT_TAG = 42; // exiting tag
 const int ICPERTRAJ = 8; // number of initial conditions per trajectory
 
 // cm^-1 to Hz
-const double CMTOHZ = 2.99793 * pow(10, 10);
+//const double CMTOHZ = 2.99793 * pow(10, 10);
 
 // hartree to joules
 const double HTOJ = 4.35974417 * pow(10, -18);
 // boltzmann constant
 const long double BOLTZCONST = 1.38064852 * pow(10, -23);
 
-const double Temperature = 70; // K
+const double ATU = 2.418884326505 * pow( 10, -17 );
+const double HZTOCM = 3.335631 * pow( 10, -11 );
 
-const int NBINS = 1200;
+const double Temperature = 298; // K
+
+const int NBINS = 306;
 const double LBOUND = 0.0;
-const double RBOUND = 600.0;
+const double RBOUND = 306.0;
 
 using namespace std;
 
@@ -87,12 +89,36 @@ void save_histogram( gsl_histogram *histogram )
 	file.close();	
 }
 
+// similar to python's linspace
+vector<double> linspace( double min, double max, double npoints )
+{
+	double step = ( max - min ) / ( npoints - 1 );
+	
+	vector<double> res;
+	for ( double temp = min; temp <= max; temp += step )
+	{
+		res.push_back( temp );
+	}
+
+	return res;
+}
+
+// multiply vector by given factor
+void multiply_vector( vector<double> &v, double factor )
+{
+	for ( int i = 0; i < v.size(); i++ )
+	{
+		v[i] *= factor;
+	}
+}
+
 void master_code( int world_size )
 {
 	MPI_Status status;
 	int source;
 
 	FILE* inputfile = fopen("input/test", "r");
+	//FILE* inputfile = fopen("input/ics.txt", "r" );
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -173,18 +199,89 @@ void master_code( int world_size )
 			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, EXIT_TAG, MPI_COMM_WORLD);
 			alive--;
 		}
-
-		//cout << "Processing " << NTRAJ << " trajectory..." << endl;
 	}
-		
+
+	gsl_histogram_free( histogram );
+
+	delete [] ics;	
+
 	fclose(inputfile);
+}
+
+void copy_to( vector<double> &v, fftw_complex* arr )
+{
+	for ( int i = 0; i < v.size(); i++ )
+	{
+		arr[i][0] = v[i];
+		arr[i][1] = 0;
+	}
+}
+
+vector<double> fft( vector<double> signal )
+{
+	int npoints = signal.size();
+
+	// td == time domain
+	fftw_complex *signal_td = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * npoints );
+	// fd == frequency domain
+	fftw_complex *signal_fd = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * npoints );
+
+	// copying from vector<double> to fftw_complex*
+	copy_to( signal, signal_td );
+
+	// +1 -- backward Fourier transform
+	fftw_plan plan = fftw_plan_dft_1d( npoints, signal_td, signal_fd, +1, FFTW_ESTIMATE );
+
+	fftw_execute( plan );
+
+	fftw_destroy_plan( plan );
+
+	double power;
+	vector<double> ints;
+
+	for ( int i = 0; i < npoints / 2; i++ )
+	{
+		power = signal_fd[i][REALPART] * signal_fd[i][REALPART] +
+				signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART];
+		
+		ints.push_back( power );
+	}
+
+	fftw_free( signal_td );
+	fftw_free( signal_fd );
+
+	fftw_cleanup();
+
+	return ints;
+}
+
+void show( string name, vector<double> v )
+{
+	cout << "#########################" << endl;
+	
+	for ( int i = 0; i < v.size(); i++ )
+	{
+		cout << name << "[" << i << "] = " << v[i] << endl;
+	}
+	
+	cout << "#########################" << endl;
+}
+
+void show( string name1, string name2, vector<double> v1, vector<double> v2 )
+{
+	cout << "#########################" << endl;
+
+	for ( int i = 0; i < v1.size(); i++ )
+	{
+		cout << name1 << "[" << i << "] = " << v1[i] << "; " <<
+				name2 << "[" << i << "] = " << v2[i] << endl;
+	}	
+	
+	cout << "#########################" << endl;
 }
 
 void slave_code( int world_rank )
 {
-	ostringstream strs;
-	strs << world_rank;
-
 	REAL epsabs;    //  absolute error bound
 	REAL epsrel;    //  relative error bound    
 	REAL t0;        // left edge of integration interval
@@ -221,31 +318,26 @@ void slave_code( int world_rank )
 		y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
 			
 		// out of memory?
-  		if (! vmcomplete(vmblock))
+  		if ( !vmcomplete(vmblock) )
 		{ 
    			printf("mgear: out of memory.\n");
    			return;
  		}
 
 		// according to Ivanov:
-		// delta(t) = 50 fs
-          
-		// atomic time unit = 2.418884326505 * 10**(-17) s
-		// CM TO HZ =  29979245800 cm/s | 3.335641 * 10**(-11) 
-		// delta(t) = sampling time determines the sampling rate = 1 / Ts
-	   	const double step = 2250; 
-        const double ATU = 2.418884326505 * pow( 10, -17 );
-		const double CMTOHZ = 3.335631 * pow( 10, -11 );
-		const double Fs = 1.0 / ( step * ATU ) * CMTOHZ / 2.0; // sampling rate in cm^-1 
+		// sampling time = 50 fs
+
+		// in atomic time units
+		const double sampling_time = 2250.0; 
 
   		epsabs = 1E-13;
   		epsrel = 1E-13;
   
   		t0 = 0.0;
 			
-  		h = 0.1;         // initial step size
-  		xend = step;     // initial right bound of integration
-  		fmax = 1e8;  // maximal number of calls 
+  		h = 0.1;         		// initial step size
+  		xend = sampling_time;   // initial right bound of integration
+  		fmax = 1e8;  	 		// maximal number of calls 
 			
   		double *dipole = new double [3];
 			
@@ -266,7 +358,6 @@ void slave_code( int world_rank )
 		double jz = ics[7] * cos(ics[6]);
 		double h0 = ham_value( ics[1], ics[2], ics[3], ics[4], jx, jy, jz);
 		double exp_hkt = exp( - h0 * HTOJ / ( BOLTZCONST * Temperature ));
-				
 		int counter = 0;
 		double end_value = ics[1] + 0.1;
 
@@ -287,92 +378,66 @@ void slave_code( int world_rank )
      		ddipy.push_back( dipole[1] );
      		ddipz.push_back( dipole[2] );
 				
-     		xend = step * (counter + 2);
+     		xend = sampling_time * (counter + 2);
      		aufrufe = 0;  // actual number of calls
   				
 			counter++;
 		}
-			
+	
+		// freeing dipole memory
+		delete [] dipole;
+
 		// length of dipole vector = number of samples
- 	    int N = ddipx.size(); // size of input array
-		int NC = ( N / 2 ) + 1; // size of output array 
-		
-		cout << "Processing " << ics[0] << " trajectory. N = " << N << endl;
+ 	    int npoints = ddipx.size(); 
+		int freqs_size = npoints / 2.0;		
 
-		fftw_plan plan_x, plan_y, plan_z; // plan of FFT transform
-		
-		double *_ddipx = (double*) fftw_malloc( sizeof( double ) * N );
-		double *_ddipy = (double*) fftw_malloc( sizeof( double ) * N );
-		double *_ddipz = (double*) fftw_malloc( sizeof( double ) * N );
-
-		fftw_complex *ddipx_out = (fftw_complex*) fftw_malloc( sizeof( fftw_complex ) * NC );
-		fftw_complex *ddipy_out = (fftw_complex*) fftw_malloc( sizeof( fftw_complex ) * NC );
-		fftw_complex *ddipz_out = (fftw_complex*) fftw_malloc( sizeof( fftw_complex ) * NC );
-
-		// filling input arrays of derivatives of dipole
-		for ( int i = 0; i < N; i++ )
+		if ( freqs_size != 0 )
 		{
-			_ddipx[i] = ddipx[i];
-			_ddipy[i] = ddipy[i];
-			_ddipz[i] = ddipz[i];
-		}
+			// given the number of points and sampling time we can calculate freqs vector
+			vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
+		
+			// deleting first frequency == 0
+			freqs.erase( freqs.begin() );
 
-		// simple heuristic to find optimal algorithm for the given array
-		plan_x = fftw_plan_dft_r2c_1d( N, _ddipx, ddipx_out, FFTW_BACKWARD && FFTW_ESTIMATE );
-		plan_y = fftw_plan_dft_r2c_1d( N, _ddipy, ddipy_out, FFTW_BACKWARD && FFTW_ESTIMATE );
-		plan_z = fftw_plan_dft_r2c_1d( N, _ddipz, ddipz_out, FFTW_BACKWARD && FFTW_ESTIMATE );
+			// due to 2pi inside Fourier transofrm
+			//multiply_vector( freqs, 2 * M_PI ); 
+			// transforming reverse atomic time units to cm^-1
+			multiply_vector( freqs, HZTOCM / ATU );
 
-		// actually performing FFT
-	  	fftw_execute(plan_x);
-	  	fftw_execute(plan_y);
-	  	fftw_execute(plan_z);
+			cout << ">> Processing " << ics[0] << " trajectory. npoints = " << npoints << endl;
 
-	  	// do some cleaning
-	  	fftw_destroy_plan( plan_x );
-	  	fftw_destroy_plan( plan_y );
-	 	fftw_destroy_plan( plan_z );
-		 
-	  	fftw_cleanup(); 
+			vector<double> ddipx_out = fft( ddipx );
+	   		vector<double> ddipy_out = fft( ddipy );
+			vector<double> ddipz_out = fft( ddipz );	
+	
+			// auxiliary variables to store interim variables
+			double power;
+			vector<double> intensities; 
 
-		// auxiliary variables to store interim variables
-		double omega;
-	  	double autocorr, autocorr_x, autocorr_y, autocorr_z;
-
-		vector<double> freqs_package;
-		vector<double> intensities_package; 
-
-		// nyquist frequency = sampling frequency / 2
-		// turns out that process is similar to producting power spectrum
-	  	for ( int i = 1; i < NC; i++ )
-	  	{
-           	// frequency vector
-			omega = (double) 2 * M_PI * i / N * Fs;
-			autocorr_x = ddipx_out[i][REALPART] * ddipx_out[i][REALPART] + ddipx_out[i][IMAGPART] * ddipx_out[i][IMAGPART];
-	  		autocorr_y = ddipy_out[i][REALPART] * ddipy_out[i][REALPART] + ddipy_out[i][IMAGPART] * ddipy_out[i][IMAGPART];
-	  		autocorr_z = ddipz_out[i][REALPART] * ddipz_out[i][REALPART] + ddipz_out[i][IMAGPART] * ddipz_out[i][IMAGPART];
-
-			// dividing autocorrelation by the omega squared
-	  		autocorr = ( autocorr_x + autocorr_y + autocorr_z ) / pow(omega, 2);
-
-			// multiplying each intensity by boltzmann factor
-			autocorr *= exp_hkt;
+	  		for ( int i = 0; i < freqs_size; i++ )
+	  		{
+				power = ddipx_out[i] + ddipy_out[i] + ddipz_out[i];
+				power = power / pow( freqs[i], 2 ) * exp_hkt ;	
 				
-			freqs_package.push_back( omega );
-			intensities_package.push_back( autocorr );	
-		}
+				intensities.push_back( power );	
+			}
+		
+			//show( "freqs", "ints", freqs, intensities );
 
-		int package_size = freqs_package.size();
-		MPI_Send( &package_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-		//cout << ">> Process " << world_rank << " sends package size = " << package_size << " to root." << endl;
+			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
 
-		if ( package_size != 0 )
-		{
-			MPI_Send( &freqs_package[0], package_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &freqs[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
 			//cout << ">> Process " << world_rank << " sends frequency package to root" << endl;
 
-			MPI_Send( &intensities_package[0], package_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &intensities[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
 			//cout << ">> Process " << world_rank << " sends intensities package to root" << endl;
-		}	
+		}
+		else
+		{
+			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
+		}
 	}
 }
 
