@@ -422,7 +422,7 @@ void slave_code( int world_rank )
 				intensities.push_back( power );	
 			}
 		
-			//show( "freqs", "ints", freqs, intensities );
+			show( "freqs", "ints", freqs, intensities );
 
 			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;

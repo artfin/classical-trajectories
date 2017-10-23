@@ -15,22 +15,49 @@ SRC_PATH = ./src/
 OBJ_PATH = ./obj/
 INC_PATH = -I ./include
 
-# Executable name
-TARGET = main
+$(OBJ_PATH)basis_r.o: $(SRC_PATH)basis_r.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
 
-# Files to compile
-objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o matrix.o co2_ar_dipole.o # hamiltonian.o 
+$(OBJ_PATH)awp.o: $(SRC_PATH)awp.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
 
+$(OBJ_PATH)vmblock.o: $(SRC_PATH)vmblock.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)fgauss.o: $(SRC_PATH)fgauss.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)t_dgls.o: $(SRC_PATH)t_dgls.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH) 
+
+$(OBJ_PATH)psp_pes.o: $(SRC_PATH)psp_pes.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)gear.o: $(SRC_PATH)gear.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)leg_arr.o: $(SRC_PATH)leg_arr.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)matrix.o: $(SRC_PATH)matrix.cpp
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)new_matrix.o: $(SRC_PATH)new_matrix.cpp
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH)
+
+$(OBJ_PATH)co2_ar_dipole.o: $(SRC_PATH)co2_ar_dipole.cpp
+	$(CCXX)  $(CXXFLAGS) -c $^ -o $@ $(INC_PATH)
+
+objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o co2_ar_dipole.o matrix.o 
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(objects))
-TARGET_PATH = $(patsubst %,$(SRC_PATH)%,$(TARGET).cpp)
 
-# Build .o first
-$(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
-	$(CCXX) $(CXXFLAGS) $(INC_PATH) $(INCLUDE_EIGEN) -o $@ -c $< 
+new_objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o co2_ar_dipole.o new_matrix.o 
+NEW_OBJ = $(patsubst %,$(OBJ_PATH)%,$(new_objects))
 
 # Build final binary using MPI compiler wrapper
-$(TARGET): $(OBJ)
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) -o $@.x $^ $(INC_PATH) 
+main: $(OBJ) $(SRC_PATH)main.cpp
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(INC_PATH) 
 
-clean:
-	rm -r $(OBJ)
+# using dipole in molecular frame for FFT
+new_main: $(NEW_OBJ) $(SRC_PATH)new_main.cpp
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) $^ -o $@ $(INC_PATH)  
