@@ -117,8 +117,8 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/test", "r");
-	//FILE* inputfile = fopen("input/ics.txt", "r" );
+	//FILE* inputfile = fopen("input/test", "r");
+	FILE* inputfile = fopen("input/ics.txt", "r" );
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -400,7 +400,7 @@ void slave_code( int world_rank )
 			freqs.erase( freqs.begin() );
 
 			// due to 2pi inside Fourier transofrm
-			//multiply_vector( freqs, 2 * M_PI ); 
+			multiply_vector( freqs, 2 * M_PI ); 
 			// transforming reverse atomic time units to cm^-1
 			multiply_vector( freqs, HZTOCM / ATU );
 
