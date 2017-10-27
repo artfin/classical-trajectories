@@ -221,7 +221,7 @@ void hamiltonian(double* out, double R, double Theta, double pR, double pT, doub
 		out[5] = h_dtheta;
     }
     	
-    // calculating derivatives of dipole moment in laboratory frame
+    // 
     else
     {
 		out[0] = dipx(R, Theta); 

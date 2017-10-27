@@ -36,7 +36,8 @@ light_speed = 3.0 * 10**10
 temperature = 300
 
 #lbs, hbs, contents = read_file( '../spectrum300.txt', n = 3 )
-lbs, hbs, contents = read_file( '../test', n = 3 )
+#lbs, hbs, contents = read_file( '../main_test', n = 3 )
+lbs, hbs, contents = read_file( '../naive_test', n = 3 )
 
 means = [ 0.5 * ( lb + hb ) for lb, hb in zip( lbs, hbs )]
 
@@ -51,9 +52,9 @@ alpha = [ omega * j * (1 - np.exp( - omega * light_speed * planck_constant / ( k
 lw = 2.0
 
 begin = 10 
-plt.plot(means, contents, linewidth = lw, color = 'k' )
+#plt.plot(means, contents, linewidth = lw, color = 'k' )
 
-#plt.plot( means, alpha, linewidth = lw, color = 'k' )
+plt.plot( means, alpha, linewidth = lw, color = 'k' )
 plt.grid( linestyle = ':', alpha = 0.7 )
 
 plt.show()

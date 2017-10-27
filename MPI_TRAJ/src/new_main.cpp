@@ -202,6 +202,8 @@ void master_code( int world_size )
 	}
 
 	gsl_histogram_free( histogram );
+	
+	fftw_cleanup();
 
 	delete [] ics;	
 
@@ -249,8 +251,6 @@ vector<double> fft( vector<double> signal )
 
 	fftw_free( signal_td );
 	fftw_free( signal_fd );
-
-	fftw_cleanup();
 
 	return ints;
 }
