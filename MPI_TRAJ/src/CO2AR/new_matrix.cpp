@@ -1,7 +1,3 @@
-#include <iostream>
-#include <math.h>
-#include <Eigen/Dense>
-
 #include "matrix.h"
 #include "co2_ar_dipole.h"
 #include "psp_pes.h"
@@ -221,41 +217,12 @@ void hamiltonian(double* out, double R, double Theta, double pR, double pT, doub
 		out[5] = h_dtheta;
     }
     	
-    // calculating derivatives of dipole moment in laboratory frame
+    // 
     else
     {
-    	Vector3d omega = G11 * j_vector + G12 * p_vector;
-	
-		// ! R, Theta -- internal coordinates ! 
-		// values of dipole components
-		double dipole_x = dipx(R, Theta);
-		double dipole_y = 0;
-		double dipole_z = dipz(R, Theta);
-
-		// values of dipole derivatives
-		double ddipolex_dR = ddipxdR(R, Theta);
-		double ddipoley_dR = 0; 
-		double ddipolez_dR = ddipzdR(R, Theta);
-
-		double ddipolex_dTheta = ddipxdTheta(R, Theta);
-		double ddipoley_dTheta = 0; 
-		double ddipolez_dTheta = ddipzdTheta(R, Theta);
-
-		// derivatives of dipole in molecular frame
-		// h_dp(0) = dH/dpR, \dot{R} = dH/dpR
-		// h_dp(1) = dH/dpTheta, \dot{\theta} = dH/dpTheta
-		double ddipolex_dt = ddipolex_dR * h_dp(0) + ddipolex_dTheta * h_dp(1);
-		double ddipoley_dt = ddipoley_dR * h_dp(0) + ddipoley_dTheta * h_dp(1);
-		double ddipolez_dt = ddipolez_dR * h_dp(0) + ddipolez_dTheta * h_dp(1);
-
-		// derivatives of dipole in laboratory frame
-		double ddipolex_dt_lab = ddipolex_dt + omega(1) * dipole_z - omega(2) * dipole_y;
-		double ddipoley_dt_lab = ddipoley_dt + omega(2) * dipole_x - omega(0) * dipole_z;
-		double ddipolez_dt_lab = ddipolez_dt + omega(0) * dipole_y - omega(1) * dipole_x;
-   	
-		out[0] = ddipolex_dt_lab;
-		out[1] = ddipoley_dt_lab;
-		out[2] = ddipolez_dt_lab;
+		out[0] = dipx(R, Theta); 
+		out[1] = 0; 
+		out[2] = dipz(R, Theta); 
     }
 }
 

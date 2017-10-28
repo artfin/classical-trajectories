@@ -1,4 +1,3 @@
-#include <cmath>
 #include "co2_ar_dipole.h"
 
 double dipx(double R, double Theta)

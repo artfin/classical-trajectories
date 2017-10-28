@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <cmath>
+
 double dipx(double R, double Theta);
 double dipz(double R, double Theta);
 
