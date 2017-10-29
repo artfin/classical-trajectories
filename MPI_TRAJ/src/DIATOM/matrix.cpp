@@ -20,38 +20,24 @@ double ham_value( double R, double pR, double J )
 	return ang_term + kin_term + ar_he_pot(R); 
 }
 
-
-void hamiltonian( double* out, double R, double pR, double J, bool dip_calc )
+void hamiltonian( double* out, double R, double pR, double J )
 {
-    if ( dip_calc == false )
-    {
-		out[0] = - pow(J, 2) / (MU * pow(R, 3) );
-		out[1] = pR / MU;
-    }
-    	
-    else
-    {
-		out[0] = ar_he_dip( R );
-    }
+	out[0] = - pow(J, 2) / (MU * pow(R, 3) );
+	out[1] = pR / MU;
+}
+
+double mol_frame_dipole( double R )
+{
+	return ar_he_dip( R );
 }
 
 void rhs( double* out, double R, double pR, double J )
 {
     double* derivatives = new double[2];
-    hamiltonian(derivatives, R, pR, J, false);
-
-	std::cout << "inside rhs" << std::endl;
-
-	std::cout << "derivatives[0]: " << derivatives[0] << std::endl;
-	std::cout << "derivatives[1]: " << derivatives[1] << std::endl;
+    hamiltonian(derivatives, R, pR, J);
 
     out[0] = derivatives[1]; // /dot(R) = dH/dpR
-	std::cout << "out[0]: " << out[0] << std::endl;
-
 	out[1] = - derivatives[0] - ar_he_pot_derivative(R);  // /dot(pR) = - dH/dR = - dT/dR - dU/dR (to hartrees from cm^-1)
-	std::cout << "out[1]: " << out[1] << std::endl;
 
     delete [] derivatives;
-
-	std::cout << "finished rhs" << std::endl;
 }

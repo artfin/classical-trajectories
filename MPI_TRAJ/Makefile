@@ -9,6 +9,9 @@ CXXFLAGS = -std=c++11 -O3 -lstdc++ -march=native -mtune=native -lm
 INCLUDE_FFTW = -lfftw3
 INCLUDE_EIGEN = -I/usr/local/include/eigen3
 INCLUDE_GSL = -lgsl -lgslcblas
+INCLUDE_GNUPLOT_IO = -I /home/artfin/Desktop/repos/gnuplot-iostream  
+
+LINK_BOOST = -lboost_iostreams -lboost_system -lm
 
 ######################################################################
 INC_PATH_CONSTANTS = -I ./include/CONSTANTS/
@@ -47,9 +50,6 @@ $(OBJ_PATH_GEAR)gear_diatom.o: $(SRC_PATH_GEAR)gear_diatom.cpp
 # path to gear objects
 GEAR_OBJ = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o gear.o 
 GEAR_OBJECTS = $(patsubst %,$(OBJ_PATH_GEAR)%,$(GEAR_OBJ))
-
-DIATOM_GEAR_OBJ = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o gear_diatom.o
-DIATOM_GEAR_OBJECTS = $(patsubst %,$(OBJ_PATH_GEAR)%,$(DIATOM_GEAR_OBJ))
 ######################################################################
 
 ######################################################################
@@ -172,12 +172,19 @@ DIATOM_OBJ = matrix.o
 DIATOM_OBJECTS = $(patsubst %,$(OBJ_PATH_DIATOM)%,$(DIATOM_OBJ))
 
 DIATOM_TRAJ_OBJ = $(GEAR_OBJECTS) $(DIATOM_POT_OBJECTS) $(DIATOM_DIP_OBJECTS) $(DIATOM_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
-#DIATOM_TRAJ_OBJ = $(DIATOM_GEAR_OBJECTS) $(DIATOM_POT_OBJECTS) $(DIATOM_DIP_OBJECTS) $(DIATOM_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
 DIATOM_TRAJ_INC = $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_DIATOM) $(INC_PATH_CONSTANTS)
 
 diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
-	$(CCXX) $(CXXFLAGS) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
+
+######################################################################
+# plot spectral function and binary adsorption coeff
+#
+make_spectrum: $(SRC_PATH_MISC)make_spectrum.cpp
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@
+######################################################################
+
 
 
 
