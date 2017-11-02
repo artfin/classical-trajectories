@@ -3,7 +3,7 @@
 #include <iostream>
 
 // matrix multiplication
-#include "matrix.h"
+#include "matrix_euler.h"
 
 // should be included BEFORE Gear header files
 // due to namespace overlap
@@ -36,7 +36,7 @@ const int EXIT_TAG = 42;
 
 // ############################################
 // Number of initial conditions per trajectory
-const int ICPERTRAJ = 8; 
+const int ICPERTRAJ = 11; 
 // ############################################
 
 // ############################################
@@ -79,20 +79,53 @@ void show( string name1, string name2, vector<double> v1, vector<double> v2 )
 
 void syst (REAL t, REAL *y, REAL *f)
 {
-  (void)(t); // avoid unused parameter warning 
+	(void)(t); // avoid unused parameter warning 
+  	
+  	double *out = new double[10];
 
-  double *out = new double[6];
-  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], y[6]);
-  // R  Theta pR pT phi theta J
+	//cout << "###########" << endl;
+	//cout << "inside syst" << endl;
+	//cout << "y[0]: " << y[0] << endl;
+	//cout << "y[1]: " << y[1] << endl;
+	//cout << "y[2]: " << y[2] << endl;
+	//cout << "y[3]: " << y[3] << endl;
+	//cout << "y[4]: " << y[4] << endl;
+	//cout << "y[5]: " << y[5] << endl;
+	//cout << "y[6]: " << y[6] << endl;
+	//cout << "y[7]: " << y[7] << endl;
+	//cout << "y[8]: " << y[8] << endl;
+	//cout << "y[9]: " << y[9] << endl;
+	//cout << "#############" << endl;
 
-  f[0] = out[0]; // dR/dt  
-  f[1] = out[1]; // d(Theta)/dt
-  f[2] = out[2]; // d(pR)/dt
-  f[3] = out[3]; // d(pT)/dt
-  f[4] = out[4]; // d(phi)/dt
-  f[5] = out[5]; // d(theta)/dt
+  	rhs(out, y[0], y[1], // R Theta 
+			 y[2], y[3], // pR pTheta
+		   	 y[4], y[5], y[6], // phi theta psi
+		     y[7], y[8], y[9] // p_phi p_theta p_psi
+	    );
 
-  delete [] out;
+	//cout << "out[0] = " << out[0] << endl;
+	//cout << "out[1] = " << out[1] << endl;
+	//cout << "out[2] = " << out[2] << endl;
+	//cout << "out[3] = " << out[3] << endl;
+	//cout << "out[4] = " << out[4] << endl;
+	//cout << "out[5] = " << out[5] << endl;
+	//cout << "out[6] = " << out[6] << endl;
+	//cout << "out[7] = " << out[7] << endl;
+	//cout << "out[8] = " << out[8] << endl;
+	//cout << "out[9] = " << out[9] << endl;
+
+    f[0] = out[0]; // dR/dt  
+    f[1] = out[1]; // d(Theta)/dt
+    f[2] = out[2]; // d(pR)/dt
+    f[3] = out[3]; // d(pT)/dt
+    f[4] = out[4]; // d(phi)/dt 
+    f[5] = out[5]; // d(theta)/dt
+    f[6] = out[6]; // d(psi)/dt
+    f[7] = out[7]; // d(p_phi)/dt
+    f[8] = out[8]; // d(p_theta)/dt
+    f[9] = out[9]; // d(p_psi)/dt
+
+    delete [] out;
 }
 
 void master_code( int world_size )
@@ -100,10 +133,7 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	//FILE* inputfile = fopen("input/test", "r");
-	FILE* inputfile = fopen("input/CO2AR/ics_test", "r" );
-
-	string spectrum_filename = "test";
+	FILE* inputfile = fopen("input/CO2AR/ics_euler", "r");
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -116,7 +146,8 @@ void master_code( int world_size )
 	// sending first message to slaves
 	for ( int i = 1; i < world_size; i++ ) 
 	{
-		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);
+		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7], &ics[8], &ics[9], &ics[10]);
+	
 		cout << "Read initial condition: " << ics[0] << " " 
 										   << ics[1] << " "
 										   << ics[2] << " "
@@ -124,8 +155,11 @@ void master_code( int world_size )
 										   << ics[4] << " "
 										   << ics[5] << " "
 										   << ics[6] << " "
-										   << ics[7] << endl;
-
+										   << ics[7] << " "
+										   << ics[8] << " "
+										   << ics[9] << " "
+										   << ics[10] << endl;
+		
 		MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 
 		NTRAJ++;
@@ -149,7 +183,7 @@ void master_code( int world_size )
 		if ( NTRAJ % 1000 == 0 )
 		{
 			cout << ">> Saving histogram... " << endl;
-			save_histogram( histogram, NBINS, spectrum_filename );
+			//save_histogram( histogram, NBINS, spectrum_filename );
 		}
 
 		// receiving message from any of slaves	
@@ -157,7 +191,7 @@ void master_code( int world_size )
 		MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 		source = status.MPI_SOURCE;
 	
-		//cout << "Master received a package size = " << package_size << " from process " << source << endl;
+		cout << "Master received a package size = " << package_size << " from process " << source << endl;
 
 		vector<double> freqs_package( package_size );
 		vector<double> intensities_package( package_size );
@@ -165,10 +199,10 @@ void master_code( int world_size )
 		if ( package_size != 0 )
 		{
 			MPI_Recv( &freqs_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//cout << "Master received frequency package from process " << source << endl;
+			cout << "Master received frequency package from process " << source << endl;
 			
 			MPI_Recv( &intensities_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//cout << "Master received intensities_package from process " << source << endl;
+			cout << "Master received intensities_package from process " << source << endl;
 		}
 		
 		// applying immediate binning of values
@@ -179,11 +213,12 @@ void master_code( int world_size )
 		}
 
 		// reading another line from file
-		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7]);	
+		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5], &ics[6], &ics[7], &ics[8], &ics[9], &ics[10]);
+
 		// if it's not ended yet then sending new chunk of work to slave
 		if ( scanfResult != -1)
    		{
-			//cout << "Master sends new initial conditions to process " << source << endl;
+			cout << "Master sends new initial conditions to process " << source << endl;
 			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, 0, MPI_COMM_WORLD);
 			NTRAJ++;
 		}
@@ -203,6 +238,15 @@ void master_code( int world_size )
 
 	fclose(inputfile);
 }
+
+void copy_initial_conditions( double* ics, REAL* y0, const int length )
+{
+	for ( int i = 0; i < length; i++ )
+	{
+		y0[i] = ics[i + 1];
+	}
+}
+
 
 void slave_code( int world_rank )
 {
@@ -237,7 +281,7 @@ void slave_code( int world_rank )
 			break;
 		}
 
-		N = 6;
+		N = 10;
 		vmblock = vminit();
 		y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
 			
@@ -252,7 +296,7 @@ void slave_code( int world_rank )
 		// sampling time = 50 fs
 
 		// in atomic time units
-		const double sampling_time = 2250.0; 
+		const double sampling_time = 10.0; 
 
   		epsabs = 1E-13;
   		epsrel = 1E-13;
@@ -263,28 +307,23 @@ void slave_code( int world_rank )
   		xend = sampling_time;   // initial right bound of integration
   		fmax = 1e8;  	 		// maximal number of calls 
 			
-  		double *dipole = new double [3];
-			
-  		vector<double> ddipx;
-  		vector<double> ddipy;
-  		vector<double> ddipz;
-		
-		// r, theta, pr, ptheta, phi, theta, j
-		for ( int i = 0; i < 7; i++ )
-		{
-			y0[i] = ics[i + 1];
-		}
-	
-		// calculating initial weight of trajectory
-		// j == ics[7]; theta == ics[6]; phi == ics[5]
-		double jx = ics[7] * sin(ics[6]) * cos(ics[5]);
-		double jy = ics[7] * sin(ics[6]) * sin(ics[5]);
-		double jz = ics[7] * cos(ics[6]);
-		double h0 = ham_value( ics[1], ics[2], ics[3], ics[4], jx, jy, jz);
-		double exp_hkt = exp( - h0 * constants::HTOJ / ( constants::BOLTZCONST * Temperature ));
-		int counter = 0;
-		double end_value = ics[1] + 0.1;
+		//double *dipole = new double [3];
+		copy_initial_conditions( ics, y0, N );
 
+		cout << "y0[0] = " << y0[0] << endl;
+		cout << "y0[1] = " << y0[1] << endl;		
+		cout << "y0[2] = " << y0[2] << endl;		
+		cout << "y0[3] = " << y0[3] << endl;		
+		cout << "y0[4] = " << y0[4] << endl;		
+		cout << "y0[5] = " << y0[5] << endl;		
+		cout << "y0[6] = " << y0[6] << endl;		
+		cout << "y0[7] = " << y0[7] << endl;		
+		cout << "y0[8] = " << y0[8] << endl;		
+		cout << "y0[9] = " << y0[9] << endl;		
+
+		double end_value = y0[0] + 0.1;
+		
+		int counter = 0;
 		while ( y0[0] < end_value ) 
 		{
      		fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
@@ -295,15 +334,8 @@ void slave_code( int world_rank )
 				break;
      		}
     
-			cout << "t0: " << t0 << "; r = " << y0[0] << endl;
+			cout << "t0: " << t0 << "; r: " << y0[0] << endl;
 
-     		hamiltonian(dipole, y0[0], y0[1], y0[2], y0[3], y0[4], y0[5], y0[6], true);
-     		
-			// collecting derivatives of dipole in laboratory frame
-			ddipx.push_back( dipole[0] );
-     		ddipy.push_back( dipole[1] );
-     		ddipz.push_back( dipole[2] );
-				
      		xend = sampling_time * (counter + 2);
      		aufrufe = 0;  // actual number of calls
   				
@@ -311,59 +343,59 @@ void slave_code( int world_rank )
 		}
 	
 		// freeing dipole memory
-		delete [] dipole;
+		//delete [] dipole;
 
 		// length of dipole vector = number of samples
- 	    int npoints = ddipx.size(); 
-		int freqs_size = npoints / 2.0;		
+		//int npoints = ddipx.size(); 
+		//int freqs_size = npoints / 2.0;		
 
-		if ( freqs_size != 0 )
-		{
+		//if ( freqs_size != 0 )
+		//{
 			// given the number of points and sampling time we can calculate freqs vector
-			vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
+			//vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
 		
 			// deleting first frequency == 0
-			freqs.erase( freqs.begin() );
+			//freqs.erase( freqs.begin() );
 
 			// due to 2pi inside Fourier transofrm
-			multiply_vector( freqs, 2 * M_PI ); 
+			//multiply_vector( freqs, 2 * M_PI ); 
 			// transforming reverse atomic time units to cm^-1
-			multiply_vector( freqs, constants::HZTOCM / constants::ATU );
+			//multiply_vector( freqs, constants::HZTOCM / constants::ATU );
 
-			cout << ">> Processing " << ics[0] << " trajectory. npoints = " << npoints << endl;
+			//cout << ">> Processing " << ics[0] << " trajectory. npoints = " << npoints << endl;
 
-			vector<double> ddipx_out = fft( ddipx );
-	   		vector<double> ddipy_out = fft( ddipy );
-			vector<double> ddipz_out = fft( ddipz );	
+			//vector<double> ddipx_out = fft( ddipx );
+			//vector<double> ddipy_out = fft( ddipy );
+			//vector<double> ddipz_out = fft( ddipz );	
 	
 			// auxiliary variables to store interim variables
-			double power;
-			vector<double> intensities; 
+			//double power;
+			//vector<double> intensities; 
 
-	  		for ( int i = 0; i < freqs_size; i++ )
-	  		{
-				power = ddipx_out[i] + ddipy_out[i] + ddipz_out[i];
-				power = power / pow( freqs[i], 2 ) * exp_hkt ;	
+	  		//for ( int i = 0; i < freqs_size; i++ )
+	  		//{
+				//power = ddipx_out[i] + ddipy_out[i] + ddipz_out[i];
+				//power = power / pow( freqs[i], 2 ) * exp_hkt ;	
 				
-				intensities.push_back( power );	
-			}
+				//intensities.push_back( power );	
+			//}
 		
-			show( "freqs", "ints", freqs, intensities );
+			//show( "freqs", "ints", freqs, intensities );
 
-			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
+			//MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			////cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
 
-			MPI_Send( &freqs[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends frequency package to root" << endl;
+			//MPI_Send( &freqs[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			////cout << ">> Process " << world_rank << " sends frequency package to root" << endl;
 
-			MPI_Send( &intensities[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends intensities package to root" << endl;
-		}
-		else
-		{
-			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
-		}
+			//MPI_Send( &intensities[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			////cout << ">> Process " << world_rank << " sends intensities package to root" << endl;
+		//}
+		//else
+		//{
+			//MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			////cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
+		//}
 	}
 }
 

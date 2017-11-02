@@ -2,42 +2,41 @@
 
 #include <iostream>
 
-#include "ar_he_pes.h"
-#include "ar_he_pes_derivative.h"
-#include "ar_he_dip.h"
-
 const double HE_MASS = 4.00260325413;
 const double AR_MASS = 39.9623831237; 
 const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
 
 const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
 
-double ham_value( double R, double pR, double J )
+void transform_dipole( std::vector<double> &res, double R, double theta )
 {
-	double kin_term = pow(pR, 2) / (2 * MU);
-	double ang_term = pow(J, 2) / (2 * MU * pow(R, 2));
+	// constructing simple S matrix
+	Eigen::Matrix<double, 3, 3> S;
+	S(0, 0) = 1.0;
+	S(0, 1) = 0.0;
+	S(0, 2) = 0.0;
 
-	return ang_term + kin_term + ar_he_pot(R); 
+	S(1, 0) = 0.0;
+	S(1, 1) = cos( theta );
+	S(1, 2) = -sin( theta );
+
+	S(2, 0) = 0.0;
+	S(2, 1) = sin(theta);
+	S(2, 2) = cos( theta );
+
+	double dipz = ar_he_dip( R );
+	Eigen::Vector3d mol_dipole( 0, 0, dipz );
+	Eigen::Vector3d lab_dipole = S * mol_dipole;
+
+	res[0] = lab_dipole[0];
+	res[1] = lab_dipole[1];
+	res[2] = lab_dipole[2];
 }
 
-void hamiltonian( double* out, double R, double pR, double J )
+void rhs( double* out, double R, double pR, double theta, double pTheta )
 {
-	out[0] = - pow(J, 2) / (MU * pow(R, 3) );
-	out[1] = pR / MU;
-}
-
-double mol_frame_dipole( double R )
-{
-	return ar_he_dip( R );
-}
-
-void rhs( double* out, double R, double pR, double J )
-{
-    double* derivatives = new double[2];
-    hamiltonian(derivatives, R, pR, J);
-
-    out[0] = derivatives[1]; // /dot(R) = dH/dpR
-	out[1] = - derivatives[0] - ar_he_pot_derivative(R);  // /dot(pR) = - dH/dR = - dT/dR - dU/dR (to hartrees from cm^-1)
-
-    delete [] derivatives;
+	out[0] = pR / MU; // dot{R} 
+	out[1] = pow(pTheta, 2) / MU / pow(R, 3) - ar_he_pot_derivative( R ); // dot{pR}
+	out[2] = pTheta / MU / pow(R, 2); // dot{theta}
+	out[3] = 0; // dot[pTheta}
 }

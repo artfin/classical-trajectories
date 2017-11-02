@@ -87,7 +87,7 @@ int main()
 	vector<double> ubs;
 	vector<double> contents;
 
-	read_file( "test", lbs, ubs, contents );
+	read_file( "weights_test", lbs, ubs, contents );
 
 	Gnuplot gp;
 	plot_signal( gp, lbs, contents );

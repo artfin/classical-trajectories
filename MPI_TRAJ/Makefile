@@ -39,9 +39,11 @@ $(OBJ_PATH_GEAR)fgauss.o: $(SRC_PATH_GEAR)fgauss.cpp
 $(OBJ_PATH_GEAR)t_dgls.o: $(SRC_PATH_GEAR)t_dgls.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_GEAR) 
 
+# 1 additional parameter
 $(OBJ_PATH_GEAR)gear.o: $(SRC_PATH_GEAR)gear.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_GEAR)
 
+# no additional parameters
 $(OBJ_PATH_GEAR)gear_diatom.o: $(SRC_PATH_GEAR)gear_diatom.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_GEAR)
 ######################################################################
@@ -50,6 +52,9 @@ $(OBJ_PATH_GEAR)gear_diatom.o: $(SRC_PATH_GEAR)gear_diatom.cpp
 # path to gear objects
 GEAR_OBJ = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o gear.o 
 GEAR_OBJECTS = $(patsubst %,$(OBJ_PATH_GEAR)%,$(GEAR_OBJ))
+
+GEAR_OBJ_DIATOM = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o gear_diatom.o
+GEAR_OBJECTS_DIATOM = $(patsubst %,$(OBJ_PATH_GEAR)%,$(GEAR_OBJ_DIATOM))
 ######################################################################
 
 ######################################################################
@@ -84,6 +89,9 @@ $(OBJ_PATH_CO2AR)matrix.o: $(SRC_PATH_CO2AR)matrix.cpp
 
 $(OBJ_PATH_CO2AR)new_matrix.o: $(SRC_PATH_CO2AR)new_matrix.cpp
 	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_CO2AR)
+
+$(OBJ_PATH_CO2AR)matrix_euler.o: $(SRC_PATH_CO2AR)matrix_euler.cpp
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_CO2AR) $(INC_PATH_POT)
 ######################################################################
 
 ######################################################################
@@ -94,7 +102,7 @@ OBJ_PATH_DIATOM = ./obj/DIATOM/
 INC_PATH_DIATOM = -I ./include/DIATOM/
 
 $(OBJ_PATH_DIATOM)matrix.o: $(SRC_PATH_DIATOM)matrix.cpp
-	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_DIATOM) $(INC_PATH_DIP) $(INC_PATH_POT) 
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_DIATOM) $(INC_PATH_DIP) $(INC_PATH_POT) 
 ######################################################################
 
 ######################################################################
@@ -151,12 +159,19 @@ CO2AR_OBJ = matrix.o
 CO2AR_OBJECTS = $(patsubst %,$(OBJ_PATH_CO2AR)%,$(CO2AR_OBJ))
 
 CO2AR_TRAJ_OBJ = $(GEAR_OBJECTS) $(POT_OBJECTS) $(DIP_OBJECTS) $(CO2AR_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
-CO2AR_TRAJ_INC = $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_CO2AR) $(INC_PATH_CONSTANTS)
-
-## is eigen necessary ?
+CO2AR_TRAJ_INC = $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_CO2AR) $(INC_PATH_CONSTANTS) $(INC_PATH_POT)
 
 co2ar_trajs: $(CO2AR_TRAJ_OBJ) $(SRC_PATH_CO2AR)main.cpp
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(CO2AR_TRAJ_INC) 
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(CO2AR_TRAJ_INC) 
+
+# with euler angles
+CO2AR_OBJ_EULER = matrix_euler.o
+CO2AR_OBJECTS_EULER = $(patsubst %,$(OBJ_PATH_CO2AR)%,$(CO2AR_OBJ_EULER))
+
+CO2AR_TRAJ_OBJ_EULER = $(GEAR_OBJECTS_DIATOM) $(POT_OBJECTS) $(DIP_OBJECTS) $(CO2AR_OBJECTS_EULER) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
+
+co2ar_trajs_euler: $(CO2AR_TRAJ_OBJ_EULER) $(SRC_PATH_CO2AR)main_euler.cpp
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(CO2AR_TRAJ_INC)
 ######################################################################
 
 ######################################################################
@@ -171,11 +186,12 @@ DIATOM_DIP_OBJECTS = $(patsubst %,$(OBJ_PATH_DIP)%,$(DIATOM_DIP_OBJ))
 DIATOM_OBJ = matrix.o
 DIATOM_OBJECTS = $(patsubst %,$(OBJ_PATH_DIATOM)%,$(DIATOM_OBJ))
 
-DIATOM_TRAJ_OBJ = $(GEAR_OBJECTS) $(DIATOM_POT_OBJECTS) $(DIATOM_DIP_OBJECTS) $(DIATOM_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
-DIATOM_TRAJ_INC = $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_DIATOM) $(INC_PATH_CONSTANTS)
+# using special Gear method without additional parameters 
+DIATOM_TRAJ_OBJ = $(GEAR_OBJECTS_DIATOM) $(DIATOM_POT_OBJECTS) $(DIATOM_DIP_OBJECTS) $(DIATOM_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
+DIATOM_TRAJ_INC = $(INC_PATH_POT) $(INC_PATH_DIP) $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_DIATOM) $(INC_PATH_CONSTANTS)
 
 diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 
 ######################################################################
@@ -185,19 +201,6 @@ make_spectrum: $(SRC_PATH_MISC)make_spectrum.cpp
 	$(CCXX) $(CXXFLAGS) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@
 ######################################################################
 
-
-
-
-######################################################################
-# TO DO: CO2AR trajectory spectrum with dipole in molecular frame
-
-#new_objects = basis_r.o awp.o vmblock.o fgauss.o t_dgls.o psp_pes.o gear.o leg_arr.o co2_ar_dipole.o new_matrix.o 
-#NEW_OBJ = $(patsubst %,$(OBJ_PATH)%,$(new_objects))
-
-# using dipole in molecular frame for FFT
-#new_main: $(NEW_OBJ) $(SRC_PATH)new_main.cpp
-	#$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(TARGET_PATH) $^ -o $@ $(INC_PATH) 
-######################################################################
 
 
 

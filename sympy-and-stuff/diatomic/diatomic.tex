@@ -1,0 +1,172 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+% for strut keyword
+\usepackage{mathtools}
+
+% blackboard lettering
+\usepackage{dsfont}
+\usepackage{bbm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\newcommand{\bbU}{\mathbb{U}}
+\newcommand{\bbG}{\mathbb{G}}
+\newcommand{\bbE}{\mathbb{E}}
+\newcommand{\bbS}{\mathbb{S}}
+\newcommand{\bbV}{\mathbb{V}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfJ}{\mathbf{J}}
+\newcommand{\mL}{\mathcal{L}}
+\newcommand{\mH}{\mathcal{H}}
+
+\newcommand{\mf}{\mathbf}
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+\newcommand{\lcb}{\left\{}
+\newcommand{\rcb}{\right\}}
+
+\begin{document}
+
+\section{Задача двух тел и углы Эйлера}
+
+Пусть совокупное движение двух тел происходит в плоскости $Oyz$. Выберем молекулярную систему отсчета таким образом, чтобы рассматриваемые тела находились на оси $Z$. В таком случае, плоскости молекулярной системы $OYZ$ и лабораторной системы $Oyz$ совпадают в любой момент времени. При этом угол между осями $Oy$ и $OY$ (равный, конечно, углу между $Oz$ и $OZ$) равен эйлеровому углу $\theta$ (в рамках стандартного определения эйлеровых углов по Голдстейну). Остальные два эйлеровых угла, $\phi$ и $\psi$, равны 0. Таким образом, ортогональная матрица $\bbS$, связывающая лабораторную и молекулярную систему отсчета, имеет вид:
+\begin{gather}
+	\bbS = \bbS_\theta = 
+	\begin{bmatrix}
+		1 & 0 & 0 \\
+		0 & \cos \theta & \sin \theta \\
+		0 & - \sin \theta & \cos \theta
+	\end{bmatrix} \notag
+\end{gather} 
+
+Матрица $\bbS_\theta$, таким образом записанная, переводит координаты из лабораторной системы в молекулярную. На примере вектора углового момента:
+\begin{gather}
+		\mf{J} = \bbS_\theta \, \mf{j} \notag
+\end{gather}
+
+Понятно, что угловая скорость, соответсвующая повороту на угол $\theta$, направлена вдоль оси вращения $x$ = $X$. Следовательно, $\Omega_x = \dot{\theta}$. Аналогичный результат можно получить, взяв матрицу $\bbV$, связывающую компоненты угловой скорости с эйлеровыми скоростями, в общем случае и подставив в нее $\phi = \psi = 0$:
+\begin{gather}
+	\begin{bmatrix}
+	\Omega_x \\
+	\Omega_y \\
+	\Omega_z 
+	\end{bmatrix} = \bbV 
+	\begin{bmatrix}
+		\dot{\varphi} \\
+		\dot{\theta} \\
+		\dot{\psi}
+	\end{bmatrix} \notag \\
+	\bbV = \begin{bmatrix}
+		\sin \theta \sin \psi & \cos \psi & 0 \\
+		\sin \theta \cos \psi & - \sin \psi & 0 \\
+		\cos \theta & 0 & 1
+	\end{bmatrix} \rightarrow
+	\begin{bmatrix}
+		0 & 1 & 0 \\
+		\sin \theta & 0 & 0 \\
+		\cos \theta & 0 & 1
+	\end{bmatrix} \notag
+\end{gather}
+
+Т.к. $\dot{\varphi} = \dot{\psi} = 0$, то $\Omega_x = \dot{\theta}$, $\Omega_y = 0$, $\Omega_z = 0$.
+
+Обратим матрицу $\bbV$ для того, чтобы найти связь между эйлеровыми импульсами и компонентами углового момента.
+\begin{gather}
+	\begin{bmatrix}
+		J_x \\
+		J_y \\
+		J_z
+	\end{bmatrix} = \lb \bbV^{-1} \rb^\top
+	\begin{bmatrix}
+		p_\varphi \\
+		p_\theta \\
+		p_\psi
+	\end{bmatrix} \notag \\
+	\begin{bmatrix}
+		J_x \\
+		J_y \\
+		J_z 
+	\end{bmatrix} = 
+	\begin{bmatrix}
+		0 & 1 & 0 \\
+		\displaystyle \frac{1}{\sin \theta} & 0 & - \ctg \theta \\
+		0 & 0 & 1
+	\end{bmatrix}
+	\begin{bmatrix}
+		p_\varphi \\
+		p_\theta \\
+		p_\psi
+	\end{bmatrix} \notag
+\end{gather}
+
+Эйлеровы импульсы $p_\varphi$, $p_{\psi}$, будучи связанными с производными лагранжиана по $\dot{\varphi}$ и $\dot{\psi}$, соответственно, равны 0 (т.к. эти производные отсутствуют в угловых скоростях, следовательно и в лагранжиане). Получаем однозначную связь между $J_x$ и $p_\theta$:
+\begin{gather}
+	J_x = p_\theta \notag
+\end{gather}
+
+Выведем кинетическую энергию в гамильтоновой форме в предложенной системе координат. Обозначим массы тел за $m_1$ и $m_2$, расстояние между телами -- за $R$. Тогда координаты тел равны
+\begin{gather}
+	\begin{aligned}
+			x_1 &= 0 \\
+			y_1 &= 0 \\
+			z_1 &= - \frac{m_2}{m_1 + m_2} R
+	\end{aligned}
+	\quad \quad \quad
+	\begin{aligned}
+			x_2 &= 0 \\
+			y_2 &= 0 \\
+			z_2 &= \frac{m_1}{m_1 + m_2} R 
+	\end{aligned} \notag
+\end{gather}
+
+Тензор инерции будет иметь лишь две ненулевые компоненты, а именно, $I_{xx} = I_{yy} = \mu R^2$, где $\mu$ -- приведенная масса системы, $\mu = \displaystyle \frac{m_1 m_2}{m_1 + m_2}$. Приведенные выше рассуждения показывают, что вектор угловой скорости направлен вдоль оси $x = X$:
+\begin{gather}
+	\mf{\Omega} = \begin{bmatrix}
+		\Omega_x \\
+		0 \\ 
+		0
+	\end{bmatrix} \notag
+\end{gather}
+
+Итак, кинетическая энергия в лагранжевой форме в молекулярной системе отсчета имеет следующий вид
+\begin{gather}
+		T_\mL = \frac{1}{2} \mu \dot{R}^2 + \frac{1}{2} \mu R^2 \Omega_x^2 \notag 
+\end{gather}
+
+Осуществляя стандартный переход к гамильтоновой форме, получаем
+\begin{gather}
+	T_\mH = \frac{1}{2 \mu} p_R^2 + \frac{J_x^2}{2 \mu R^2} \notag
+\end{gather}
+
+Если заменить компоненту углового момента на эйлеров импульс, то получим
+\begin{gather}
+	T_\mH = \frac{1}{2 \mu} p_R^2 + \frac{p_\theta^2}{2 \mu R^2} \notag
+\end{gather}
+
+Если же зафиксировать длину связи (сделав систему палочкой):
+\begin{gather}
+	T_\mH = \frac{p_\theta^2}{2 \mu l^2} = \frac{1}{2 I} p_\theta^2 \notag
+\end{gather}
+
+Используем теорему Донкина для связи между компонентами угловой скорости и производными по компонентам углового момента:
+\begin{gather}
+	\dot{\theta} = \Omega_x = \frac{\partial \mH}{\partial J_x} = \frac{J_x}{\mu R^2} \notag \\ 
+	\frac{d \theta}{dt} = \frac{J}{\mu R^2} \notag
+\end{gather}
+
+\end{document}

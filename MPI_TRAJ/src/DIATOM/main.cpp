@@ -36,7 +36,7 @@ const int EXIT_TAG = 42;
 
 // ############################################
 // Number of initial conditions per trajectory
-const int ICPERTRAJ = 4; 
+const int ICPERTRAJ = 5; 
 // ############################################
 
 // ############################################
@@ -45,20 +45,29 @@ const double Temperature = 298;
 
 // ############################################
 // GSL Histogram parameters (spectrum boundaries)
-const int NBINS = 400;
+const int NBINS = 50;
 const double LBOUND = 0.0;
 const double RBOUND = 400.0;
 // ############################################
 
+const double HE_MASS = 4.00260325413;
+const double AR_MASS = 39.9623831237; 
+const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
+
+const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
+
+const double B_STEP = 0.100;
+const double V_STEP = 1.0;
+
 using namespace std;
 
-void show( string name, vector<double> v )
+void show( string name, vector<double> v, double sampling_time )
 {
 	cout << "#########################" << endl;
 	
 	for ( int i = 0; i < v.size(); i++ )
 	{
-		cout << name << "[" << i << "] = " << v[i] << endl;
+		cout << "t = " << sampling_time * i << "; " << name << "[" << i << "] = " << v[i] << endl;
 	}
 	
 	cout << "#########################" << endl;
@@ -81,13 +90,14 @@ void syst (REAL t, REAL *y, REAL *f)
 {
   	(void)(t); // avoid unused parameter warning 
 
-	double *out = new double[2];
+	double *out = new double[4];
 
-	rhs( out, y[0], y[1], y[2] );
-	// R pR J
+	rhs( out, y[0], y[1], y[2], y[3] );
 
-	f[0] = out[0]; // dR/dt  
-	f[1] = out[1]; // d(pR)/dt
+	f[0] = out[0]; // \dot{R} 
+	f[1] = out[1]; // \dot{p_R}
+	f[2] = out[2]; // \dot{\theta}
+	f[3] = out[3]; // \dot{p_\theta}
 
 	delete [] out;
 }
@@ -97,9 +107,10 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/DIATOM/test", "r" );
+	//FILE* inputfile = fopen("input/DIATOM/weights_test", "r" );
+	FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
-	string spectrum_filename = "test";
+	string spectrum_filename = "weights_test";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -113,6 +124,10 @@ void master_code( int world_size )
 	for ( int i = 1; i < world_size; i++ ) 
 	{
 		scanfResult = fwscanf( inputfile, L"%lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3] );
+		cout << "Read initial condition: " << ics[0] << " " 
+										   << ics[1] << " "
+										   << ics[2] << " "
+										   << ics[3] << endl;
 		MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 
 		NTRAJ++;
@@ -162,11 +177,11 @@ void master_code( int world_size )
 		for ( int i = 0; i < freqs_package.size(); i++ )
 		{
 			// increases the value of appropriate bin by intensity
-			gsl_histogram_accumulate( histogram, freqs_package[i], intensities_package[i] );
+			gsl_histogram_accumulate( histogram, freqs_package[i], intensities_package[i] * B_STEP * V_STEP );
 		}
 
 		// reading another line from file
-		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3] );	
+		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4] );	
 		// if it's not ended yet then sending new chunk of work to slave
 		if ( scanfResult != -1)
 		{
@@ -189,6 +204,14 @@ void master_code( int world_size )
 	delete [] ics;	
 
 	fclose(inputfile);
+}
+
+void copy_initial_conditions( double* ics, REAL* y0, const int length )
+{
+	for ( int i = 0; i < length; i++ )
+	{
+		y0[i] = ics[i];
+	}
 }
 
 void slave_code( int world_rank )
@@ -224,7 +247,35 @@ void slave_code( int world_rank )
 			break;
 		}
 
-		N = 2;
+		cout << "Received conditions: " << endl;
+		cout << "ics[0] = " << ics[0] << endl;
+		cout << "ics[1] = " << ics[1] << endl;
+		cout << "ics[2] = " << ics[2] << endl;
+		cout << "ics[3] = " << ics[3] << endl;
+		cout << "########################" << endl;
+
+		int trajectory_number = ics[0];
+		ics[0] = ics[1];
+
+		double b = ics[2];
+		double v0 = ics[3];
+		cout << "b = " << b << endl;
+		cout << "v0 = " << v0 << endl;
+
+		double b_weight = - 2 * b * v0;
+		double v_weight = pow(v0, 2) * exp( - MU * pow(v0, 2) * constants::HTOJ / (2 * constants::BOLTZCONST * Temperature));
+
+
+		ics[1] = MU * v0; // pR
+		ics[2] = 0; // theta 
+		ics[3] = abs( MU * v0 * b ); // p_\theta
+
+		cout << "ics[0](R) = " << ics[0] << endl;
+		cout << "ics[1](pR) = " << ics[1] << endl;
+		cout << "ics[2](theta) = " << ics[2] << endl;
+		cout << "ics[3](pTheta = J) = " << ics[3] << endl;
+
+		N = 4;
 		vmblock = vminit();
 		y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
 
@@ -239,7 +290,7 @@ void slave_code( int world_rank )
 		// sampling time = 50 fs
 
 		// in atomic time units
-		const double sampling_time = 5000.0; // 2250 
+		const double sampling_time = 5; 
 
 		epsabs = 1E-13;
 		epsrel = 1E-13;
@@ -250,21 +301,22 @@ void slave_code( int world_rank )
 		xend = sampling_time;   // initial right bound of integration
 		fmax = 1e8;  	 		// maximal number of calls 
 
-		vector<double> dipz;
-
-		// r, pR, J 
-		for ( int i = 0; i < ICPERTRAJ - 1; i++ )
-		{
-			y0[i] = ics[i + 1];
-		}
-
 		// calculating initial weight of trajectory
-		double h0 = ham_value( ics[0], ics[1], ics[2] );
-		double exp_hkt = exp( - h0 * constants::HTOJ / ( constants::BOLTZCONST * Temperature ));
 		int counter = 0;
-		double end_value = ics[1] + 0.1;
+		double end_value = ics[0] + 0.1;
 
-		double d;
+		copy_initial_conditions( ics, y0, N );
+		cout << "y0[0] = " << y0[0] << endl;
+		cout << "y0[1] = " << y0[1] << endl;
+		cout << "y0[2] = " << y0[2] << endl;
+		cout << "y0[3] = " << y0[3] << endl;
+
+		// dipole moment in laboratory frame
+		vector<double> temp( 3 );
+
+		vector<double> dipx;
+		vector<double> dipy;
+		vector<double> dipz;
 
 		while ( y0[0] < end_value ) 
 		{
@@ -275,17 +327,25 @@ void slave_code( int world_rank )
 				printf(" Gear4: error n° %d\n", 10 + fehler);
 				break;
 			}
-			
-			d = mol_frame_dipole( y0[0] );
 
-			dipz.push_back( d );
+			cout << "t0: " << t0 << "; r: " << y0[0] << endl;
+			
+			// y0[0] -- R
+			// y0[1] -- PR
+			// y0[2] -- \theta
+			// y0[3] -- p_\theta
+			transform_dipole( temp, y0[0], y0[2] );
+
+			dipx.push_back( temp[0] );
+			dipy.push_back( temp[1] );
+			dipz.push_back( temp[2] );
 
 			xend = sampling_time * (counter + 2);
 			aufrufe = 0;  // actual number of calls
 
 			counter++;
 		}
-
+			
 		// length of dipole vector = number of samples
 		int npoints = dipz.size(); 
 		int freqs_size = npoints / 2.0;		
@@ -300,18 +360,27 @@ void slave_code( int world_rank )
 			// transforming reverse atomic time units to cm^-1
 			multiply_vector( freqs, constants::HZTOCM / constants::ATU );
 
-			cout << ">> Processing " << ics[0] << " trajectory. npoints = " << npoints << endl;
+			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
 
+			vector<double> dipx_out = fft( dipx );	
+			vector<double> dipy_out = fft( dipy );	
 			vector<double> dipz_out = fft( dipz );	
 
 			// auxiliary variables to store interim variables
 			double power;
 			vector<double> intensities; 
+			
+			//show( "dipx_out", dipx_out );
+			//show( "dipy_out", dipy_out );
+			//show( "dipz_out", dipz_out );
+
+			//cout << "b_weight: " << b_weight << endl;
+			//cout << "v_weight: " << v_weight << endl;
 
 			for ( int i = 0; i < freqs_size; i++ )
 			{
-				power = dipz_out[i] * exp_hkt ;	
-				intensities.push_back( power );	
+				power = dipx_out[i] + dipy_out[i] + dipz_out[i];	
+				intensities.push_back( power * b_weight * v_weight );	
 			}
 
 			//show( "freqs", "ints", freqs, intensities );
