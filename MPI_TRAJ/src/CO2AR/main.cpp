@@ -1,6 +1,7 @@
 #include <mpi.h>
 
 #include <iostream>
+#include <iomanip>
 
 // matrix multiplication
 #include "matrix.h"
@@ -79,20 +80,29 @@ void show( string name1, string name2, vector<double> v1, vector<double> v2 )
 
 void syst (REAL t, REAL *y, REAL *f)
 {
-  (void)(t); // avoid unused parameter warning 
+	(void)(t); // avoid unused parameter warning 
 
-  double *out = new double[6];
-  rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], y[6]);
-  // R  Theta pR pT phi theta J
+	double *out = new double[6];
+	rhs(out, y[0], y[1], y[2], y[3], y[4], y[5], y[6]);
+	// R  Theta pR pT phi theta J
 
-  f[0] = out[0]; // dR/dt  
-  f[1] = out[1]; // d(Theta)/dt
-  f[2] = out[2]; // d(pR)/dt
-  f[3] = out[3]; // d(pT)/dt
-  f[4] = out[4]; // d(phi)/dt
-  f[5] = out[5]; // d(theta)/dt
+	//cout << "############" << endl;
+	//cout << setprecision(10) << endl;
+	//cout << "inside syst" << endl;
+	//cout << "dR/dt: " << out[0] << endl;
+	//cout << "dTheta/dt: " << out[1] << endl;
+	//cout << "d(pR)/dt: " << out[2] << endl;
+	//cout << "d(pT)/dt: " << out[3] << endl;
+	//cout << "############" << endl;
 
-  delete [] out;
+  	f[0] = out[0]; // dR/dt  
+  	f[1] = out[1]; // d(Theta)/dt
+  	f[2] = out[2]; // d(pR)/dt
+  	f[3] = out[3]; // d(pT)/dt
+  	f[4] = out[4]; // d(phi)/dt
+  	f[5] = out[5]; // d(theta)/dt
+
+  	delete [] out;
 }
 
 void master_code( int world_size )
@@ -286,6 +296,7 @@ void slave_code( int world_rank )
 		double end_value = ics[1] + 0.1;
 
 		while ( y0[0] < end_value ) 
+		//while( counter < 2 ) 
 		{
      		fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
      			

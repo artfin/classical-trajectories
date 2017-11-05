@@ -6,7 +6,7 @@ const double mu1 = 14579.0;
 const double mu2 = 38183.0;
 const double l = 4.398; 
 
-void inertia_tensor_dR(Matrix3d &i_dr, double &R, double &Theta)
+void inertia_tensor_dR(Matrix3d &i_dr, const double &R, const double &Theta)
 {
     i_dr(0, 0) = i_dr(1, 1) = 2 * mu2 * R;
     
@@ -15,7 +15,7 @@ void inertia_tensor_dR(Matrix3d &i_dr, double &R, double &Theta)
     i_dr(0, 1) = i_dr(2, 1) = 0;
 }
 
-void inertia_tensor_dTheta(Matrix3d &i_dt, double &R, double &Theta)
+void inertia_tensor_dTheta(Matrix3d &i_dt, const double &R, const double &Theta)
 {
     double l2 = l * l;
     double sin_t = sin(Theta);
@@ -31,7 +31,7 @@ void inertia_tensor_dTheta(Matrix3d &i_dt, double &R, double &Theta)
     i_dt(0, 1) = i_dt(1, 1) = i_dt(2, 1) = 0;
 }
 
-void inertia_tensor(Matrix3d &inertia_tensor, double &R, double &Theta)
+void inertia_tensor(Matrix3d &inertia_tensor, const double &R, const double &Theta)
 {
     double sin_t = sin(Theta);
     double cos_t = cos(Theta);
@@ -51,7 +51,7 @@ void inertia_tensor(Matrix3d &inertia_tensor, double &R, double &Theta)
     inertia_tensor(2, 1) = 0;
 }
 
-void fill_a_matrix(Matrix2d &a, double &R, double &Theta)
+void fill_a_matrix(Matrix2d &a, const double &R, const double &Theta)
 {
     a(0, 0) = mu2;
     a(0, 1) = 0;
@@ -59,7 +59,7 @@ void fill_a_matrix(Matrix2d &a, double &R, double &Theta)
     a(1, 1) = mu1 * l * l;
 }
 
-void fill_A_matrix(Matrix<double, 3, 2> &A, double &R, double &Theta)
+void fill_A_matrix(Matrix<double, 3, 2> &A, const double &R, const double &Theta)
 {
     A(0, 0) = A(0, 1) = 0;
     A(1, 0) = 0;
@@ -135,10 +135,54 @@ void dW_dtheta( Matrix<double, 3, 3> &dW, const double &theta, const double &psi
 	dW(2, 2) = 0;
 }
 
-void rhs(double* out, double &R, double &Theta, 
-					  double pR, double pT, 
-					  double phi, double theta, double psi, 
-					  double p_phi, double p_theta, double p_psi )
+void transform_dipole( std::vector<double> &output, const double &R,
+								   			  	    const double &Theta,
+											   	    const double &phi, 
+											        const double &theta,
+											        const double &psi )
+{
+	Matrix<double, 3, 3> S;
+	
+	double sin_phi = sin( phi );
+	double cos_phi = cos( phi );
+
+	double sin_theta = sin( theta );
+	double cos_theta = cos( theta );
+
+	double sin_psi = sin( psi );
+	double cos_psi = cos( psi );
+
+	S(0, 0) = cos_psi * cos_phi - cos_theta * sin_phi * sin_psi;
+	S(0, 1) = - sin_psi * cos_phi - cos_theta * sin_phi * cos_psi;
+	S(0, 2) = sin_theta * sin_phi;
+
+	S(1, 0) = cos_psi * sin_phi + cos_theta * cos_phi * sin_psi;
+	S(1, 1) = - sin_psi * sin_phi + cos_theta * cos_phi * cos_psi;
+	S(1, 2) = - sin_theta * cos_phi;
+
+	S(2, 0) = sin_theta * sin_psi;
+	S(2, 1) = sin_theta * cos_psi;
+	S(2, 2) = cos_theta;
+
+	// vector of dipole in molecular frame
+	Vector3d mol_dipole;
+
+	mol_dipole(0) = dipx( R, Theta );
+	mol_dipole(1) = 0;
+	mol_dipole(2) = dipz( R, Theta );
+
+	// vector of dipole in laboratory frame
+	Vector3d lab_dipole = S * mol_dipole;
+
+	output[0] = lab_dipole(0);
+	output[1] = lab_dipole(1);
+	output[2] = lab_dipole(2);
+}
+
+void rhs(double* out, const double &R, const double &Theta, 
+					  const double &pR, const double &pT, 
+					  const double &phi, const double &theta, const double &psi, 
+					  const double &p_phi, const double &p_theta, const double &p_psi )
 // input:
 //     R, Theta, 
 // 	   pR, pTheta, 
@@ -259,13 +303,24 @@ void rhs(double* out, double &R, double &Theta,
     Matrix<double, 3, 2> G12_dTheta;
 
 	G11_dTheta = - G11 * I_dTheta * G11;
-   	G22_dTheta = - G22 * A.transpose() * I_inv * I_dTheta * I_inv * A * G22;
-   	G12_dTheta = -G11_dTheta * A * a_inv;
+	//std::cout << "G11_dTheta: " << G11_dTheta << std::endl;
+
+	G22_dTheta = - G22 * A.transpose() * I_inv * I_dTheta * I_inv * A * G22;
+	//std::cout << "G22_dTheta: " << G22_dTheta << std::endl;
+
+	G12_dTheta = -G11_dTheta * A * a_inv;
+	//std::cout << "G12_dTheta: " << G12_dTheta << std::endl;
 
    	ang_term = 0.5 * pe.transpose() * W.transpose() * G11_dTheta * W * pe;
-   	kin_term = 0.5 * p_vector.transpose() * G22_dTheta * p_vector;
-   	cor_term = pe.transpose() * W.transpose() * G12_dTheta * p_vector;
-   	
+	//std::cout << "W * pe: " << W * pe << std::endl;
+	//std::cout << "ang_term: " << ang_term << std::endl;
+
+	kin_term = 0.5 * p_vector.transpose() * G22_dTheta * p_vector;
+	//std::cout << "kin_term: " << kin_term << std::endl;
+
+	cor_term = pe.transpose() * W.transpose() * G12_dTheta * p_vector;
+	//std::cout << "cor_term: " << cor_term << std::endl;
+
 	double dH_dTheta = ang_term + kin_term + cor_term;	
 	//std::cout << "dH_dTheta: " << dH_dTheta << std::endl;
 	// ##################################################################

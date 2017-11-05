@@ -91,7 +91,7 @@ $(OBJ_PATH_CO2AR)new_matrix.o: $(SRC_PATH_CO2AR)new_matrix.cpp
 	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_CO2AR)
 
 $(OBJ_PATH_CO2AR)matrix_euler.o: $(SRC_PATH_CO2AR)matrix_euler.cpp
-	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_CO2AR) $(INC_PATH_POT)
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_CO2AR) $(INC_PATH_POT) $(INC_PATH_DIP)
 ######################################################################
 
 ######################################################################
@@ -159,7 +159,8 @@ CO2AR_OBJ = matrix.o
 CO2AR_OBJECTS = $(patsubst %,$(OBJ_PATH_CO2AR)%,$(CO2AR_OBJ))
 
 CO2AR_TRAJ_OBJ = $(GEAR_OBJECTS) $(POT_OBJECTS) $(DIP_OBJECTS) $(CO2AR_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
-CO2AR_TRAJ_INC = $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_CO2AR) $(INC_PATH_CONSTANTS) $(INC_PATH_POT)
+
+CO2AR_TRAJ_INC = $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_CO2AR) $(INC_PATH_CONSTANTS) $(INC_PATH_POT) $(INC_PATH_DIP)
 
 co2ar_trajs: $(CO2AR_TRAJ_OBJ) $(SRC_PATH_CO2AR)main.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(CO2AR_TRAJ_INC) 

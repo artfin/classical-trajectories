@@ -1,14 +1,14 @@
 #include "psp_pes.h"
 #include "leg_arr.h"
 
-double psp_pes(double& R, double& Theta)
+double psp_pes( const double &R, const double &Theta )
 {
 	double t5, t6, t7, t8, t11, t12, t17, t23, t24, t27, t28, t31, t32, t34, t35, t38, t39, t40,
 	 t41, t42, t44, t46, t47, t49, t50, t51, t52, t53, t54, t56, t58, t59, t60, t62, t63, t64, t65, t66, t68, t71, t72, t74, t75, t78;
-	double cosT = cos(Theta);
-	//double cosT=Theta;
+	
+	double cosT = cos( Theta );
 
-	double *legP = legendre_array(10,cosT);
+	double *legP = legendre_array(10, cosT );
 	
 	if (R < 6.329250)
 	{
@@ -106,14 +106,14 @@ double psp_pes(double& R, double& Theta)
 	}
 }
 
-double dpsp_pesdR(double& R, double& Theta)
+double dpsp_pesdR( const double &R, const double &Theta )
 {
 	double t5, t6, t7, t8, t9, t12, t13, t16, t21, t22, t24, t30, t31, t35, t36, t38, t39, t40, t41, t42, t44, t45, t48, t49, t50,
 	 t51, t52, t54, t56, t57, t58, t59, t61, t62, t65, t66, t67, t71, t72, t73, t74, t75, t78,
 	  t80, t81, t82, t84, t85, t86, t87, t88, t89, t92, t93, t95, t99;
-	double cosT = cos(Theta);
-
-	double *legP = legendre_array(10,cosT);
+	
+	double cosT = cos( Theta );
+	double *legP = legendre_array(10, cosT);
 	
 	if (R < 6.329250)
 	{
@@ -227,14 +227,13 @@ double dpsp_pesdR(double& R, double& Theta)
 }
 
 
-double dpsp_pesdTheta( double& R, double& Theta )
+double dpsp_pesdTheta( const double &R, const double &Theta )
 {
 	double t5, t6, t7, t8, t9, t14, t15, t23, t26, t27, t30, t33, t36, t37, t38, t40, t41,
 	 t44, t45, t48, t49, t50, t55, t56, t57, t59, t63, t64, t66, t67, t73, t74, 
 	 t75, t77, t81, t82, t85, t87, t89, t90, t91, t94, t95, t97, t99, t105; 
-	double cosT = cos(Theta);
-	double sinT = sin(Theta);
-
+	double cosT = cos( Theta );
+	double sinT = sin( Theta );
 	double *legP = legendre_array( 10, cosT );
 
 	if (R < 6.329250)

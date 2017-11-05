@@ -196,9 +196,9 @@ void hamiltonian(double* out, double R, double Theta, double pR, double pT, doub
     	double h_dr = ang_term + kin_term + cor_term;
     
    		ang_term = 0.5 * j_vector.transpose() * G11_dTheta * j_vector;
-   		kin_term = 0.5 * p_vector.transpose() * G22_dTheta * p_vector;
-    	cor_term = j_vector.transpose() * G12_dTheta * p_vector;
-    	double h_dTheta = ang_term + kin_term + cor_term;
+		kin_term = 0.5 * p_vector.transpose() * G22_dTheta * p_vector;
+		cor_term = j_vector.transpose() * G12_dTheta * p_vector;
+		double h_dTheta = ang_term + kin_term + cor_term;
     	
 		// derivatives dH/dphi and dH/dtheta
 		ang_term = j_vector.transpose() * G11 * j_vector_dphi;

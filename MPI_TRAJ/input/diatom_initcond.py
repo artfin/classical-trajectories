@@ -9,21 +9,20 @@ MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO;
 
 R = 40.0
 
-B_MIN = 0.0
-B_MAX = 12.0
+PR_MIN = -10.0
+PR_MAX = -0.05
+PR_STEP = 0.05
 
-V_MIN = 1.0 / MU
-V_MAX = 50.0 / MU
+PT_MIN = -1.0
+PT_MAX = 0.0
+PT_STEP = 0.05
 
-B_STEP = 0.10
-V_STEP = 5.000 / MU
+PR = np.linspace( PR_MIN, PR_MAX, (PR_MAX - PR_MIN) / PR_STEP + 1 );
+PT = np.linspace( PT_MIN, PT_MAX, (PT_MAX - PT_MIN) / PT_STEP + 1 );
 
-b = np.linspace( B_MIN, B_MAX, (B_MAX - B_MIN) / B_STEP + 1 );
-#print(b)
-v = np.linspace( V_MIN, V_MAX, (V_MAX - V_MIN) / V_STEP + 1 );
-#print(v)
+theta = 0.0
 
 counter = 1 
-for _b, _v in product( b, v ):
-    print("{0} {1} {2} {3}".format(counter, R, _b, - _v))
+for pr, pt in product( PR, PT ):
+    print("{0} {1} {2} {3} {4}".format(counter, R, pr, theta, pt))
     counter += 1
