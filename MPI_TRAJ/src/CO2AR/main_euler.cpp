@@ -336,7 +336,7 @@ void slave_code( int world_rank )
 		// sampling time = 50 fs
 
 		// in atomic time units
-		const double sampling_time = 2250.0; 
+		const double sampling_time = 2000.0; 
 
   		epsabs = 1E-13;
   		epsrel = 1E-13;
@@ -345,7 +345,7 @@ void slave_code( int world_rank )
 			
   		h = 0.1;         		// initial step size
   		xend = sampling_time;   // initial right bound of integration
-  		fmax = 1e8;  	 		// maximal number of calls 
+  		fmax = 1e10;  	 		// maximal number of calls 
 			
 		//double *dipole = new double [3];
 		copy_initial_conditions( ics, y0, N );

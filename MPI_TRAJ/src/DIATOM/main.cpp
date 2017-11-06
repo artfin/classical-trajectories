@@ -109,10 +109,10 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/DIATOM/mcmc3", "r" );
+	FILE* inputfile = fopen("input/DIATOM/mcmc_gunsight_5", "r" );
 	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
-	string spectrum_filename = "mcmc3";
+	string spectrum_filename = "mcmc_gunsight_5";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -275,7 +275,7 @@ void slave_code( int world_rank )
 		// sampling time = 50 fs
 
 		// in atomic time units
-		const double sampling_time = 2000; 
+		const double sampling_time = 1000; 
 
 		epsabs = 1E-13;
 		epsrel = 1E-13;

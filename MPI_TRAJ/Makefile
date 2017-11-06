@@ -4,6 +4,7 @@ MPICC = mpic++
 # usual compiler
 CCXX = g++
 
+CXXFLAGS_NOOPT = -std=c++11 
 CXXFLAGS = -std=c++11 -O3 -lstdc++ -march=native -mtune=native -lm
 
 INCLUDE_FFTW = -lfftw3
@@ -199,7 +200,7 @@ diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
 # plot spectral function and binary adsorption coeff
 #
 make_spectrum: $(SRC_PATH_MISC)make_spectrum.cpp
-	$(CCXX) $(CXXFLAGS) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@
+	$(CCXX) $(CXXFLAGS_NOOPT) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@
 ######################################################################
 
 
