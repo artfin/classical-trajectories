@@ -66,8 +66,8 @@ void show_vector( string name, vector<double> v )
 
 void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<double>> &v, vector< string > titles )
 {
-	gp << "set xrange [0.0 : 500];\n";
-	gp << "set yrange [0.005 : 5];\n";	
+	gp << "set xrange [0.0 : 550];\n";
+	gp << "set yrange [1e-15:1e-13];\n";	
 
 	gp << "set logscale y;\n";
 		
@@ -121,6 +121,14 @@ int main()
 	vector<double> ubs_mcmc_gunsight1, ubs_mcmc_gunsight2, ubs_mcmc_gunsight3, ubs_mcmc_gunsight4, ubs_mcmc_gunsight5;
 	vector<double> contents_mcmc_gunsight1, contents_mcmc_gunsight2, contents_mcmc_gunsight3, contents_mcmc_gunsight4, contents_mcmc_gunsight5;
 
+	vector<double> lbs_mcmc_no_weight1, lbs_mcmc_no_weight2;
+	vector<double> ubs_mcmc_no_weight1, ubs_mcmc_no_weight2;
+	vector<double> contents_mcmc_no_weight1, contents_mcmc_no_weight2;
+
+	vector<double> lbs_buryak1, lbs_buryak5;
+   	vector<double> ubs_buryak1, ubs_buryak5;
+	vector<double> contents_buryak1, contents_buryak5;	
+
 	read_file( "new_results/weights_test", lbs, ubs, contents );
 	read_file( "new_results/weights_test2", lbs2, ubs2, contents2 );
 	read_file( "new_results/weights_test3", lbs3, ubs3, contents3 );
@@ -151,14 +159,29 @@ int main()
 	read_file( "new_results/mcmc_gunsight_4", lbs_mcmc_gunsight4, ubs_mcmc_gunsight4, contents_mcmc_gunsight4 );
 	read_file( "new_results/mcmc_gunsight_5", lbs_mcmc_gunsight5, ubs_mcmc_gunsight5, contents_mcmc_gunsight5 );
 
+	read_file( "mcmc_gunsight_1_no_weight", lbs_mcmc_no_weight1, ubs_mcmc_no_weight1, contents_mcmc_no_weight1 );
+	//read_file( "new_results/mcmc_gunsight_5_no_weight", lbs_mcmc_no_weight2, ubs_mcmc_no_weight2, contents_mcmc_no_weight2 );
+
+	read_file( "buryak1", lbs_buryak1, ubs_buryak1, contents_buryak1 );
+	//read_file( "buryak2", lbs_buryak2, ubs_buryak2, contents_buryak2 );
+	//read_file( "buryak3", lbs_buryak3, ubs_buryak3, contents_buryak3 );
+	//read_file( "buryak4", lbs_buryak4, ubs_buryak4, contents_buryak4 );
+	read_file( "buryak5", lbs_buryak5, ubs_buryak5, contents_buryak5 );
+
 	vector< vector<double>> x { lbs, lbs2, lbs3, lbs4, lbs5, lbs6, lbs7, lbs8, lbs9, lbs10, lbs11, lbs12, lbs13, lbs14, lbs15, lbs16, lbs17 };
 	vector< vector<double>> y { contents, contents2, contents3, contents4, contents5, contents6, contents7, contents8, contents9, contents10, contents11, contents12, contents13, contents14, contents15, contents16, contents17 };
 
 	vector< vector<double>> x_mcmc { lbs_mcmc2, lbs_mcmc3, lbs_mcmc4, lbs_mcmc5 };
 	vector< vector<double>> y_mcmc { contents_mcmc2, contents_mcmc3, contents_mcmc4, contents_mcmc5 };
 
-	vector< vector<double>> x_mcmc_gunsight{ lbs_mcmc_gunsight2, lbs_mcmc_gunsight3, lbs_mcmc_gunsight4, lbs_mcmc_gunsight5 };
-	vector< vector<double>> y_mcmc_gunsight{ contents_mcmc_gunsight2, contents_mcmc_gunsight3, contents_mcmc_gunsight4, contents_mcmc_gunsight5 };
+	//vector< vector<double>> x_mcmc_gunsight{ lbs_mcmc_gunsight2, lbs_mcmc_gunsight3, lbs_mcmc_gunsight4, lbs_mcmc_gunsight5, lbs_mcmc_no_weight1, lbs_mcmc_no_weight2 };
+	//vector< vector<double>> y_mcmc_gunsight{ contents_mcmc_gunsight2, contents_mcmc_gunsight3, contents_mcmc_gunsight4, contents_mcmc_gunsight5, contents_mcmc_no_weight1, contents_mcmc_no_weight2 };
+
+	vector<vector<double>> x_mcmc_gunsight{ lbs_mcmc_no_weight1 };
+	vector<vector<double>> y_mcmc_gunsight{ contents_mcmc_no_weight1 };
+
+	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak5 };
+	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak5 };
 
 	vector< string > titles;
 	titles.push_back( "PR in [0, -0.5](step=0.05); PT in [0, 1.0](step=0.05); R0 = 40.0" );
@@ -187,15 +210,25 @@ int main()
 	titles_mcmc.push_back( "MCMC ICS; 500.000 trajs (R0 = 200.0 a0)" );	
 
 	vector< string > titles_mcmc_gunsight;
-	titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs (b < 1.0, R0 = 200 a0)" );
-	titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs (b < 2.0, R0 = 200 a0)" );
-	titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs(b < 1.0, R0 = 50a0)" );
-	titles_mcmc_gunsight.push_back( "MCMC ICS; 5.000 trajs(b < 1.0, R0 = 50a0)" );
+	//titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs (b < 1.0, R0 = 200 a0)" );
+	//titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs (b < 2.0, R0 = 200 a0)" );
+	//titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs(b < 1.0, R0 = 50a0)" );
+	//titles_mcmc_gunsight.push_back( "MCMC ICS; 5.000 trajs(b < 1.0, R0 = 50a0)" );
+	//titles_mcmc_gunsight.push_back( "MCMC ICS; 3.000 trajs(b < 1.0, R0 = 200a0); NO WEIGHT" );
+	titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs(b < 1.0, R0 = 50a0); NO WEIGHT" );
+
+	vector<string> titles_buryak;
+	titles_buryak.push_back( "sampling time=1000; R0 = 40a0" );
+	//titles_buryak.push_back( "sampling time=500; R0 = 40a0" );
+	//titles_buryak.push_back( "sampling time=100; R0 = 40a0" );
+	//titles_buryak.push_back( "sampling time=10; R0 = 40a0" );
+	titles_buryak.push_back( "sampling time=1000; 10x trajs; R0 = 40a0" );
 
 	Gnuplot gp;
 	//plot_signal( gp, x, y, titles );
 	//plot_signal( gp, x_mcmc, y_mcmc, titles_mcmc );
-	plot_signal( gp, x_mcmc_gunsight, y_mcmc_gunsight, titles_mcmc_gunsight );
+	//plot_signal( gp, x_mcmc_gunsight, y_mcmc_gunsight, titles_mcmc_gunsight );
+	plot_signal( gp, x_buryak, y_buryak, titles_buryak );
 
 	return 0;
 }

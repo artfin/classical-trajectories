@@ -36,7 +36,7 @@ const int EXIT_TAG = 42;
 
 // ############################################
 // Number of initial conditions per trajectory
-const int ICPERTRAJ = 5; 
+const int ICPERTRAJ = 4; 
 // ############################################
 
 // ############################################
@@ -55,6 +55,9 @@ const double AR_MASS = 39.9623831237;
 const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
 
 const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
+
+const double V0_STEP = 4.571028e-6;
+const double B_STEP = 0.472431;
 
 using namespace std;
 
@@ -109,10 +112,10 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/DIATOM/mcmc_gunsight_1", "r" );
+	FILE* inputfile = fopen("input/DIATOM/buryak5", "r" );
 	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
-	string spectrum_filename = "mcmc_gunsight_1_no_weight";
+	string spectrum_filename = "buryak5";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -125,12 +128,11 @@ void master_code( int world_size )
 	// sending first message to slaves
 	for ( int i = 1; i < world_size; i++ ) 
 	{
-		scanfResult = fwscanf( inputfile, L"%lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4] );
+		scanfResult = fwscanf( inputfile, L"%lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3] );
 		cout << "Read initial condition: " << ics[0] << " " 
 										   << ics[1] << " "
 										   << ics[2] << " "
-										   << ics[3] << " " 
-										   << ics[4] << endl;
+										   << ics[3] << endl;
 		MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 
 		NTRAJ++;
@@ -184,7 +186,7 @@ void master_code( int world_size )
 		}
 
 		// reading another line from file
-		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4] );	
+		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3] );	
 		// if it's not ended yet then sending new chunk of work to slave
 		if ( scanfResult != -1)
 		{
@@ -255,14 +257,25 @@ void slave_code( int world_rank )
 		//cout << "ics[1] = " << ics[1] << endl;
 		//cout << "ics[2] = " << ics[2] << endl;
 		//cout << "ics[3] = " << ics[3] << endl;
-		//cout << "ics[4] = " << ics[4] << endl;
 		//cout << "########################" << endl;
 
 		int trajectory_number = ics[0];
+		double R = ics[1];
+		double b = ics[2];
+		double v0 = -ics[3];
+
+		double pR = MU * v0;
+		double pT = b * pR;
+		double theta = 0;	
 
 		N = 4;
 		vmblock = vminit();
 		y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
+
+		y0[0] = R;
+		y0[1] = pR;
+		y0[2] = theta;
+		y0[3] = pT;
 
 		// out of memory?
 		if ( !vmcomplete(vmblock) )
@@ -286,7 +299,6 @@ void slave_code( int world_rank )
 		xend = sampling_time;   // initial right bound of integration
 		fmax = 1e8;  	 		// maximal number of calls 
 
-		copy_initial_conditions( ics, y0, N );
 		//cout << "y0[0] = " << y0[0] << endl;
 		//cout << "y0[1] = " << y0[1] << endl;
 		//cout << "y0[2] = " << y0[2] << endl;
@@ -295,7 +307,10 @@ void slave_code( int world_rank )
 		double energy = pow(y0[1], 2) / 2 / MU + pow(y0[3], 2) / ( 2 * MU * pow(y0[0], 2));
 		//cout << "energy: " << energy << endl;
 
-		double weight = exp( - constants::HTOJ * energy / (constants::BOLTZCONST * Temperature ));
+		double b_weight = fabs( 2 * M_PI * v0 * b * B_STEP );
+		double v0_weight = exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP;
+
+		double weight = b_weight * v0_weight; 
 		
 		int counter = 0;
 		double end_value = y0[0] + 0.1; 
@@ -366,7 +381,7 @@ void slave_code( int world_rank )
 			for ( int i = 0; i < freqs_size; i++ )
 			{
 				power = dipx_out[i] + dipy_out[i] + dipz_out[i];	
-				intensities.push_back( power );	
+				intensities.push_back( power * weight );	
 			}
 
 			//show( "freqs", "ints", freqs, intensities );
