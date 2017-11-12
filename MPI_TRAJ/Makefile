@@ -12,6 +12,8 @@ INCLUDE_EIGEN = -I/usr/local/include/eigen3
 INCLUDE_GSL = -lgsl -lgslcblas
 INCLUDE_GNUPLOT_IO = -I /home/artfin/Desktop/repos/gnuplot-iostream  
 
+OPENGL_LFLAGS = -lglut -lGL -lGLEW -lGLU
+
 LINK_BOOST = -lboost_iostreams -lboost_system -lm
 
 ######################################################################
@@ -198,6 +200,8 @@ diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
 buryak: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main_buryak.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 
+formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 
 ######################################################################
@@ -205,6 +209,11 @@ buryak: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main_buryak.cpp
 #
 make_spectrum: $(SRC_PATH_MISC)make_spectrum.cpp
 	$(CCXX) $(CXXFLAGS_NOOPT) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@
+######################################################################
+
+######################################################################
+visualize: $(SRC_PATH_DIATOM)visualize_trajectory.cpp
+	$(CCXX) $(CXXFLAGS_NOOPT) $(OPENGL_LFLAGS) $^ -o $@
 ######################################################################
 
 
