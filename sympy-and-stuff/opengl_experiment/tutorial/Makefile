@@ -8,3 +8,7 @@ triangle: triangle.cpp
 
 snowman: snowman.cpp
 	$(CCXX) $(CXXFLAGS) $(OPENGL_LFLAGS) $^ -o $@
+
+materials: materials.cpp
+	$(CCXX) $(CXXFLAGS) $(OPENGL_LFLAGS) $^ -o $@
+

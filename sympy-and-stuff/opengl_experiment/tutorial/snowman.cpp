@@ -1,3 +1,4 @@
+#include <GL/gl.h>
 #include <GL/glut.h>
 #include <cmath>
 
@@ -9,6 +10,22 @@ float lx = 0.0f, lz = -1.0f;
 
 // XZ position of the camera
 float x = 0.0f, z = 5.0f;
+
+// the key states
+// these variables will be zero when no is pressed
+float deltaAngle = 0.0f;
+float deltaMove = 0;
+
+GLfloat whiteSpecularLight[] = { 0.0, 1.0, 1.0 };
+//GLfloat blackAmbientLight[] = { 1.0, 0.78, 1.0, 10.0 };
+GLfloat whiteDiffuseLight[] = { 1.0, 1.0, 1.0 };
+
+void light( void )
+{
+	glLightfv( GL_LIGHT0, GL_SPECULAR, whiteSpecularLight );
+	//glLightfv( GL_LIGHT0, GL_AMBIENT, blackAmbientLight );
+	glLightfv( GL_LIGHT0, GL_DIFFUSE, whiteDiffuseLight );
+}
 
 void changeSize( int w, int h )
 {
@@ -56,13 +73,38 @@ void drawSnowMan( void )
 	glutSolidCone( 0.08f, 0.5f, 10, 2 );
 }
 
+void computePos( float deltaMove )
+{
+	x += deltaMove * lx * 0.1f;
+	z += deltaMove * lz * 0.1f;
+}
+
+void computeDir( float deltaAngle )
+{
+	angle += deltaAngle;
+	lx = sin( angle );
+	lz = -cos( angle );
+}
+
 void renderScene( void )
 {
+	if ( deltaMove )
+	{
+		computePos( deltaMove );
+	}
+	if ( deltaAngle )
+	{
+		computeDir( deltaAngle );
+	}
+
 	// clear color and depth buffers
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	// reset transformations
 	glLoadIdentity();
+	
+	light();
+	
 	// set the camera
 	// first: position of camera
 	// second: look at point = line of sight + camera position
@@ -94,6 +136,36 @@ void renderScene( void )
 	}
 
 	glutSwapBuffers();
+}
+
+void pressKey( int key, int xx, int yy )
+{
+	switch( key )
+	{
+		case GLUT_KEY_LEFT: 
+				deltaAngle = -0.01f; 
+				break;
+		case GLUT_KEY_RIGHT: 
+				deltaAngle = 0.01f; 
+				break;
+		case GLUT_KEY_UP: 
+				deltaMove = 0.5f; 
+				break;
+		case GLUT_KEY_DOWN:
+				deltaMove = -0.5f;
+				break;
+	}
+}
+
+void releaseKey( int key, int x, int y )
+{
+	switch( key )
+	{
+		case GLUT_KEY_LEFT:
+		case GLUT_KEY_RIGHT: deltaAngle = 0.0f; break;
+		case GLUT_KEY_UP:
+		case GLUT_KEY_DOWN: deltaMove = 0; break;
+	}
 }
 
 void processSpecialKeys( int key, int xx, int yy )
@@ -137,11 +209,29 @@ int main( int argc, char** argv )
 	glutReshapeFunc( changeSize );
 	glutIdleFunc( renderScene );
 	//glutKeyboardFunc( processNormalKeys );
-	glutSpecialFunc( processSpecialKeys );
+	glutSpecialFunc( pressKey );
+
+	// advanced keyboard functions
+	glutIgnoreKeyRepeat( 1 );
+	glutSpecialUpFunc( releaseKey );
 
 	// openg init
 	glEnable( GL_DEPTH_TEST );
+	
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_shininess[] = { 100.0 };
+	GLfloat light_position[] = { 1.0, 1.0, 1.0, 1.0 };
+	
+	glClearColor( 0.0, 0.0, 0.0, 0.0 );
+	glShadeModel( GL_SMOOTH );
 
+	glMaterialfv( GL_FRONT, GL_SPECULAR, mat_specular );
+	glMaterialfv( GL_FRONT, GL_SHININESS, mat_shininess );
+	glLightfv( GL_LIGHT0, GL_POSITION, light_position );
+
+	glEnable( GL_LIGHTING );
+	glEnable( GL_LIGHT0 );
+	glEnable(GL_COLOR_MATERIAL);
 	// enter glut event processing cycle
 	glutMainLoop();
 
