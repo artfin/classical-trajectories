@@ -16,15 +16,36 @@ using std::endl;
 using std::vector;
 using std::tuple;
 using std::string;
+using std::get;
+
+// vectors of coordinates
+vector<tuple<double, double, double>> he_coordinates;
+vector<tuple<double, double, double>> ar_coordinates;
+
+static int cur_coord = 0;
 
 // angle of rotation for the camera direction
 float angle = 0.0;
 
 // actual vector representing the camera's direction
-float lx = 0.0f, lz = -1.0f;
+float lx = 0.0f, lz = 1.0f;
 
 // XZ position of the camera
-float x = 0.0f, z = 5.0f;
+float x = 0.0f, z = 0.0f;
+
+// the key states
+// these variables will be zero the no key is pressed
+float deltaAngle = 0.0f;
+float deltaMove = 0;
+
+GLfloat whiteSpecularLight[] = { 1.0, 1.0, 1.0 };
+GLfloat whiteDiffuseLight[] = { 1.0, 1.0, 1.0 };
+
+void light( void )
+{
+	glLightfv( GL_LIGHT0, GL_SPECULAR, whiteSpecularLight );
+	glLightfv( GL_LIGHT0, GL_DIFFUSE, whiteDiffuseLight );
+}
 
 void read_coordinates( vector<tuple<double, double, double>> &he_coords,
 					   vector<tuple<double, double, double>> &ar_coords,
@@ -83,60 +104,146 @@ void changeSize( int w, int h )
 	glMatrixMode( GL_MODELVIEW );
 }
 
+void computePos( float deltaMove )
+{
+	x += deltaMove * lx * 0.1f;
+	z += deltaMove * lz * 0.1f;
+}
+
+void computeDir( float deltaAngle )
+{
+	angle += deltaAngle;
+	lx = sin( angle );
+	lz = - cos( angle );
+}
+
+void print_text( const int &x, const int &y, const int &z, const string msg )
+{
+	glColor3f( 1.0f, 1.0f, 1.0f );
+	glLoadIdentity();
+	glRasterPos3f( x, y, z );
+
+	for( int i = 0; i < msg.length(); i++ )
+	{
+			//cout << "msg[" << i << "] = " << msg[i] << endl;
+		glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, msg[i] );
+	}	
+}
+
+void to_string( const double &x, string &msg )
+{
+	std::ostringstream convert;
+	convert << x;
+	msg = convert.str();
+}
+
 void renderScene( void )
 {
+	if ( deltaMove )
+	{
+		computePos( deltaMove );
+	}
+	if ( deltaAngle )
+	{
+		computeDir( deltaAngle );
+	}
+
 	// clear color and depth buffers
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	// reset transformations
 	glLoadIdentity();
+
+	light();
+
 	// set the camera
-	gluLookAt( x, 1.0f, z,
+	gluLookAt( x, 0.0f, z,
 			   x + lx, 1.0f, z + lz,
 			   0.0f, 1.0f, 0.0f 
 			 );
-	glTranslatef( 1.0, 0.0, 1.0 );
+
+	glTranslatef( get<0>( he_coordinates[cur_coord] ), get<0>( he_coordinates[cur_coord]), get<2>( he_coordinates[cur_coord] ) );
+	glColor3f( 1.0, 0.0, 0.0 );
 	glutSolidSphere( 0.05f, 10, 10 );
-	
-	glTranslatef( 3.0, 0.0, 3.0 );
+
+	glLoadIdentity();
+
+	glTranslatef( get<0>( ar_coordinates[cur_coord]), get<1>( ar_coordinates[cur_coord]), get<2>( ar_coordinates[cur_coord]) );
+	glColor3f( 0.0, 1.0, 0.0 );
 	glutSolidSphere( 0.05f, 10, 10 );
+
+	glColor3f( 1.0f, 1.0f, 1.0f );
+	GLfloat axe_width = 3.0;
+
+	string x_camera_coord, z_camera_coord;
+	to_string( x, x_camera_coord );
+	to_string( z, z_camera_coord );
+
+	string camera_coords = "X: " + x_camera_coord + "; Z: " + z_camera_coord;
+	//cout << "camera_coords: " << camera_coords << endl;
+
+	print_text( x + 1.0, 0.0, z + 1.0, camera_coords );
+
+	//glLoadIdentity();
+	glLineWidth( (GLfloat) axe_width );
+	glBegin( GL_LINES );
+		glVertex3f( 0.0f, 0.0f, -50.0f );
+		glVertex3f( 0.0f, 0.0f, 50.0f );
+	glEnd();
+
+	glLoadIdentity();
+	glLineWidth( (GLfloat) axe_width );
+	glBegin( GL_LINES );
+		glVertex3f( 50.0f, 0.0f, 0.0f );
+		glVertex3f( -50.0f, 0.0f, 0.0f );
+	glEnd();
 
 	glutSwapBuffers();
 }
 
-void processSpecialKeys( int key, int xx, int yy )
+void pressKey( int key, int xx, int yy )
 {
-	float fraction = 1.0f;
+	switch( key )
+	{
+		case GLUT_KEY_LEFT: 
+				deltaAngle = -0.01f; 
+				break;
+		case GLUT_KEY_RIGHT: 
+				deltaAngle = 0.01f; 
+				break;
+		case GLUT_KEY_UP: 
+				deltaMove = 0.5f; 
+				break;
+		case GLUT_KEY_DOWN:
+				deltaMove = -0.5f;
+				break;
+	}
+}
 
+void releaseKey( int key, int x, int y )
+{
 	switch( key )
 	{
 		case GLUT_KEY_LEFT:
-			angle -= 0.01f;
-			lx = sin( angle );
-			lz = -cos( angle );
-			break;
-		case GLUT_KEY_RIGHT:
-			angle += 0.01f;
-			lx = sin( angle );
-			lz = -cos( angle );
-			break;
+		case GLUT_KEY_RIGHT: deltaAngle = 0.0f; break;
 		case GLUT_KEY_UP:
-			x += lx * fraction;
-			z += lz * fraction;
-			break;
-		case GLUT_KEY_DOWN:
-			x -= lx * fraction;
-			z -= lz * fraction;
+		case GLUT_KEY_DOWN: deltaMove = 0; break;
+	}
+}
+
+void keyboard( unsigned char key, int x, int y )
+{
+	switch( key )
+	{
+		case 'n':
+			cur_coord ++;
 			break;
 	}
 }
 
 int main( int argc, char* argv[] )
 {
-	vector<tuple<double, double, double>> he_coords;
-	vector<tuple<double, double, double>> ar_coords;
-
-	read_coordinates( he_coords, ar_coords, "coords.txt" );
+	read_coordinates( he_coordinates, ar_coordinates, "coords.txt" );
 
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
@@ -150,10 +257,19 @@ int main( int argc, char* argv[] )
 	glutIdleFunc( renderScene );
 
 	// processing keys callback
-	glutSpecialFunc( processSpecialKeys );
+	glutKeyboardFunc( keyboard );
+	glutSpecialFunc( pressKey );
+	
+	// advanced keyboard functions
+	glutIgnoreKeyRepeat( 1 );
+	glutSpecialUpFunc( releaseKey );
+
 
 	// opengl init
 	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_LIGHTING );
+	glEnable( GL_LIGHT0 );
+	glEnable(GL_COLOR_MATERIAL);
 
 	glutMainLoop();
 

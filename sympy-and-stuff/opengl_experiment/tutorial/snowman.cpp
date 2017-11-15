@@ -123,10 +123,13 @@ void renderScene( void )
 		glVertex3f(  100.0f, 0.0f, -100.0f );
 	glEnd();
 
-	// draw 36 snowmen
-	for ( int i = -3; i < 3; i++ )
+	// draw snowmen
+	int min = -10;
+	int max =  10;
+
+	for ( int i = min; i < max; i++ )
 	{
-		for ( int j = -3; j < 3; j++ )
+		for ( int j = min; j < max; j++ )
 		{
 			glPushMatrix();
 			glTranslatef( i * 10.0, 0.0, j * 10.0 );
