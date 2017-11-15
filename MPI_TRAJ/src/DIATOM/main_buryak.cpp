@@ -45,19 +45,22 @@ const double Temperature = 298;
 
 // ############################################
 // GSL Histogram parameters (spectrum boundaries)
-const int NBINS = 1000;
+const int NBINS = 100;
 const double LBOUND = 0.0;
-const double RBOUND = 4000.0;
+const double RBOUND = 1000.0;
+const double BIN_SIZE = (RBOUND - LBOUND) / NBINS;
 // ############################################
 
 const double HE_MASS = 4.00260325413;
 const double AR_MASS = 39.9623831237; 
 const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
 
+const double EPSILON0 = 8.854187817 * 1E-12;
+
 const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
 
-const double V0_STEP = 4.571028e-6;
-const double B_STEP = 0.472431;
+double V0_STEP;
+double B_STEP;
 
 using namespace std;
 
@@ -112,10 +115,10 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/DIATOM/buryak5", "r" );
+	FILE* inputfile = fopen("input/DIATOM/buryak_4600_25_6_025", "r" );
 	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
-	string spectrum_filename = "buryak5";
+	string spectrum_filename = "buryak_4600_10_dv0_25";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -125,14 +128,24 @@ void master_code( int world_size )
 	// result of reading values from file
 	int scanfResult;
 
+	scanfResult = fwscanf( inputfile, L"%lf %lf\n", &B_STEP, &V0_STEP );
+	cout << "B_STEP: " << B_STEP << "; V0_STEP: " << V0_STEP << endl;
+	
+	// sending b_step and v_step to all slaves
+	for ( int i = 1; i < world_size; i++ )
+	{
+		MPI_Send( &B_STEP, 1, MPI_DOUBLE, i, 0, MPI_COMM_WORLD );
+		MPI_Send( &V0_STEP, 1, MPI_DOUBLE, i, 0, MPI_COMM_WORLD );
+	}
+
 	// sending first message to slaves
 	for ( int i = 1; i < world_size; i++ ) 
 	{
 		scanfResult = fwscanf( inputfile, L"%lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3] );
-		cout << "Read initial condition: " << ics[0] << " " 
-										   << ics[1] << " "
-										   << ics[2] << " "
-										   << ics[3] << endl;
+		//cout << "Read initial condition: " << ics[0] << " " 
+										   //<< ics[1] << " "
+										   //<< ics[2] << " "
+										   //<< ics[3] << endl;
 		MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 
 		NTRAJ++;
@@ -182,7 +195,7 @@ void master_code( int world_size )
 		for ( int i = 0; i < freqs_package.size(); i++ )
 		{
 			// increases the value of appropriate bin by intensity
-			gsl_histogram_accumulate( histogram, freqs_package[i], intensities_package[i] );
+			gsl_histogram_accumulate( histogram, freqs_package[i], intensities_package[i] / BIN_SIZE );
 		}
 
 		// reading another line from file
@@ -241,6 +254,10 @@ void slave_code( int world_rank )
 
 	// auxiliary variable to store status of message
 	MPI_Status status;
+
+	// receiving B_STEP and V0_STEP
+	MPI_Recv( &B_STEP, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+	MPI_Recv( &V0_STEP, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 
 	while ( true )
 	{
@@ -311,7 +328,12 @@ void slave_code( int world_rank )
 		double v0_weight = exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP;
 
 		double weight = b_weight * v0_weight; 
-		
+		//cout << "B_STEP: " << B_STEP << endl;
+		//cout << "V0_STEP: " << V0_STEP << endl;
+		//cout << "b_weight: " << b_weight << endl;
+		//cout << "v0_weight: " << v0_weight << endl;
+		//cout << "weight: " << weight << endl;
+
 		int counter = 0;
 		double end_value = y0[0] + 0.1; 
 

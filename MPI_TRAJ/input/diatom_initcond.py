@@ -16,20 +16,22 @@ AVU = ALU / ATU
 
 V0_MAX = 4600 / AVU # atomic velocity units
 #print('V0_MAX: {0}'.format(V0_MAX))
-V0_DELTA = 10 / AVU 
-print('V0_STEP: {0}'.format(V0_DELTA))
+V0_DELTA = 25 / AVU 
+#print('V0_STEP: {0}'.format(V0_DELTA))
 V0_POINTS = V0_MAX / V0_DELTA + 1
 
 B_MAX = 6.0 * 10**(-10) / ALU 
 B_DELTA = 0.25 * 10**(-10) / ALU
-print('B_STEP: {0}'.format(B_DELTA))
+#print('B_STEP: {0}'.format(B_DELTA))
 B_POINTS = B_MAX / B_DELTA + 1
 
 V0 = np.linspace( V0_DELTA, V0_MAX, V0_POINTS )
 #print(V0)
-B = np.linspace( 0.0, B_MAX, B_POINTS )
+B = np.linspace( B_DELTA, B_MAX, B_POINTS )
 
 R = 40.0
+
+print("{0} {1}".format(B_DELTA, V0_DELTA))
 
 counter = 1 
 for b, v0 in product( B, V0 ):
