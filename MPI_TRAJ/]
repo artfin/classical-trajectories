@@ -42,12 +42,12 @@ const int ICPERTRAJ = 6;
 // ############################################
 
 // ############################################
-const double Temperature = 295; 
+const double Temperature = 298; 
 // ############################################
 
 // ############################################
 // GSL Histogram parameters (spectrum boundaries)
-const int NBINS = 50;
+const int NBINS = 100;
 const double LBOUND = 0.0;
 const double RBOUND = 1000.0;
 const double BIN_SIZE = (RBOUND - LBOUND) / NBINS;
@@ -123,10 +123,10 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/DIATOM/buryak_9300_50_625_025_500_4862_20_simpson", "r" );
+	FILE* inputfile = fopen("input/DIATOM/buryak_4650_50_625_025_500_2444_10_simpson", "r" );
 	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
-	string spectrum_filename = "buryak_9300_50_625_025_500_4862_20_simpson";
+	string spectrum_filename = "buryak_4650_50_625_025_500_2444_10_simpson";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -136,21 +136,21 @@ void master_code( int world_size )
 	// result of reading values from file
 	int scanfResult;
 
-	char integration_type[256];
-	scanfResult = fwscanf( inputfile, L"%s", &integration_type[0] );
-	int l = strlen( integration_type ); // length of integration type
+	string integration_type;
+	scanfResult = fwscanf( inputfile, L"%ls\n", &integration_type );
+	cout << "MASTER; integration type = " << integration_type << endl;
+	
+	char *buf = integration_type.c_str();
+	cout << "MASTER; buf = " << buf << endl;
 
 	scanfResult = fwscanf( inputfile, L"%lf %lf\n", &B_STEP, &V0_STEP );
 	cout << "B_STEP: " << B_STEP << "; V0_STEP: " << V0_STEP << endl;
 
-	//sending integration type
+	// sending integration type
 	for ( int i = 1; i < world_size; i++ )
 	{
-		MPI_Send( &l, 1, MPI_INT, i, 0, MPI_COMM_WORLD );
-		MPI_Send( &integration_type[0], l, MPI_CHAR, i, 0, MPI_COMM_WORLD ); 
+		MPI_Send( &integration_type.c_str(), integration_type.length(), MPI_CHAR, i, 0, MPI_COMM_WORLD ); 
 	}
-
-	// freeing memory
 
 	// sending b_step and v_step to all slaves
 	for ( int i = 1; i < world_size; i++ )
@@ -285,40 +285,26 @@ void slave_code( int world_rank )
 	MPI_Status status;
 
 	// receiving integration type
-  	int l;
-	MPI_Recv( &l, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-	//cout << "Received length of buffer: " << l << endl;
-
+	// probing for a message from master
+	MPI_Probe( 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+  	// counting the length of message
+	int l; 
+	MPI_Get_count( &status, MPI_CHAR, &l );	
+	// allocating buffer
 	char *buf = new char [l];
-	MPI_Recv( buf, l, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status ); 
-	// converting char pointer to string
+	// properly receiving message
+	MPI_Recv( buf, l, MPI_CHAR, 0, MPI_ANY_TAG, &status );
+	
+	// converting message to string
 	string integration_type( buf, l );
 	delete [] buf;
-	cout << "integration_type: " << integration_type << endl;
 
-	int integration_denumerator = 0;
-	if ( integration_type == "simpson" )
-	{
-		cout << "Simpson integration type. Setting denumerator to 3." << endl;
-		integration_denumerator = 3;
-	}
-	if ( integration_type == "trapezoid" )
-	{
-		cout << "Trapezoid integartion type. Setting denumerator to 2." << endl;
-		integration_denumerator = 2;
-	}
-	if ( integration_denumerator == 0 )
-	{
-		cout << "UNKNOWN INTEGRATION TYPE" << endl;
-	}
+	cout << "SLAVE: integration_type: " << integration_type << endl;
 
 	// receiving B_STEP and V0_STEP
 	MPI_Recv( &B_STEP, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 	MPI_Recv( &V0_STEP, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 
-	//cout << "Received B_STEP: " << B_STEP << endl;
-	//cout << "Received V0_STEP: " << V0_STEP << endl;
-		
 	while ( true )
 	{
 		MPI_Recv(&ics[0], ICPERTRAJ, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -368,6 +354,7 @@ void slave_code( int world_rank )
 		// according to Ivanov:
 		// sampling time = 50 fs
 
+
 		epsabs = 1E-13;
 		epsrel = 1E-13;
 
@@ -385,12 +372,12 @@ void slave_code( int world_rank )
 		double energy = pow(y0[1], 2) / 2 / MU + pow(y0[3], 2) / ( 2 * MU * pow(y0[0], 2));
 		//cout << "energy: " << energy << endl;
 
-		double b_weight = fabs( 2 * M_PI * v0 * b * B_STEP ) * constants::AVU * pow(constants::ALU, 2) * b_weight_simpson / integration_denumerator; 
+		double b_weight = fabs( 2 * M_PI * v0 * b * B_STEP ) * constants::AVU * pow(constants::ALU, 2) * b_weight_simpson / 3.0; 
 		// /2.0 -- trapezoid rule
 		// /3.0 -- simpson rule
 		
 		double v0_weight_constant = pow((MU * constants::AMU / (2 * M_PI * constants::BOLTZCONST * Temperature)), 1.5);
-		double v0_weight = v0_weight_constant * exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_simpson / integration_denumerator;
+		double v0_weight = v0_weight_constant * exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_simpson / 3.0;
 		// /2.0 -- trapezoid rule
 		// /3.0 -- simpson rule
 

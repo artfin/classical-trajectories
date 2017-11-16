@@ -19,7 +19,7 @@ const long double LOSHMIDT_CONSTANT_CM = 2.6867774 * 1E19; // cm^-3
 const double HZTOCM = 3.335631 * pow( 10, -11 ); // hz to cm
 const double CMTOHZ = LIGHTSPEED_CM; // 
 const long double BOLTZCONST = 1.23 * 1E-23; // j / k
-const double Temperature = 300.0; // k
+const double Temperature = 295.0; // k
 
 void read_file( string filename, vector<double> &lbs, 
 				vector<double> &ubs, vector<double> &contents )
@@ -70,8 +70,11 @@ void show_vector( string name, vector<double> v )
 
 void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<double>> &v, vector< string > titles, bool set_logscale )
 {
-	gp << "set xrange [0.0 : 700];\n";
-	//gp << "set yrange [2e-17:2e-15];\n";	
+	//gp << "set terminal pngcairo enhanced font 'Dejavu Sans'\n";
+	gp << "set encoding utf8\n";
+	gp << "set format y '%.0sx10^{%S}'\n";
+	gp << "set xrange [0.0 : 500];\n";
+	gp << "set yrange [4.76e-79:4.76e-77];\n";	
 
 	if ( set_logscale )
 	{
@@ -164,9 +167,9 @@ int main( int argc, char* argv[] )
 	vector<double> ubs_mcmc_no_weight1, ubs_mcmc_no_weight2;
 	vector<double> contents_mcmc_no_weight1, contents_mcmc_no_weight2;
 
-	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7;
-   	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7;
-	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7;	
+	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9;
+   	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7, ubs_buryak8, ubs_buryak9;
+	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9;	
 	// ##############################################################
 
 	// ##############################################################
@@ -200,20 +203,18 @@ int main( int argc, char* argv[] )
 	read_file( "new_results/mcmc_gunsight_4", lbs_mcmc_gunsight4, ubs_mcmc_gunsight4, contents_mcmc_gunsight4 );
 	read_file( "new_results/mcmc_gunsight_5", lbs_mcmc_gunsight5, ubs_mcmc_gunsight5, contents_mcmc_gunsight5 );
 
-	read_file( "mcmc_gunsight_1_no_weight", lbs_mcmc_no_weight1, ubs_mcmc_no_weight1, contents_mcmc_no_weight1 );
+	//read_file( "mcmc_gunsight_1_no_weight", lbs_mcmc_no_weight1, ubs_mcmc_no_weight1, contents_mcmc_no_weight1 );
 	//read_file( "new_results/mcmc_gunsight_5_no_weight", lbs_mcmc_no_weight2, ubs_mcmc_no_weight2, contents_mcmc_no_weight2 );
 
-	//read_file( "buryak1", lbs_buryak1, ubs_buryak1, contents_buryak1 );
-	//read_file( "buryak2", lbs_buryak2, ubs_buryak2, contents_buryak2 );
-	//read_file( "buryak3", lbs_buryak3, ubs_buryak3, contents_buryak3 );
-	//read_file( "buryak4", lbs_buryak4, ubs_buryak4, contents_buryak4 );
-	read_file( "new_results/buryak_1150_4", lbs_buryak1, ubs_buryak1, contents_buryak1 );
-	read_file( "new_results/buryak_2300_10", lbs_buryak2, ubs_buryak2, contents_buryak2 );
-	read_file( "new_results/buryak_2300_20", lbs_buryak3, ubs_buryak3, contents_buryak3 );
-	read_file( "new_results/buryak_2600_10_normalized", lbs_buryak4, ubs_buryak4, contents_buryak4 );
-	read_file( "new_results/buryak_2600_20_normalized", lbs_buryak5, ubs_buryak5, contents_buryak5 );
-	read_file( "new_results/buryak_4600_10_normalized", lbs_buryak6, ubs_buryak6, contents_buryak6 );
-	read_file( "new_results/buryak_4600_10_dv0_25", lbs_buryak7, ubs_buryak7, contents_buryak7 );
+	read_file( "new_results/buryak_4600_50_6_025_1000_2325_10", lbs_buryak1, ubs_buryak1, contents_buryak1 );
+	read_file( "new_results/buryak_4600_25_6_025_1000_4625_10", lbs_buryak2, ubs_buryak2, contents_buryak2 );
+	read_file( "new_results/buryak_4600_50_6_0125_1000_4557_10", lbs_buryak3, ubs_buryak3, contents_buryak3 );
+	read_file( "new_results/buryak_4600_50_6_025_500_2325_10", lbs_buryak4, ubs_buryak4, contents_buryak4 );
+	read_file( "new_results/buryak_4600_50_6_025_100_2325_10", lbs_buryak5, ubs_buryak5, contents_buryak5 );
+	read_file( "new_results/buryak_4650_50_625_025_500_2444_10_simpson", lbs_buryak6, ubs_buryak6, contents_buryak6 );
+	read_file( "new_results/buryak_4650_50_625_025_500_2444_10_trapezoid", lbs_buryak7, ubs_buryak7, contents_buryak7 );
+	read_file( "new_results/buryak_4650_50_625_025_500_2444_20_simpson", lbs_buryak8, ubs_buryak8, contents_buryak8 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson", lbs_buryak9, ubs_buryak9, contents_buryak9 );
 	// ##############################################################
     
 	// ##############################################################
@@ -228,8 +229,9 @@ int main( int argc, char* argv[] )
 
 	vector<vector<double>> x_mcmc_gunsight{ lbs_mcmc_no_weight1 };
 	vector<vector<double>> y_mcmc_gunsight{ contents_mcmc_no_weight1 };
-	vector<vector<double>> x_buryak{ lbs_buryak4, lbs_buryak5, lbs_buryak6 };
-	vector<vector<double>> y_buryak{ contents_buryak4, contents_buryak5, contents_buryak6 };
+	
+	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9 };
+	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9 };
 
     // ##############################################################
 	vector< string > titles;
@@ -255,10 +257,10 @@ int main( int argc, char* argv[] )
     // ##############################################################
 	vector< string > titles_mcmc;
 	//titles_mcmc.push_back( "MCMC ICS; 1.000 trajs (R0 = 40.0 a0)" );
-	titles_mcmc.push_back( "MCMC ICS; 50.000 trajs (R0 = 40.0 a0)" );
-	titles_mcmc.push_back( "MCMC ICS; 50.000 trajs (R0 = 200.0 a0)" );	
-	titles_mcmc.push_back( "MCMC ICS; 200.000 trajs (R0 = 200.0 a0)" );	
-	titles_mcmc.push_back( "MCMC ICS; 500.000 trajs (R0 = 200.0 a0)" );	
+	//titles_mcmc.push_back( "MCMC ICS; 50.000 trajs (R0 = 40.0 a0)" );
+	//titles_mcmc.push_back( "MCMC ICS; 50.000 trajs (R0 = 200.0 a0)" );	
+	//titles_mcmc.push_back( "MCMC ICS; 200.000 trajs (R0 = 200.0 a0)" );	
+	//titles_mcmc.push_back( "MCMC ICS; 500.000 trajs (R0 = 200.0 a0)" );	
     // ##############################################################
 
     // ##############################################################
@@ -268,19 +270,20 @@ int main( int argc, char* argv[] )
 	//titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs(b < 1.0, R0 = 50a0)" );
 	//titles_mcmc_gunsight.push_back( "MCMC ICS; 5.000 trajs(b < 1.0, R0 = 50a0)" );
 	//titles_mcmc_gunsight.push_back( "MCMC ICS; 3.000 trajs(b < 1.0, R0 = 200a0); NO WEIGHT" );
-	titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs(b < 1.0, R0 = 50a0); NO WEIGHT" );
+	//titles_mcmc_gunsight.push_back( "MCMC ICS; 1.000 trajs(b < 1.0, R0 = 50a0); NO WEIGHT" );
     // ##############################################################
 
     // ##############################################################
 	vector<string> titles_buryak;
-	//titles_buryak.push_back( "1300 trajs. bin = 4 cm-1" );
-	//titles_buryak.push_back( "2600 trajs. bin = 10 cm-1" );
-	//titles_buryak.push_back( "2600 trajs. bin = 20 cm-1" );
-	titles_buryak.push_back( "2300 trajs. bin = 10 cm-1 NORMALIZED" );
-	titles_buryak.push_back( "2300 trajs. bin = 20 cm-1 NORMALIZED" );
-	titles_buryak.push_back( "4600 trajs. bin = 10 cm-1 NORMALIZED" );
-	titles_buryak.push_back( "4600 trajs. bin = 10 cm-1 NORMALIZED DV0 = 25" );
-
+	titles_buryak.push_back( "VMAX: 4600; VSTEP: 50; BMAX: 6; BSTEP: 0.25; SAMPLING TIME: 1000, NTRAJS: 2325; BIN: 10" );
+	titles_buryak.push_back( "VMAX: 4600; VSTEP: 25; BMAX: 6; BSTEP: 0.25; SAMPLING TIME: 1000, NTRAJS: 4625; BIN: 10" );
+	titles_buryak.push_back( "VMAX: 4600; VSTEP: 50; BMAX: 6; BSTEP: 0.125; SAMPLING TIME: 1000, NTRAJS: 4557; BIN: 10" );
+	titles_buryak.push_back( "VMAX: 4600; VSTEP: 50; BMAX: 6; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2325; BIN: 10" );
+	titles_buryak.push_back( "VMAX: 4600; VSTEP: 50; BMAX: 6; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 2325; BIN: 10" );
+	titles_buryak.push_back( "VMAX: 4650; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2444; BIN: 10; SIMPSON" );
+	titles_buryak.push_back( "VMAX: 4650; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2444; BIN: 10; TRAPEZOID" );
+	titles_buryak.push_back( "VMAX: 4650; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2444; BIN: 20; SIMPSON" );
+	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON" );
     // ##############################################################
 
 	Gnuplot gp;

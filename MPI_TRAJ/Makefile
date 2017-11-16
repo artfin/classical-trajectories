@@ -216,6 +216,13 @@ visualize: $(SRC_PATH_DIATOM)visualize_trajectory.cpp
 	$(CCXX) $(CXXFLAGS_NOOPT) $(OPENGL_LFLAGS) $^ -o $@
 ######################################################################
 
+######################################################################
+SRC_PATH_TEST = ./tests/
+
+test: $(SRC_PATH_TEST)test.cpp $(DIATOM_DIP_OBJECTS) $(DIATOM_POT_OBJECTS) 
+	$(CCXX) $(CXXFLAGS_NOOPT) $^ -o $@ $(INC_PATH_DIP) $(INC_PATH_POT)
+######################################################################
+
 
 
 
