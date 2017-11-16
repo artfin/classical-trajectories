@@ -6,19 +6,14 @@
 #include <fstream>
 #include <sstream>
 
+#include "constants.h"
+
 // Warn about use of deprecated functions
 #define GNUPLOT_DEPRECATE_WARN
 #include "gnuplot-iostream.h"
 
 using namespace std;
 
-const double LIGHTSPEED_CM = 3.0 * 1E10; // cm / s
-const long double PLANCKCONST = 6.62 * 1E-34; // j * s
-const long double PLANCKCONST_REDUCED = 1.054571800 *1E-34; // j * s
-const long double LOSHMIDT_CONSTANT_CM = 2.6867774 * 1E19; // cm^-3
-const double HZTOCM = 3.335631 * pow( 10, -11 ); // hz to cm
-const double CMTOHZ = LIGHTSPEED_CM; // 
-const long double BOLTZCONST = 1.23 * 1E-23; // j / k
 const double Temperature = 295.0; // k
 
 void read_file( string filename, vector<double> &lbs, 
@@ -73,12 +68,16 @@ void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<do
 	//gp << "set terminal pngcairo enhanced font 'Dejavu Sans'\n";
 	gp << "set encoding utf8\n";
 	gp << "set format y '%.0sx10^{%S}'\n";
-	gp << "set xrange [0.0 : 500];\n";
-	gp << "set yrange [4.76e-79:4.76e-77];\n";	
 
 	if ( set_logscale )
 	{
+		gp << "set xrange [0.0 : 500];\n";
+		gp << "set yrange [4.76e-79:4.76e-77];\n";	
 		gp << "set logscale y;\n";
+	}
+	else
+	{
+		gp << "set xrange [0.0 : 700];\n";
 	}
 
 	string gnuplot_cmd = "plot ";
@@ -121,14 +120,18 @@ vector<double> calculate_alpha( vector<double> &freqs, vector<double> &intensiti
 {
 	double alpha;
 	vector<double> alphas;
+	
+	double POWER_OF_TENS = 1E-7; // erg to joules
+		
+	double constant = pow(2 * M_PI, 2) * pow(constants::LOSHMIDT_CONSTANT_CM, 2) / (3 * constants::PLANCKCONST_REDUCED * constants::LIGHTSPEED_CM);
+	cout << "constant: " << constant << endl;
 
-	long double constant = 4 * pow(M_PI, 2) * pow(LOSHMIDT_CONSTANT_CM, 2) / (3 * PLANCKCONST_REDUCED * LIGHTSPEED_CM);
-
-	long double in_braces;
+	double in_braces;
 	for ( int i = 0; i < freqs.size(); i++ )
 	{
-		in_braces = 1 - exp( - (PLANCKCONST_REDUCED * freqs[i] * CMTOHZ) / (BOLTZCONST * Temperature) );
-		alpha = constant * freqs[i] * CMTOHZ * in_braces * intensities[i];	
+		in_braces = 1 - exp( - (constants::PLANCKCONST * freqs[i] * constants::CMTOHZ) / (constants::BOLTZCONST * Temperature) );
+		
+		alpha = POWER_OF_TENS * constant * freqs[i] * constants::CMTOHZ * in_braces * intensities[i];	
 		alphas.push_back( alpha );
 	}
 
@@ -167,9 +170,9 @@ int main( int argc, char* argv[] )
 	vector<double> ubs_mcmc_no_weight1, ubs_mcmc_no_weight2;
 	vector<double> contents_mcmc_no_weight1, contents_mcmc_no_weight2;
 
-	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9;
-   	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7, ubs_buryak8, ubs_buryak9;
-	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9;	
+	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10;
+   	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7, ubs_buryak8, ubs_buryak9, ubs_buryak10;
+	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10;	
 	// ##############################################################
 
 	// ##############################################################
@@ -215,6 +218,7 @@ int main( int argc, char* argv[] )
 	read_file( "new_results/buryak_4650_50_625_025_500_2444_10_trapezoid", lbs_buryak7, ubs_buryak7, contents_buryak7 );
 	read_file( "new_results/buryak_4650_50_625_025_500_2444_20_simpson", lbs_buryak8, ubs_buryak8, contents_buryak8 );
 	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson", lbs_buryak9, ubs_buryak9, contents_buryak9 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson2", lbs_buryak10, ubs_buryak10, contents_buryak10 );
 	// ##############################################################
     
 	// ##############################################################
@@ -230,8 +234,8 @@ int main( int argc, char* argv[] )
 	vector<vector<double>> x_mcmc_gunsight{ lbs_mcmc_no_weight1 };
 	vector<vector<double>> y_mcmc_gunsight{ contents_mcmc_no_weight1 };
 	
-	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9 };
-	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9 };
+	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10 };
+	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10 };
 
     // ##############################################################
 	vector< string > titles;
@@ -284,6 +288,7 @@ int main( int argc, char* argv[] )
 	titles_buryak.push_back( "VMAX: 4650; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2444; BIN: 10; TRAPEZOID" );
 	titles_buryak.push_back( "VMAX: 4650; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2444; BIN: 20; SIMPSON" );
 	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON" );
+	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON UNIFORM THETA" );
     // ##############################################################
 
 	Gnuplot gp;

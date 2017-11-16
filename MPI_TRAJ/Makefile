@@ -208,7 +208,7 @@ formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
 # plot spectral function and binary adsorption coeff
 #
 make_spectrum: $(SRC_PATH_MISC)make_spectrum.cpp
-	$(CCXX) $(CXXFLAGS_NOOPT) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@
+	$(CCXX) $(CXXFLAGS_NOOPT) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) $^ -o $@ $(INC_PATH_CONSTANTS)
 ######################################################################
 
 ######################################################################

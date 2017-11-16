@@ -1,6 +1,7 @@
 #include <mpi.h>
 
 #include <iostream>
+#include <random>
 
 // matrix multiplication
 #include "matrix.h"
@@ -71,6 +72,14 @@ const double sampling_time = 500;
 // ############################################
 
 using namespace std;
+
+static mt19937 generator;
+
+static double nextDouble( const double &min = 0.0, const double &max = 1.0 )
+{
+    uniform_real_distribution<double> distribution( min, max );
+    return distribution( generator );
+}
 
 void show( string name, vector<double> v )
 {
@@ -347,7 +356,11 @@ void slave_code( int world_rank )
 
 		double pR = MU * v0;
 		double pT = b * pR;
-		double theta = 0;	
+	
+		// initial orientation doesn't matter 
+		// it gives the same result as if theta is set to theta = 0 	
+		// theta is choosed uniformly from [0, 2pi]
+		double theta = nextDouble( 0.0, 2 * M_PI );	
 
 		N = 4;
 		vmblock = vminit();
@@ -451,8 +464,7 @@ void slave_code( int world_rank )
 			// given the number of points and sampling time we can calculate freqs vector
 			vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
 
-			// due to 2pi inside Fourier transofrm
-			//multiply_vector( freqs, 2 * M_PI );
+			// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
 			// transforming reverse atomic time units to cm^-1
 			multiply_vector( freqs, constants::HZTOCM / constants::ATU );
 
