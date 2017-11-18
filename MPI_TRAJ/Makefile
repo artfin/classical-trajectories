@@ -219,8 +219,11 @@ visualize: $(SRC_PATH_DIATOM)visualize_trajectory.cpp
 ######################################################################
 SRC_PATH_TEST = ./tests/
 
-test: $(SRC_PATH_TEST)test.cpp $(DIATOM_DIP_OBJECTS) $(DIATOM_POT_OBJECTS) 
+potential_test: $(SRC_PATH_TEST)potential_test.cpp $(DIATOM_DIP_OBJECTS) $(DIATOM_POT_OBJECTS) 
 	$(CCXX) $(CXXFLAGS_NOOPT) $^ -o $@ $(INC_PATH_DIP) $(INC_PATH_POT)
+
+fft_test: $(SRC_PATH_TEST)fft_test.cpp $(MISC_OBJECTS)
+	$(CCXX) $(CXXFLAGS_NOOPT) $^ -o $@ $(INC_PATH_MISC) $(INCLUDE_FFTW) $(INCLUDE_GSL) $(INCLUDE_GNUPLOT_IO) $(LINK_BOOST) 
 ######################################################################
 
 
