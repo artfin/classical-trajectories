@@ -14,10 +14,11 @@ using std::endl;
 
 using std::vector;
 using std::pair;
+using std::get;
 using std::make_pair;
 using std::string;
 
-void sample_sin( vector<double> &time, vector<double> &input, const double sampling_time, const int N )
+void sample_sin( vector<double> &input, const double sampling_time, const int N )
 {
 	double x0 = 0.0;
 	double x;	
@@ -26,24 +27,8 @@ void sample_sin( vector<double> &time, vector<double> &input, const double sampl
 	{
 		x = x0 + i * sampling_time; 
 		
-		time.push_back( x );
 		input.push_back( 7 * sin( 2 * M_PI * x ) + 3 * sin( 2 * M_PI * 5 * x ) ); 
 	}
-}
-
-void plot_signal( Gnuplot &gp, vector<double> &freqs, vector<double> &output )
-{
-	gp << "plot '-' with lines title 'signal'\n"; 
-	
-	vector< pair<double, double>> signal;
-
-	for ( int i = 0; i < freqs.size(); i++ )
-	{
-		signal.push_back( make_pair( freqs[i], output[i] ));
-	}
-	
-	gp.send1d( signal );
-	gp.flush();
 }
 
 void show_vector( vector<double> &v, string name ) 
@@ -54,31 +39,98 @@ void show_vector( vector<double> &v, string name )
 	}
 }	
 
+void plot_signal( Gnuplot &gp, vector< vector<double>> &x, vector< vector<double>> &y, vector<string> &titles )
+{
+	gp << "set xrange [-10 : 10];\n";
+
+	string gnuplot_cmd = "plot ";
+	string temp;
+
+	for ( int counter = 0; counter < titles.size(); counter++ )
+	{
+		temp = "'-' with lines title '" + titles[counter] + "'";
+
+		if ( counter < titles.size() - 1 )
+		{
+			temp += ","; 
+		}
+
+		gnuplot_cmd += temp;
+	}
+
+	cout << "gnuplot_cmd: " << gnuplot_cmd << endl;
+
+	gp << gnuplot_cmd << endl;
+	
+	vector< pair<double, double>> signal;
+
+	for ( int i = 0; i < x.size(); i++ )
+	{
+		for ( int j = 0; j < x[i].size(); j++ )
+		{
+			signal.push_back( make_pair( x[i][j], y[i][j] ));
+		}
+
+		for ( int i = 0; i < signal.size(); i++ )
+		{
+			cout << "signal[i]: " << get<0>( signal[i] ) << " " <<
+									 get<1>( signal[i] ) << endl;
+		}
+		
+		gp.send1d( signal );
+
+		signal.clear();
+	}
+	
+	gp.flush();
+}
+
+
 int main( int argc, char* argv[] )
 {
-	vector<double> time, input;
-	vector<double> freqs, output;
+	vector<double> input;
+	vector<double> freqs_one_side, output_one_side;
+	vector<double> freqs_two_side, output_two_side;
 
-	int N = 100;
+	int N = 1000;
 	double sampling_time = 0.05;	
-	
-	sample_sin( time, input, sampling_time, N );
-	
-	//freqs = linspace( -1.0 / (2.0 * sampling_time), 1.0 / ( 2.0 * sampling_time ), N );
 
-	output = fft_full( input );
-	ifftshift( output, N );
-	//multiply_vector( output, (double) 1.0 / pow(N, 2) / 2.0 );
-	//show_vector( output, "output" );
+	int freq_points_one_side = (int) (N + 1) / 2.0; 
+
+	sample_sin( input, sampling_time, N );
+
+	// ###########################################################
+	freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freq_points_one_side );
+
+	output_one_side = fft( input );
+
+	multiply_vector( output_one_side, (double) 2.0 / N );
+	// ###########################################################
+
+	// ###########################################################
+	fftfreq( freqs_two_side, N, sampling_time ); 
+   	// freqs should FFTSHIFT! 
+	ifftshift( freqs_two_side, N );	
+	
+	output_two_side = fft_full( input );
+	// output should be IFFTSHIFT!
+	ifftshift( output_two_side, N );
+	
+	multiply_vector( output_two_side, (double) 2.0 / N );
+	// ###########################################################
+	
+	//show_vector( output_one_side, "output-one-side" );
 
 	cout << "###################" << endl;
 
-	fftfreq( freqs, N, sampling_time ); 
-   	ifftshift( freqs, N );	
 	//show_vector( freqs, "freqs" );
 
+	vector< vector<double> > x{  freqs_one_side, freqs_two_side };
+	vector< vector<double> > y{  output_one_side, output_two_side };
+	vector< string > titles{ "one-side", "two-side" };
+
 	Gnuplot gp;
-	plot_signal( gp, freqs, output ); 	
+	plot_signal( gp, x, y, titles ); 	
 
 	return 0;
 }

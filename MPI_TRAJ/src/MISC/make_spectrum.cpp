@@ -71,8 +71,9 @@ void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<do
 
 	if ( set_logscale )
 	{
-		gp << "set xrange [0.0 : 500];\n";
-		gp << "set yrange [4.76e-79:4.76e-77];\n";	
+		gp << "set xrange [-500 : 500];\n";
+		//gp << "set yrange [4.76e-79:4.76e-77];\n";	
+		gp << "set yrange [1.71e-80:1.71e-77];\n";
 		gp << "set logscale y;\n";
 	}
 	else
@@ -170,9 +171,9 @@ int main( int argc, char* argv[] )
 	vector<double> ubs_mcmc_no_weight1, ubs_mcmc_no_weight2;
 	vector<double> contents_mcmc_no_weight1, contents_mcmc_no_weight2;
 
-	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10;
-   	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7, ubs_buryak8, ubs_buryak9, ubs_buryak10;
-	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10;	
+	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10, lbs_buryak11;
+   	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7, ubs_buryak8, ubs_buryak9, ubs_buryak10, ubs_buryak11;
+	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10, contents_buryak11;	
 	// ##############################################################
 
 	// ##############################################################
@@ -219,6 +220,7 @@ int main( int argc, char* argv[] )
 	read_file( "new_results/buryak_4650_50_625_025_500_2444_20_simpson", lbs_buryak8, ubs_buryak8, contents_buryak8 );
 	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson", lbs_buryak9, ubs_buryak9, contents_buryak9 );
 	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson2", lbs_buryak10, ubs_buryak10, contents_buryak10 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson_SYMM", lbs_buryak11, ubs_buryak11, contents_buryak11 );
 	// ##############################################################
     
 	// ##############################################################
@@ -234,8 +236,8 @@ int main( int argc, char* argv[] )
 	vector<vector<double>> x_mcmc_gunsight{ lbs_mcmc_no_weight1 };
 	vector<vector<double>> y_mcmc_gunsight{ contents_mcmc_no_weight1 };
 	
-	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10 };
-	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10 };
+	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10, lbs_buryak11 };
+	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10, contents_buryak11 };
 
     // ##############################################################
 	vector< string > titles;
@@ -289,6 +291,7 @@ int main( int argc, char* argv[] )
 	titles_buryak.push_back( "VMAX: 4650; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 2444; BIN: 20; SIMPSON" );
 	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON" );
 	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON UNIFORM THETA" );
+	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON SYMMETRIC" );
     // ##############################################################
 
 	Gnuplot gp;

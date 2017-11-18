@@ -3,6 +3,7 @@
 std::vector<double> fft( std::vector<double> signal )
 {
 	int npoints = signal.size();
+	int freq_points = npoints / 2 + 1;
 
 	// td == time domain
 	fftw_complex *signal_td = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * npoints );
@@ -22,10 +23,11 @@ std::vector<double> fft( std::vector<double> signal )
 	double power;
 	std::vector<double> ints;
 
-	for ( int i = 0; i < npoints / 2; i++ )
+	for ( int i = 0; i < freq_points; i++ )
 	{
-		power = signal_fd[i][REALPART] * signal_fd[i][REALPART] +
-				signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART];
+		power = sqrt( signal_fd[i][REALPART] * signal_fd[i][REALPART] +
+				      signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
+					);
 		
 		ints.push_back( power );
 	}
@@ -60,8 +62,10 @@ std::vector<double> fft_full( std::vector<double> &signal )
 
 	for ( int i = 0; i < npoints; i++ )
 	{
-		power = signal_fd[i][REALPART] * signal_fd[i][REALPART] +
-				signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART];
+		power = sqrt( 
+					  signal_fd[i][REALPART] * signal_fd[i][REALPART] +
+					  signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
+					);
 
 		ints.push_back( power );
 	}

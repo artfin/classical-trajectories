@@ -48,8 +48,8 @@ const double Temperature = 295;
 
 // ############################################
 // GSL Histogram parameters (spectrum boundaries)
-const int NBINS = 50;
-const double LBOUND = 0.0;
+const int NBINS = 100;
+const double LBOUND = -1000.0;
 const double RBOUND = 1000.0;
 const double BIN_SIZE = (RBOUND - LBOUND) / NBINS;
 // ############################################
@@ -456,13 +456,23 @@ void slave_code( int world_rank )
 		}
 			
 		// length of dipole vector = number of samples
-		int npoints = dipz.size(); 
-		int freqs_size = npoints / 2.0;		
+		int npoints = dipz.size();
+
+		// only positive frequencies
+		//int freqs_size = npoints / 2.0;		
+		
+		// both side frequencies
+		int freqs_size = npoints;
 
 		if ( freqs_size != 0 )
 		{
 			// given the number of points and sampling time we can calculate freqs vector
-			vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
+			//vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
+			vector<double> freqs;
+			fftfreq( freqs, npoints, sampling_time ); 
+			ifftshift( freqs, npoints );
+
+			show( "freqs", freqs );
 
 			// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
 			// transforming reverse atomic time units to cm^-1
@@ -470,9 +480,15 @@ void slave_code( int world_rank )
 
 			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
 
-			vector<double> dipx_out = fft( dipx );	
-			vector<double> dipy_out = fft( dipy );	
-			vector<double> dipz_out = fft( dipz );	
+			// changed 'fft' to 'fft_full'
+			vector<double> dipx_out = fft_full( dipx );	
+			vector<double> dipy_out = fft_full( dipy );	
+			vector<double> dipz_out = fft_full( dipz );	
+
+			// rotating array so zero component is in the center
+			//fftshift( dipx, npoints );
+			//fftshift( dipy, npoints );
+			//fftshift( dipz, npoints );
 
 			// auxiliary variables to store interim variables
 			double power;
@@ -480,11 +496,14 @@ void slave_code( int world_rank )
 			
 			//show( "dipx_out", dipx_out );
 			//show( "dipy_out", dipy_out );
-			//show( "dipz_out", dipz_out );
+			show( "dipz_out", dipz_out );
 
 			for ( int i = 0; i < freqs_size; i++ )
 			{
-				power = dipx_out[i] + dipy_out[i] + dipz_out[i];	
+				power = pow(dipx_out[i], 2) + 
+						pow(dipy_out[i], 2) +
+					   	pow(dipz_out[i], 2);
+
 				intensities.push_back( power * weight );	
 			}
 
