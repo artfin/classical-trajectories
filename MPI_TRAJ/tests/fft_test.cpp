@@ -27,7 +27,7 @@ void sample_sin( vector<double> &input, const double sampling_time, const int N 
 	{
 		x = x0 + i * sampling_time; 
 		
-		input.push_back( 7 * sin( 2 * M_PI * x ) + 3 * sin( 2 * M_PI * 5 * x ) ); 
+		input.push_back( 7 * sin( 2 * M_PI * x ) + 3 * sin( 2 * M_PI * 5 * x ) + 5 * sin(2 * M_PI * x * 0.5) + sin( 2 * M_PI * x * 0.1 ) ); 
 	}
 }
 
@@ -41,7 +41,7 @@ void show_vector( vector<double> &v, string name )
 
 void plot_signal( Gnuplot &gp, vector< vector<double>> &x, vector< vector<double>> &y, vector<string> &titles )
 {
-	gp << "set xrange [-10 : 10];\n";
+	gp << "set xrange [-2:2];\n";
 
 	string gnuplot_cmd = "plot ";
 	string temp;
@@ -61,7 +61,7 @@ void plot_signal( Gnuplot &gp, vector< vector<double>> &x, vector< vector<double
 	cout << "gnuplot_cmd: " << gnuplot_cmd << endl;
 
 	gp << gnuplot_cmd << endl;
-	
+
 	vector< pair<double, double>> signal;
 
 	for ( int i = 0; i < x.size(); i++ )
@@ -92,8 +92,8 @@ int main( int argc, char* argv[] )
 	vector<double> freqs_one_side, output_one_side;
 	vector<double> freqs_two_side, output_two_side;
 
-	int N = 1000;
-	double sampling_time = 0.05;	
+	int N = 5000;
+	double sampling_time = 0.1;	
 
 	int freq_points_one_side = (int) (N + 1) / 2.0; 
 
@@ -102,17 +102,17 @@ int main( int argc, char* argv[] )
 	// ###########################################################
 	freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freq_points_one_side );
 
-	output_one_side = fft( input );
+	output_one_side = fft_one_side( input );
 
 	multiply_vector( output_one_side, (double) 2.0 / N );
 	// ###########################################################
 
 	// ###########################################################
 	fftfreq( freqs_two_side, N, sampling_time ); 
-   	// freqs should FFTSHIFT! 
+   	// freqs should IFFTSHIFTed! 
 	ifftshift( freqs_two_side, N );	
 	
-	output_two_side = fft_full( input );
+	output_two_side = fft_two_side( input );
 	// output should be IFFTSHIFT!
 	ifftshift( output_two_side, N );
 	

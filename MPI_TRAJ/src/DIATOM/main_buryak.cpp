@@ -48,8 +48,8 @@ const double Temperature = 295;
 
 // ############################################
 // GSL Histogram parameters (spectrum boundaries)
-const int NBINS = 100;
-const double LBOUND = -1000.0;
+const int NBINS = 200;
+const double LBOUND = 0.0;
 const double RBOUND = 1000.0;
 const double BIN_SIZE = (RBOUND - LBOUND) / NBINS;
 // ############################################
@@ -68,7 +68,7 @@ double B_STEP;
 
 // ############################################
 // sampling time in atomic time units
-const double sampling_time = 500; 
+const double sampling_time = 100; 
 // ############################################
 
 using namespace std;
@@ -135,7 +135,8 @@ void master_code( int world_size )
 	FILE* inputfile = fopen("input/DIATOM/buryak_9300_50_625_025_500_4862_20_simpson", "r" );
 	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
-	string spectrum_filename = "buryak_9300_50_625_025_500_4862_20_simpson";
+	string spectrum_filename_one_side = "buryak_9300_50_625_025_100_4862_5_simpson_one_side";
+	string spectrum_filename_two_side = "buryak_9300_50_625_025_100_4862_5_simpson_two_side";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -158,8 +159,6 @@ void master_code( int world_size )
 		MPI_Send( &l, 1, MPI_INT, i, 0, MPI_COMM_WORLD );
 		MPI_Send( &integration_type[0], l, MPI_CHAR, i, 0, MPI_COMM_WORLD ); 
 	}
-
-	// freeing memory
 
 	// sending b_step and v_step to all slaves
 	for ( int i = 1; i < world_size; i++ )
@@ -184,9 +183,15 @@ void master_code( int world_size )
 	// number of alive processes
 	int alive = world_size - 1;
 
-	// prepare bins
-	gsl_histogram *histogram = gsl_histogram_alloc( NBINS );
-	gsl_histogram_set_ranges_uniform( histogram, LBOUND, RBOUND );
+	// ###############################################################
+	// prepare histogram for only positive frequencies
+	gsl_histogram *histogram_one_side = gsl_histogram_alloc( NBINS );
+	gsl_histogram_set_ranges_uniform( histogram_one_side, LBOUND, RBOUND );
+
+	// preparing histogram for both positive ang negative frequencies
+	gsl_histogram *histogram_two_side = gsl_histogram_alloc( 2 * NBINS );
+	gsl_histogram_set_ranges_uniform( histogram_two_side, -RBOUND, RBOUND );
+	// ###############################################################
 
 	// calculate constants
 	double CONSTANT = 1.0 / ( 4.0 * M_PI * constants::EPSILON0) / (2.0 * M_PI) * pow(constants::ADIPMOMU, 2);
@@ -204,37 +209,55 @@ void master_code( int world_size )
 
 		if ( NTRAJ % 100 == 0 )
 		{
-			cout << ">> Saving histogram... " << endl;
-			save_histogram( histogram, NBINS, spectrum_filename );
+			cout << ">> Saving histograms... " << endl;
+			save_histogram( histogram_one_side, NBINS, spectrum_filename_one_side );
+			save_histogram( histogram_two_side, 2 * NBINS, spectrum_filename_two_side );
 		}
 
 		// receiving message from any of slaves	
-		int package_size;
-		MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+		int package_size_one_side = 0;
+		int package_size_two_side = 0;
+		
+		MPI_Recv( &package_size_one_side, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 		source = status.MPI_SOURCE;
+		
+		MPI_Recv( &package_size_two_side, 1, MPI_INT, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		
+		// #############################################################
+		vector<double> freqs_package_one_side( package_size_one_side );
+		vector<double> intensities_package_one_side( package_size_one_side );
+		vector<double> freqs_package_two_side( package_size_two_side );
+		vector<double> intensities_package_two_side( package_size_two_side );
+		// #############################################################
 
-		//cout << "Master received a package size = " << package_size << " from process " << source << endl;
-
-		vector<double> freqs_package( package_size );
-		vector<double> intensities_package( package_size );
-
-		if ( package_size != 0 )
+		if ( package_size_one_side != 0 )
 		{
-			MPI_Recv( &freqs_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//cout << "Master received frequency package from process " << source << endl;
-
-			MPI_Recv( &intensities_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//cout << "Master received intensities_package from process " << source << endl;
+			// #############################################################
+			MPI_Recv( &freqs_package_one_side[0], package_size_one_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &intensities_package_one_side[0], package_size_one_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			// #############################################################
+			
+			// #############################################################
+			MPI_Recv( &freqs_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &intensities_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			// #############################################################
 		}
 
+		// #############################################################
 		// applying immediate binning of values
-		for ( int i = 0; i < freqs_package.size(); i++ )
+		for ( int i = 0; i < freqs_package_one_side.size(); i++ )
 		{
 			// increases the value of appropriate bin by intensity
 			// normalizing package by bin-size 
 			// multiplying each intensity by appropriate constant factor
-			gsl_histogram_accumulate( histogram, freqs_package[i], intensities_package[i] / BIN_SIZE * CONSTANT * POWERS_OF_TEN );
+			gsl_histogram_accumulate( histogram_one_side, freqs_package_one_side[i], intensities_package_one_side[i] / BIN_SIZE * CONSTANT * POWERS_OF_TEN );
 		}
+		
+		for ( int i = 0; i < freqs_package_two_side.size(); i++ )
+		{
+			gsl_histogram_accumulate( histogram_two_side, freqs_package_two_side[i], intensities_package_two_side[i] / BIN_SIZE * CONSTANT * POWERS_OF_TEN );
+		}
+		// #############################################################
 
 		// reading another line from file
 		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5] );	
@@ -253,7 +276,8 @@ void master_code( int world_size )
 		}
 	}
 
-	gsl_histogram_free( histogram );
+	gsl_histogram_free( histogram_one_side );
+	gsl_histogram_free( histogram_two_side );
 
 	fftw_cleanup();
 
@@ -350,9 +374,9 @@ void slave_code( int world_rank )
 		int trajectory_number = ics[0];
 		double R = ics[1];
 		double b = ics[2];
-		double b_weight_simpson = ics[3];
+		double b_weight_integration = ics[3];
 		double v0 = -ics[4];
-		double v0_weight_simpson = ics[5];
+		double v0_weight_integration = ics[5];
 
 		double pR = MU * v0;
 		double pT = b * pR;
@@ -398,19 +422,17 @@ void slave_code( int world_rank )
 		double energy = pow(y0[1], 2) / 2 / MU + pow(y0[3], 2) / ( 2 * MU * pow(y0[0], 2));
 		//cout << "energy: " << energy << endl;
 
-		double b_weight = fabs( 2 * M_PI * v0 * b * B_STEP ) * constants::AVU * pow(constants::ALU, 2) * b_weight_simpson / integration_denumerator; 
-		// /2.0 -- trapezoid rule
-		// /3.0 -- simpson rule
+		double b_weight = fabs( 2 * M_PI * v0 * b * B_STEP ) * constants::AVU * pow(constants::ALU, 2) * b_weight_integration / integration_denumerator; 
+		// integration-denumerator = 2.0 -- trapezoid rule
+		// integration-denumerator = 3.0 -- simpson rule
 		
 		double v0_weight_constant = pow((MU * constants::AMU / (2 * M_PI * constants::BOLTZCONST * Temperature)), 1.5);
-		double v0_weight = v0_weight_constant * exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_simpson / integration_denumerator;
-		// /2.0 -- trapezoid rule
-		// /3.0 -- simpson rule
+		double v0_weight = v0_weight_constant * exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_integration / integration_denumerator;
 
 		double fourier_weight = pow(sampling_time * constants::ATU, 2);
 
-		// 9.0 coming from simpson (h/3)**2 
 		double weight = b_weight * v0_weight * fourier_weight;  
+
 		//cout << "B_STEP: " << B_STEP << endl;
 		//cout << "V0_STEP: " << V0_STEP << endl;
 		//cout << "b_weight: " << b_weight << endl;
@@ -418,7 +440,7 @@ void slave_code( int world_rank )
 		//cout << "weight: " << weight << endl;
 
 		int counter = 0;
-		double end_value = y0[0] + 0.1; 
+		double end_value = y0[0] + 0.001; 
 
 		// dipole moment in laboratory frame
 		vector<double> temp( 3 );
@@ -459,69 +481,95 @@ void slave_code( int world_rank )
 		int npoints = dipz.size();
 
 		// only positive frequencies
-		//int freqs_size = npoints / 2.0;		
+		int freqs_size_one_side = (int) ( npoints + 1 ) / 2.0;		
+		// both positive ang negative frequencies
+		int freqs_size_two_side = npoints;
+
+		vector<double> freqs_one_side, freqs_two_side;
+	
+		vector<double> dipx_out_one_side, dipx_out_two_side;
+		vector<double> dipy_out_one_side, dipy_out_two_side;
+		vector<double> dipz_out_one_side, dipz_out_two_side;
 		
-		// both side frequencies
-		int freqs_size = npoints;
+		double power;
+		vector<double> intensities_one_side, intensities_two_side; 
 
-		if ( freqs_size != 0 )
+		if ( npoints != 0 )
 		{
-			// given the number of points and sampling time we can calculate freqs vector
-			//vector<double> freqs = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size );
-			vector<double> freqs;
-			fftfreq( freqs, npoints, sampling_time ); 
-			ifftshift( freqs, npoints );
+			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
+			
+			// #################################################
+			freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
+			// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
+			// transforming reverse atomic time units to cm^-1
+			multiply_vector( freqs_one_side, constants::HZTOCM / constants::ATU );
 
-			show( "freqs", freqs );
+			dipx_out_one_side = fft_one_side( dipx );
+			dipy_out_one_side = fft_one_side( dipy );
+			dipz_out_one_side = fft_one_side( dipz );
+			
+			multiply_vector( dipx_out_one_side, (double) 2.0 / npoints );
+			multiply_vector( dipy_out_one_side, (double) 2.0 / npoints );
+			multiply_vector( dipz_out_one_side, (double) 2.0 / npoints );
+
+			for ( int i = 0; i < freqs_size_one_side; i++ )
+			{
+				power = pow(dipx_out_one_side[i], 2) + 
+						pow(dipy_out_one_side[i], 2) +
+					   	pow(dipz_out_one_side[i], 2);
+
+				intensities_one_side.push_back( power * weight );	
+			}
+			// #################################################
+				
+			// #################################################
+			fftfreq( freqs_two_side, npoints, sampling_time ); 
+			// shift frequencies to the center
+			ifftshift( freqs_two_side, npoints );
 
 			// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
 			// transforming reverse atomic time units to cm^-1
-			multiply_vector( freqs, constants::HZTOCM / constants::ATU );
+			multiply_vector( freqs_two_side, constants::HZTOCM / constants::ATU );
+			dipx_out_two_side = fft_two_side( dipx );	
+			dipy_out_two_side = fft_two_side( dipy );	
+			dipz_out_two_side = fft_two_side( dipz );	
+		
+			multiply_vector( dipx_out_two_side, (double) 2.0 / npoints );
+			multiply_vector( dipy_out_two_side, (double) 2.0 / npoints );
+			multiply_vector( dipz_out_two_side, (double) 2.0 / npoints );
 
-			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
+			// shifting to the center
+			ifftshift( dipx_out_two_side, freqs_size_two_side );
+			ifftshift( dipy_out_two_side, freqs_size_two_side );
+			ifftshift( dipz_out_two_side, freqs_size_two_side );
 
-			// changed 'fft' to 'fft_full'
-			vector<double> dipx_out = fft_full( dipx );	
-			vector<double> dipy_out = fft_full( dipy );	
-			vector<double> dipz_out = fft_full( dipz );	
-
-			// rotating array so zero component is in the center
-			//fftshift( dipx, npoints );
-			//fftshift( dipy, npoints );
-			//fftshift( dipz, npoints );
-
-			// auxiliary variables to store interim variables
-			double power;
-			vector<double> intensities; 
-			
-			//show( "dipx_out", dipx_out );
-			//show( "dipy_out", dipy_out );
-			show( "dipz_out", dipz_out );
-
-			for ( int i = 0; i < freqs_size; i++ )
+			for ( int i = 0; i < freqs_size_two_side; i++ )
 			{
-				power = pow(dipx_out[i], 2) + 
-						pow(dipy_out[i], 2) +
-					   	pow(dipz_out[i], 2);
+				power = pow( dipx_out_two_side[i], 2) + 
+						pow( dipy_out_two_side[i], 2) +
+						pow( dipz_out_two_side[i], 2);
 
-				intensities.push_back( power * weight );	
+				intensities_two_side.push_back( power * weight );
 			}
-
-			//show( "freqs", "ints", freqs, intensities );
-
-			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
-
-			MPI_Send( &freqs[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends frequency package to root" << endl;
-
-			MPI_Send( &intensities[0], freqs_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends intensities package to root" << endl;
+			// #################################################
+			
+			// #################################################
+			// Sending data
+			MPI_Send( &freqs_size_one_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			// one-side frequencies and intensities	
+			MPI_Send( &freqs_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &intensities_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			
+			// two-side frequencies and intensities
+			MPI_Send( &freqs_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &intensities_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			// #################################################
 		}
 		else
 		{
-			MPI_Send( &freqs_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-			//cout << ">> Process " << world_rank << " sends package size = " << freqs_size << " to root." << endl;
+			MPI_Send( &freqs_size_one_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 		}
 	}
 }

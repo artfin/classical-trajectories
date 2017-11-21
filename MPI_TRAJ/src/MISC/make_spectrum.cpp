@@ -71,10 +71,17 @@ void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<do
 
 	if ( set_logscale )
 	{
-		gp << "set xrange [-500 : 500];\n";
+		gp << "set xrange [20:450];\n";
 		//gp << "set yrange [4.76e-79:4.76e-77];\n";	
-		gp << "set yrange [1.71e-80:1.71e-77];\n";
+		//
+		// current position of spectrum
+		//gp << "set yrange [1.40e-84:1.40e-82];\n";
+		//
+		gp << "set yrange [2.30e-84:2.30e-82];\n";
 		gp << "set logscale y;\n";
+		gp << "set mxtics 10;\n";
+		gp << "set grid ytics mytics;\n";
+		gp << "set grid xtics mxtics;\n";
 	}
 	else
 	{
@@ -139,6 +146,14 @@ vector<double> calculate_alpha( vector<double> &freqs, vector<double> &intensiti
 	return alphas;
 }
 
+void calc_mean( vector<double> &lbs, vector<double> &ubs )
+{
+	for ( int i = 0; i < lbs.size(); i++ )
+	{
+		lbs[i] = 0.5 * (lbs[i] + ubs[i]);
+	}
+}
+
 int main( int argc, char* argv[] )
 {
 	bool make_specfunc = true;
@@ -174,6 +189,13 @@ int main( int argc, char* argv[] )
 	vector<double> lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10, lbs_buryak11;
    	vector<double> ubs_buryak1, ubs_buryak2, ubs_buryak3, ubs_buryak4, ubs_buryak5, ubs_buryak6, ubs_buryak7, ubs_buryak8, ubs_buryak9, ubs_buryak10, ubs_buryak11;
 	vector<double> contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10, contents_buryak11;	
+	vector<double> lbs_buryak_one_side1, lbs_buryak_one_side2, lbs_buryak_one_side3, lbs_buryak_one_side4, lbs_buryak_one_side5, lbs_buryak_one_side6, lbs_buryak_one_side7, lbs_buryak_one_side8;
+	vector<double> ubs_buryak_one_side1, ubs_buryak_one_side2, ubs_buryak_one_side3, ubs_buryak_one_side4, ubs_buryak_one_side5, ubs_buryak_one_side6, ubs_buryak_one_side7, ubs_buryak_one_side8;
+	vector<double> contents_buryak_one_side1, contents_buryak_one_side2, contents_buryak_one_side3, contents_buryak_one_side4, contents_buryak_one_side5, contents_buryak_one_side6, contents_buryak_one_side7, contents_buryak_one_side8;
+
+	vector<double> lbs_buryak_two_side1, lbs_buryak_two_side2, lbs_buryak_two_side3, lbs_buryak_two_side4, lbs_buryak_two_side5, lbs_buryak_two_side6, lbs_buryak_two_side7, lbs_buryak_two_side8;
+	vector<double> ubs_buryak_two_side1, ubs_buryak_two_side2, ubs_buryak_two_side3, ubs_buryak_two_side4, ubs_buryak_two_side5, ubs_buryak_two_side6, ubs_buryak_two_side7, ubs_buryak_two_side8;
+	vector<double> contents_buryak_two_side1, contents_buryak_two_side2, contents_buryak_two_side3, contents_buryak_two_side4, contents_buryak_two_side5, contents_buryak_two_side6, contents_buryak_two_side7, contents_buryak_two_side8;
 	// ##############################################################
 
 	// ##############################################################
@@ -220,9 +242,34 @@ int main( int argc, char* argv[] )
 	read_file( "new_results/buryak_4650_50_625_025_500_2444_20_simpson", lbs_buryak8, ubs_buryak8, contents_buryak8 );
 	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson", lbs_buryak9, ubs_buryak9, contents_buryak9 );
 	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson2", lbs_buryak10, ubs_buryak10, contents_buryak10 );
-	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson_SYMM", lbs_buryak11, ubs_buryak11, contents_buryak11 );
+	
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson_one_side", lbs_buryak_one_side1, ubs_buryak_one_side1, contents_buryak_one_side1 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson_two_side", lbs_buryak_two_side1, ubs_buryak_two_side1, contents_buryak_two_side1 );	
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_25_simpson_one_side", lbs_buryak_one_side2, ubs_buryak_one_side2, contents_buryak_one_side2 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_25_simpson_two_side", lbs_buryak_two_side2, ubs_buryak_two_side2, contents_buryak_two_side2 );	
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_33_simpson_one_side", lbs_buryak_one_side3, ubs_buryak_one_side3, contents_buryak_one_side3 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_33_simpson_two_side", lbs_buryak_two_side3, ubs_buryak_two_side3, contents_buryak_two_side3 );	
+	read_file( "new_results/buryak_9300_50_625_025_100_4862_20_simpson_one_side", lbs_buryak_one_side4, ubs_buryak_one_side4, contents_buryak_one_side4 );
+	read_file( "new_results/buryak_9300_50_625_025_100_4862_20_simpson_two_side", lbs_buryak_two_side4, ubs_buryak_two_side4, contents_buryak_two_side4 );	
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson_one_side_EVEN", lbs_buryak_one_side5, ubs_buryak_one_side5, contents_buryak_one_side5 );
+	read_file( "new_results/buryak_9300_50_625_025_500_4862_20_simpson_two_side_EVEN", lbs_buryak_two_side5, ubs_buryak_two_side5, contents_buryak_two_side5 );	
+	read_file( "new_results/buryak_9300_50_625_025_50_4862_20_simpson_one_side", lbs_buryak_one_side6, ubs_buryak_one_side6, contents_buryak_one_side6 );
+	read_file( "new_results/buryak_9300_50_625_025_50_4862_20_simpson_two_side", lbs_buryak_two_side6, ubs_buryak_two_side6, contents_buryak_two_side6 );	
+	read_file( "new_results/buryak_9300_50_625_025_100_4862_10_simpson_one_side", lbs_buryak_one_side7, ubs_buryak_one_side7, contents_buryak_one_side7 );
+	read_file( "new_results/buryak_9300_50_625_025_100_4862_10_simpson_two_side", lbs_buryak_two_side7, ubs_buryak_two_side7, contents_buryak_two_side7 );	
+	read_file( "new_results/buryak_9300_50_625_025_100_4862_5_simpson_one_side", lbs_buryak_one_side8, ubs_buryak_one_side8, contents_buryak_one_side8 );
+	read_file( "new_results/buryak_9300_50_625_025_100_4862_5_simpson_two_side", lbs_buryak_two_side8, ubs_buryak_two_side8, contents_buryak_two_side8 );	
 	// ##############################################################
-    
+   
+    // ##############################################################
+    // taking mean of lbs and ubs
+	calc_mean( lbs_buryak_one_side7, ubs_buryak_one_side7 );
+   	calc_mean( ubs_buryak_one_side8, ubs_buryak_one_side8 );
+	
+	calc_mean( lbs_buryak_two_side7, ubs_buryak_two_side7 );
+	calc_mean( lbs_buryak_two_side8, ubs_buryak_two_side8 );
+	// ##############################################################
+
 	// ##############################################################
 	vector< vector<double>> x { lbs, lbs2, lbs3, lbs4, lbs5, lbs6, lbs7, lbs8, lbs9, lbs10, lbs11, lbs12, lbs13, lbs14, lbs15, lbs16, lbs17 };
 	vector< vector<double>> y { contents, contents2, contents3, contents4, contents5, contents6, contents7, contents8, contents9, contents10, contents11, contents12, contents13, contents14, contents15, contents16, contents17 };
@@ -238,6 +285,29 @@ int main( int argc, char* argv[] )
 	
 	vector<vector<double>> x_buryak{ lbs_buryak1, lbs_buryak2, lbs_buryak3, lbs_buryak4, lbs_buryak5, lbs_buryak6, lbs_buryak7, lbs_buryak8, lbs_buryak9, lbs_buryak10, lbs_buryak11 };
 	vector<vector<double>> y_buryak{ contents_buryak1, contents_buryak2, contents_buryak3, contents_buryak4, contents_buryak5, contents_buryak6, contents_buryak7, contents_buryak8, contents_buryak9, contents_buryak10, contents_buryak11 };
+
+	vector<vector<double>> x_buryak_sides{ 
+			//lbs_buryak_one_side1, lbs_buryak_two_side1, 
+			//lbs_buryak_one_side2, lbs_buryak_two_side2, 
+			//lbs_buryak_one_side3, lbs_buryak_two_side3, 
+			//lbs_buryak_one_side4, lbs_buryak_two_side4, 
+			//lbs_buryak_one_side5, lbs_buryak_two_side5,  
+			//lbs_buryak_one_side6, lbs_buryak_two_side6,
+			lbs_buryak_one_side7, lbs_buryak_two_side7,
+			lbs_buryak_one_side8, lbs_buryak_two_side8
+	};
+	
+	vector<vector<double>> y_buryak_sides{ 
+			//contents_buryak_one_side1, contents_buryak_two_side1, 
+			//contents_buryak_one_side2, contents_buryak_two_side2, 
+			//contents_buryak_one_side3, contents_buryak_two_side3, 
+			//contents_buryak_one_side4, contents_buryak_two_side4, 
+			//contents_buryak_one_side5, contents_buryak_two_side5, 
+			//contents_buryak_one_side6, contents_buryak_two_side6,
+			contents_buryak_one_side7, contents_buryak_two_side7, 
+			contents_buryak_one_side8, contents_buryak_two_side8 
+	};
+    // ##############################################################
 
     // ##############################################################
 	vector< string > titles;
@@ -294,6 +364,26 @@ int main( int argc, char* argv[] )
 	titles_buryak.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON SYMMETRIC" );
     // ##############################################################
 
+    // ##############################################################
+	vector<string> titles_buryak_sides;
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON; POSITIVE" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 20; SIMPSON; POS AND NEG" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 25; SIMPSON; POSITIVE" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 25; SIMPSON; POS AND NEG" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 33; SIMPSON; POSITIVE" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 33; SIMPSON; POS AND NEG" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 4862; BIN: 25; SIMPSON; POSITIVE" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 4862; BIN: 25; SIMPSON; POS AND NEG" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 25; SIMPSON; POSITIVE; EVEN PART" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 500, NTRAJS: 4862; BIN: 25; SIMPSON; POS AND NEG; EVEN PART" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 50, NTRAJS: 4862; BIN: 25; SIMPSON; POSITIVE" );
+	//titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 50, NTRAJS: 4862; BIN: 25; SIMPSON; POS AND NEG" );
+	titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 4862; BIN: 10; SIMPSON; POSITIVE" );
+	titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 4862; BIN: 10; SIMPSON; POS AND NEG" );
+	titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 4862; BIN: 5; SIMPSON; POSITIVE" );
+	titles_buryak_sides.push_back( "VMAX: 9300; VSTEP: 50; BMAX: 6.25; BSTEP: 0.25; SAMPLING TIME: 100, NTRAJS: 4862; BIN: 5; SIMPSON; POS AND NEG" );
+    // ##############################################################
+
 	Gnuplot gp;
 	//plot_signal( gp, x, y, titles );
 	//plot_signal( gp, x_mcmc, y_mcmc, titles_mcmc );
@@ -302,7 +392,7 @@ int main( int argc, char* argv[] )
 	if ( make_specfunc )
 	{
 		cout << "Plotting spectral function..." << endl;
-		plot_signal( gp, x_buryak, y_buryak, titles_buryak, true );
+		plot_signal( gp, x_buryak_sides, y_buryak_sides, titles_buryak_sides, true );
 	}
 	
 	if ( make_binary_absorption )

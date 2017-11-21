@@ -1,0 +1,93 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+
+% page margin
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+% AMS packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+% for strut keyword
+\usepackage{mathtools}
+
+% blackboard lettering
+\usepackage{dsfont}
+\usepackage{bbm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\newcommand{\bbU}{\mathbb{U}}
+\newcommand{\bbG}{\mathbb{G}}
+\newcommand{\bbE}{\mathbb{E}}
+\newcommand{\bbS}{\mathbb{S}}
+\newcommand{\bbV}{\mathbb{V}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfJ}{\mathbf{J}}
+\newcommand{\mL}{\mathcal{L}}
+\newcommand{\mH}{\mathcal{H}}
+
+\newcommand{\mf}{\mathbf}
+
+\newcommand{\lb}{\left(}
+\newcommand{\rb}{\right)}
+\newcommand{\lcb}{\left\{}
+\newcommand{\rcb}{\right\}}
+
+\begin{document}
+
+\begin{gather}
+	\begin{aligned}
+			X_1 &= 0 \\
+			Y_1 &= 0 \\
+			Z_1 &= R \\
+	\end{aligned}
+	\quad
+	\begin{aligned}
+			X_2 &= l \sin \Theta \cos \Phi \\
+			Y_2 &= l \sin \Theta \sin \Phi \\
+			Z_2 &= l \cos \Theta 
+	\end{aligned}
+	\quad 	
+	\begin{aligned}
+			X_3 &= \sqrt{2} l \sin \lb \Theta + \frac{\pi}{2} \rb \cos \Phi \\
+			Y_3 &= \sqrt{2} l \sin \lb \Theta + \frac{\pi}{2} \rb \sin \Phi \\
+			Z_3 &= \sqrt{2} l \cos \lb \Theta + \frac{\pi}{2} \rb 
+	\end{aligned}
+	\quad
+	\begin{aligned}
+			X_4 &= \sqrt{2} l \sin \lb \Theta + \frac{\pi}{2} \rb \cos \lb \Phi + \frac{\pi}{2} \rb \\
+			Y_4 &= \sqrt{2} l \sin \lb \Theta + \frac{\pi}{2} \rb \sin \lb \Phi + \frac{\pi}{2} \rb \\
+		Z_4 &= \sqrt{2} l \cos \lb \Theta + \frac{\pi}{2} \rb
+	\end{aligned} \notag
+\end{gather}
+
+Положим $\Theta = \Phi = \displaystyle \frac{\pi}{2}$, тогда:
+\begin{gather}
+	\begin{aligned}
+		X_2 &= 0 \\
+		Y_2 &= l \\
+		Z_2 &= 0 
+	\end{aligned}
+	\quad
+	\begin{aligned}
+		X_3 &= 0 \\
+		Y_3 &= 0 \\
+		Z_3 &= - \sqrt{2} l
+	\end{aligned}
+	\quad
+	\begin{aligned}
+		X_4 &= 0 \\
+		Y_4 &= 0 \\
+		Z_4 &= - \sqrt{2} l
+	\end{aligned} \notag
+\end{gather}
+
+\end{document}
+

@@ -1,6 +1,6 @@
 #include "fft.h"
 
-std::vector<double> fft( std::vector<double> signal )
+std::vector<double> fft_one_side( std::vector<double> signal )
 {
 	int npoints = signal.size();
 	int freq_points = npoints / 2 + 1;
@@ -26,9 +26,8 @@ std::vector<double> fft( std::vector<double> signal )
 	for ( int i = 0; i < freq_points; i++ )
 	{
 		power = sqrt( signal_fd[i][REALPART] * signal_fd[i][REALPART] +
-				      signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
+					  signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
 					);
-		
 		ints.push_back( power );
 	}
 
@@ -38,7 +37,7 @@ std::vector<double> fft( std::vector<double> signal )
 	return ints;
 }
 
-std::vector<double> fft_full( std::vector<double> &signal )
+std::vector<double> fft_two_side( std::vector<double> &signal )
 {
 	int npoints = signal.size();
 
@@ -63,10 +62,9 @@ std::vector<double> fft_full( std::vector<double> &signal )
 	for ( int i = 0; i < npoints; i++ )
 	{
 		power = sqrt( 
-					  signal_fd[i][REALPART] * signal_fd[i][REALPART] +
-					  signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
+						signal_fd[i][REALPART] * signal_fd[i][REALPART] +
+						signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
 					);
-
 		ints.push_back( power );
 	}
 
