@@ -100,6 +100,10 @@ int main( int argc, char* argv[] )
 	sample_sin( input, sampling_time, N );
 
 	// ###########################################################
+	fft_positive( input );
+	// ###########################################################
+
+	// ###########################################################
 	freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freq_points_one_side );
 
 	output_one_side = fft_one_side( input );

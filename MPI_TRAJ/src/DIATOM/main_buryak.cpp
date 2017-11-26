@@ -68,7 +68,7 @@ double B_STEP;
 
 // ############################################
 // sampling time in atomic time units
-const double sampling_time = 100; 
+const double sampling_time = 20; 
 // ############################################
 
 using namespace std;
@@ -191,6 +191,9 @@ void master_code( int world_size )
 	// preparing histogram for both positive ang negative frequencies
 	gsl_histogram *histogram_two_side = gsl_histogram_alloc( 2 * NBINS );
 	gsl_histogram_set_ranges_uniform( histogram_two_side, -RBOUND, RBOUND );
+	
+	//gsl_histogram *spectrum = gsl_histogram_alloc( NBINS );
+	//gsl_histogram_set_ranges_uniform( spectrum, LBOUND, RBOUND );
 	// ###############################################################
 
 	// calculate constants
@@ -294,6 +297,30 @@ void copy_initial_conditions( double* ics, REAL* y0, const int length )
 	}
 }
 
+double calculate_energy_time_signal( vector<double> &s, const double time_step )
+{
+	double energy = 0;
+
+	for ( int i = 0; i < s.size(); i++ )
+	{
+		energy += pow( s[i], 2 ) * time_step;
+	}
+
+	return energy;
+}
+
+double calculate_energy_frequency_signal( vector<double> &s, const double freq_step )
+{
+	double energy = 0;
+
+	for ( int i = 0; i < s.size(); i++ )
+	{
+		energy += pow( s[i], 2 ) * freq_step;
+	}
+
+	return energy;
+}	
+
 void slave_code( int world_rank )
 {
 	REAL epsabs;    //  absolute error bound
@@ -351,7 +378,8 @@ void slave_code( int world_rank )
 
 	//cout << "Received B_STEP: " << B_STEP << endl;
 	//cout << "Received V0_STEP: " << V0_STEP << endl;
-		
+	
+
 	while ( true )
 	{
 		MPI_Recv(&ics[0], ICPERTRAJ, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -427,11 +455,13 @@ void slave_code( int world_rank )
 		// integration-denumerator = 3.0 -- simpson rule
 		
 		double v0_weight_constant = pow((MU * constants::AMU / (2 * M_PI * constants::BOLTZCONST * Temperature)), 1.5);
-		double v0_weight = v0_weight_constant * exp(- MU * pow(v0, 2) / ( 2 * constants::BOLTZCONST * Temperature / constants::HTOJ )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_integration / integration_denumerator;
+		double v0_weight = v0_weight_constant * exp(- MU * constants::AMU * pow(v0 * constants::AVU, 2) / ( 2 * constants::BOLTZCONST * Temperature )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_integration / integration_denumerator;
 
-		double fourier_weight = pow(sampling_time * constants::ATU, 2);
+		//double fourier_weight = pow(sampling_time * constants::ATU, 2);
 
-		double weight = b_weight * v0_weight * fourier_weight;  
+		double stat_weight = b_weight * v0_weight;
+
+		double specfunc_coeff = 1.0/(4.0 * M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI;
 
 		//cout << "B_STEP: " << B_STEP << endl;
 		//cout << "V0_STEP: " << V0_STEP << endl;
@@ -476,7 +506,7 @@ void slave_code( int world_rank )
 
 			counter++;
 		}
-			
+		
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();
 
@@ -492,79 +522,137 @@ void slave_code( int world_rank )
 		vector<double> dipz_out_one_side, dipz_out_two_side;
 		
 		double power;
-		vector<double> intensities_one_side, intensities_two_side; 
+		//vector<double> intensities_one_side, intensities_two_side; 
+		vector<double> specfunc;
+		//vector<double> spectrum;
+
+		double specfunc_value;
+		double spectrum_value;
+
+		// initializing special fourier class
+		Fourier fourier;
+		cout << "Initialized fourier class" << endl;
 
 		if ( npoints != 0 )
 		{
-			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
-			
-			// #################################################
+			// zeroing input arrays
+			fourier.zero_out_input( );
+
+			// copying data to them
+			copy_to( dipx, fourier.inx );
+			copy_to( dipy, fourier.iny );
+			copy_to( dipz, fourier.inz );
+			cout << "Copied dipole to fourier arrays" << endl;
+
+			// executing fourier transform
+			fourier.do_fourier( );
+			cout << "Executed fourier transform" << endl;
+
 			freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
-			// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
-			// transforming reverse atomic time units to cm^-1
 			multiply_vector( freqs_one_side, constants::HZTOCM / constants::ATU );
 
-			dipx_out_one_side = fft_one_side( dipx );
-			dipy_out_one_side = fft_one_side( dipy );
-			dipz_out_one_side = fft_one_side( dipz );
-			
-			multiply_vector( dipx_out_one_side, (double) 2.0 / npoints );
-			multiply_vector( dipy_out_one_side, (double) 2.0 / npoints );
-			multiply_vector( dipz_out_one_side, (double) 2.0 / npoints );
+			double omega, dipfft;
 
-			for ( int i = 0; i < freqs_size_one_side; i++ )
+			for ( int k = 0; k < freqs_size_one_side; k++ )
 			{
-				power = pow(dipx_out_one_side[i], 2) + 
-						pow(dipy_out_one_side[i], 2) +
-					   	pow(dipz_out_one_side[i], 2);
+				omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs_one_side[k];
 
-				intensities_one_side.push_back( power * weight );	
+				dipfft = fourier.outx[k][0] * fourier.outx[k][0] + fourier.outx[k][1] * fourier.outx[k][1] +
+					     fourier.outy[k][0] * fourier.outy[k][0] + fourier.outy[k][1] * fourier.outy[k][1] +
+					 	 fourier.outz[k][0] * fourier.outz[k][0] + fourier.outz[k][1] * fourier.outz[k][1];	 
+
+				specfunc_value = 1e19 * specfunc_coeff * stat_weight * dipfft;
+
+				specfunc.push_back( specfunc_value );	
 			}
-			// #################################################
+
+			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
+			
+			//// #################################################
+			//freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
+			//// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
+			//// transforming reverse atomic time units to cm^-1
+			//multiply_vector( freqs_one_side, constants::HZTOCM / constants::ATU );
+
+			//dipx_out_one_side = fft_one_side( dipx );
+			//dipy_out_one_side = fft_one_side( dipy );
+			//dipz_out_one_side = fft_one_side( dipz );
+			
+			//multiply_vector( dipx_out_one_side, (double) 2.0 / npoints );
+			//multiply_vector( dipy_out_one_side, (double) 2.0 / npoints );
+			//multiply_vector( dipz_out_one_side, (double) 2.0 / npoints );
+
+			//for ( int i = 0; i < freqs_size_one_side; i++ )
+			//{
+				//power = pow(dipx_out_one_side[i], 2) + 
+						//pow(dipy_out_one_side[i], 2) +
+					   	//pow(dipz_out_one_side[i], 2);
+
+				//intensities_one_side.push_back( power * weight );	
+			//}
+			//// #################################################
 				
-			// #################################################
-			fftfreq( freqs_two_side, npoints, sampling_time ); 
-			// shift frequencies to the center
-			ifftshift( freqs_two_side, npoints );
+			//// #################################################
+			//fftfreq( freqs_two_side, npoints, sampling_time ); 
+			//// shift frequencies to the center
+			//ifftshift( freqs_two_side, npoints );
 
-			// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
-			// transforming reverse atomic time units to cm^-1
-			multiply_vector( freqs_two_side, constants::HZTOCM / constants::ATU );
-			dipx_out_two_side = fft_two_side( dipx );	
-			dipy_out_two_side = fft_two_side( dipy );	
-			dipz_out_two_side = fft_two_side( dipz );	
+			//// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
+			//// transforming reverse atomic time units to cm^-1
+			//multiply_vector( freqs_two_side, constants::HZTOCM / constants::ATU );
+			//dipx_out_two_side = fft_two_side( dipx );	
+			//dipy_out_two_side = fft_two_side( dipy );	
+			//dipz_out_two_side = fft_two_side( dipz );	
 		
-			multiply_vector( dipx_out_two_side, (double) 2.0 / npoints );
-			multiply_vector( dipy_out_two_side, (double) 2.0 / npoints );
-			multiply_vector( dipz_out_two_side, (double) 2.0 / npoints );
+			//multiply_vector( dipx_out_two_side, (double) 2.0 * sampling_time / npoints );
+			//multiply_vector( dipy_out_two_side, (double) 2.0 * sampling_time / npoints );
+			//multiply_vector( dipz_out_two_side, (double) 2.0 * sampling_time / npoints );
+		
+			//double dipx_time_energy = calculate_energy_time_signal( dipx, sampling_time );
+			//double dipy_time_energy = calculate_energy_time_signal( dipy, sampling_time );
+			//double dipz_time_energy = calculate_energy_time_signal( dipz, sampling_time );
 
-			// shifting to the center
-			ifftshift( dipx_out_two_side, freqs_size_two_side );
-			ifftshift( dipy_out_two_side, freqs_size_two_side );
-			ifftshift( dipz_out_two_side, freqs_size_two_side );
-
-			for ( int i = 0; i < freqs_size_two_side; i++ )
-			{
-				power = pow( dipx_out_two_side[i], 2) + 
-						pow( dipy_out_two_side[i], 2) +
-						pow( dipz_out_two_side[i], 2);
-
-				intensities_two_side.push_back( power * weight );
-			}
-			// #################################################
+			//double dipx_freq_energy = calculate_energy_frequency_signal( dipx_out_two_side, 1.0 / (2.0 * sampling_time * (npoints - 1.0) ) );
+			//double dipy_freq_energy = calculate_energy_frequency_signal( dipy_out_two_side, 1.0 / (2.0 * sampling_time * (npoints - 1.0) ) );
+			//double dipz_freq_energy = calculate_energy_frequency_signal( dipz_out_two_side, 1.0 / (2.0 * sampling_time * (npoints - 1.0) ) );
 			
-			// #################################################
+			//cout << "###################################" << endl;
+			//cout << "dipx time energy: " << dipx_time_energy << endl;
+			//cout << "dipy time energy: " << dipy_time_energy << endl;
+			//cout << "dipz time energy: " << dipz_time_energy << endl;	
+			//cout << "dipx freq energy: " << dipx_freq_energy << endl;	
+			//cout << "dipy freq energy: " << dipy_freq_energy << endl;	
+			//cout << "dipz freq energy: " << dipz_freq_energy << endl;	
+			//cout << "###################################" << endl;
+
+			//// shifting to the center
+			//ifftshift( dipx_out_two_side, freqs_size_two_side );
+			//ifftshift( dipy_out_two_side, freqs_size_two_side );
+			//ifftshift( dipz_out_two_side, freqs_size_two_side );
+
+			//for ( int i = 0; i < freqs_size_two_side; i++ )
+			//{
+				//power = pow( dipx_out_two_side[i], 2) + 
+						//pow( dipy_out_two_side[i], 2) +
+						//pow( dipz_out_two_side[i], 2);
+
+				//intensities_two_side.push_back( power * weight );
+			//}
+			//// #################################################
+			
+			//// #################################################
 			// Sending data
 			MPI_Send( &freqs_size_one_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			// one-side frequencies and intensities	
 			MPI_Send( &freqs_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &intensities_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			
-			// two-side frequencies and intensities
-			MPI_Send( &freqs_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &intensities_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			// #################################################
+			//MPI_Send( &intensities_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &specfunc[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+
+			//// two-side frequencies and intensities
+			//MPI_Send( &freqs_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			//MPI_Send( &intensities_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			//// #################################################
 		}
 		else
 		{

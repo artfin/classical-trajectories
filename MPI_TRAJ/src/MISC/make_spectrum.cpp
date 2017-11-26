@@ -71,13 +71,13 @@ void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<do
 
 	if ( set_logscale )
 	{
-		gp << "set xrange [20:450];\n";
+		gp << "set xrange [-450:450];\n";
 		//gp << "set yrange [4.76e-79:4.76e-77];\n";	
 		//
 		// current position of spectrum
 		//gp << "set yrange [1.40e-84:1.40e-82];\n";
 		//
-		gp << "set yrange [2.30e-84:2.30e-82];\n";
+		gp << "set yrange [1.65e-84:1.65e-82];\n";
 		gp << "set logscale y;\n";
 		gp << "set mxtics 10;\n";
 		gp << "set grid ytics mytics;\n";
@@ -93,7 +93,7 @@ void plot_signal( Gnuplot &gp, vector< vector<double>> &freqs, vector< vector<do
 
 	for ( int counter = 0; counter < titles.size(); counter++ )
 	{
-		temp = "'-' with lines title '" + titles[counter] + "'";
+		temp = "'-' with lines title '" + titles[counter] + "' lw 2";
 
 		if ( counter < titles.size() - 1 )
 		{

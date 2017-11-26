@@ -33,4 +33,10 @@ void copy_to( std::vector<double> &v, fftw_complex* arr )
 	}
 }
 
-
+void copy_to( std::vector<double> &v, double* arr )
+{
+	for ( int i = 0; i < v.size(); i++ )
+	{
+		arr[i] = v[i];
+	}
+}

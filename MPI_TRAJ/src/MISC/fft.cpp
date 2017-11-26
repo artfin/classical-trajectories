@@ -1,5 +1,116 @@
 #include "fft.h"
 
+void Fourier::zero_out_input( void )
+{
+	for ( int i = 0; i < MaxTrajectoryLength; i++ )
+	{
+		this->inx[i] = 0.0;
+		this->iny[i] = 0.0;
+		this->inz[i] = 0.0;
+	}
+}
+
+Fourier::Fourier( void )
+{
+	this->inx = (double*) fftw_malloc( sizeof(double) * MaxTrajectoryLength );
+	this->iny = (double*) fftw_malloc( sizeof(double) * MaxTrajectoryLength );
+	this->inz = (double*) fftw_malloc( sizeof(double) * MaxTrajectoryLength );
+
+	this->outx = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * OutLength );
+	this->outy = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * OutLength );
+	this->outz = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * OutLength );
+
+	this->px = fftw_plan_dft_r2c_1d( MaxTrajectoryLength, this->inx, this->outx, FFTW_ESTIMATE );
+	this->py = fftw_plan_dft_r2c_1d( MaxTrajectoryLength, this->iny, this->outy, FFTW_ESTIMATE );
+	this->pz = fftw_plan_dft_r2c_1d( MaxTrajectoryLength, this->inz, this->outz, FFTW_ESTIMATE );
+
+	zero_out_input( );	
+}
+
+Fourier::~Fourier()
+{
+	std::cout << "Doing fourier cleanup" << std::endl;
+
+	fftw_destroy_plan( this->px );
+	fftw_destroy_plan( this->py );
+	fftw_destroy_plan( this->pz );
+
+	fftw_free( this->inx );
+	fftw_free( this->iny );
+	fftw_free( this->inz );
+
+	fftw_free( this->outx );
+	fftw_free( this->outy );
+	fftw_free( this->outz );
+}
+
+void Fourier::do_fourier( void )
+{
+	for ( int i = 0; i < 100; i++ )
+	{
+		if ( inz[i] != 0 )
+		{
+			std::cout << "inz[" << i << "] = " << inz[i] << std::endl;  
+		}
+	}
+		
+	fftw_execute( this->px );
+	fftw_execute( this->py );
+	fftw_execute( this->pz );
+}
+
+
+//void fft_positive( std::vector<double> &signal )
+//{
+	//int npoints = signal.size();
+	//int freq_points = ceil( npoints / 2.0 );
+
+	//double* in = (double*) fftw_malloc( sizeof(double) * npoints );
+	//fftw_complex* out = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * freq_points );
+
+	//fftw_plan p = fftw_plan_dft_r2c_1d( npoints, in, out, FFTW_ESTIMATE );
+
+	//for ( int i = 0; i < npoints; i++ )
+	//{
+		//in[i] = signal[i];
+	//}
+
+	//// performing fft
+	//fftw_execute( p );
+
+	//std::ofstream output = std::fopen( "spectrum.txt", "w" );
+
+	//double realVal;
+	//double imagVal;
+	//double powVal;
+	//double absVal;
+
+	//for ( int i = 0; i < freq_points; i++ )
+	//{
+		//realVal = out[i][0] / npoints;
+		//imagVal = out[i][1] / npoints;
+
+		//powVal = 2 * ( realVal * realVal + imagVal * imagVal );
+		//absVal = sqrt( powVal / 2.0 );
+
+		//if ( i == 0 )
+		//{
+			//powVal /= 2;
+		//}
+
+		//output << realVal << " " <<
+				  //imagVal << " " <<
+				  //powVal << " " <<
+				  //absVal << std::endl;
+	//}
+
+	//fclose( output );
+
+	//fftw_destroy_plan( p );
+	//fftw_free( in );
+	//fftw_free( out );
+//}
+
 std::vector<double> fft_one_side( std::vector<double> signal )
 {
 	int npoints = signal.size();
@@ -25,7 +136,8 @@ std::vector<double> fft_one_side( std::vector<double> signal )
 
 	for ( int i = 0; i < freq_points; i++ )
 	{
-		power = sqrt( signal_fd[i][REALPART] * signal_fd[i][REALPART] +
+		power = sqrt( 
+					  signal_fd[i][REALPART] * signal_fd[i][REALPART] +
 					  signal_fd[i][IMAGPART] * signal_fd[i][IMAGPART]
 					);
 		ints.push_back( power );

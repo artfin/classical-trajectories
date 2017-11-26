@@ -38,8 +38,24 @@ void test_potential( void )
 	{
 		r = r0 + i * r_step;
 		pot = ar_he_pot( r );
-		cout << "r: " << r << "; pot: " << pot * 1E6 << " muE_h" << endl;
+		cout << "r: " << r << "; pot: " << pot << " E_h" << endl;
 	}
+}
+
+inline void dampfun( const double x, double* D, const int n )
+{
+	D[0] = 1.0;
+	double exp_mx = exp( -x );
+	double xk = 1.0;
+
+	for ( int k = 1; k <= n; k++ )
+	{
+		xk *= x / k;
+		D[k] = D[k - 1] + xk;
+		D[k - 1] = 1.0 - exp_mx * D[k - 1];
+	}
+	
+	D[n] = 1 - exp_mx * D[n];
 }
 
 int main( int argc, char* argv[] )
