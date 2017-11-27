@@ -30,6 +30,12 @@
 // gsl histogram
 #include <gsl/gsl_histogram.h>
 
+#include <ctime>
+
+// ############################################
+const int MaxTrajectoryLength = 150000;
+// ############################################
+
 // ############################################
 // Exit tag for killing slave
 const int EXIT_TAG = 42;
@@ -68,7 +74,7 @@ double B_STEP;
 
 // ############################################
 // sampling time in atomic time units
-const double sampling_time = 20; 
+const double sampling_time = 100; 
 // ############################################
 
 using namespace std;
@@ -135,6 +141,7 @@ void master_code( int world_size )
 	FILE* inputfile = fopen("input/DIATOM/buryak_9300_50_625_025_500_4862_20_simpson", "r" );
 	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
 
+	string specfunc_filename = "buryak_9300_50_625_025_100_4862_5_simpson_specfunc";
 	string spectrum_filename_one_side = "buryak_9300_50_625_025_100_4862_5_simpson_one_side";
 	string spectrum_filename_two_side = "buryak_9300_50_625_025_100_4862_5_simpson_two_side";
 
@@ -185,22 +192,20 @@ void master_code( int world_size )
 
 	// ###############################################################
 	// prepare histogram for only positive frequencies
-	gsl_histogram *histogram_one_side = gsl_histogram_alloc( NBINS );
-	gsl_histogram_set_ranges_uniform( histogram_one_side, LBOUND, RBOUND );
+	//gsl_histogram *histogram_one_side = gsl_histogram_alloc( NBINS );
+	//gsl_histogram_set_ranges_uniform( histogram_one_side, LBOUND, RBOUND );
 
 	// preparing histogram for both positive ang negative frequencies
-	gsl_histogram *histogram_two_side = gsl_histogram_alloc( 2 * NBINS );
-	gsl_histogram_set_ranges_uniform( histogram_two_side, -RBOUND, RBOUND );
-	
+	//gsl_histogram *histogram_two_side = gsl_histogram_alloc( 2 * NBINS );
+	//gsl_histogram_set_ranges_uniform( histogram_two_side, -RBOUND, RBOUND );
+
+	gsl_histogram *specfunc_histogram = gsl_histogram_alloc( NBINS );
+	gsl_histogram_set_ranges_uniform( specfunc_histogram, LBOUND, RBOUND );
+
 	//gsl_histogram *spectrum = gsl_histogram_alloc( NBINS );
 	//gsl_histogram_set_ranges_uniform( spectrum, LBOUND, RBOUND );
 	// ###############################################################
 
-	// calculate constants
-	double CONSTANT = 1.0 / ( 4.0 * M_PI * constants::EPSILON0) / (2.0 * M_PI) * pow(constants::ADIPMOMU, 2);
-
-	// j -> erg; m -> cm
-	double POWERS_OF_TEN = 1E19;
 
 	while ( true )
 	{	
@@ -213,53 +218,62 @@ void master_code( int world_size )
 		if ( NTRAJ % 100 == 0 )
 		{
 			cout << ">> Saving histograms... " << endl;
-			save_histogram( histogram_one_side, NBINS, spectrum_filename_one_side );
-			save_histogram( histogram_two_side, 2 * NBINS, spectrum_filename_two_side );
+			//save_histogram( histogram_one_side, NBINS, spectrum_filename_one_side );
+			//save_histogram( histogram_two_side, 2 * NBINS, spectrum_filename_two_side );
+			save_histogram( specfunc_histogram, NBINS, specfunc_filename );
 		}
 
 		// receiving message from any of slaves	
-		int package_size_one_side = 0;
-		int package_size_two_side = 0;
+		int package_size = 0;
+		//int package_size_one_side = 0;
+		//int package_size_two_side = 0;
 		
-		MPI_Recv( &package_size_one_side, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+		//cout << "MASTER received package_size: " << package_size << endl;
 		source = status.MPI_SOURCE;
 		
-		MPI_Recv( &package_size_two_side, 1, MPI_INT, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		//MPI_Recv( &package_size_two_side, 1, MPI_INT, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 		
 		// #############################################################
-		vector<double> freqs_package_one_side( package_size_one_side );
-		vector<double> intensities_package_one_side( package_size_one_side );
-		vector<double> freqs_package_two_side( package_size_two_side );
-		vector<double> intensities_package_two_side( package_size_two_side );
+		//vector<double> freqs_package_one_side( package_size_one_side );
+		//vector<double> intensities_package_one_side( package_size_one_side );
+		//vector<double> freqs_package_two_side( package_size_two_side );
+		//vector<double> intensities_package_two_side( package_size_two_side );
+	
+		vector<double> freqs_package( package_size );
+		vector<double> specfunc_package( package_size );
+
 		// #############################################################
 
-		if ( package_size_one_side != 0 )
+		if ( package_size != 0 )
 		{
 			// #############################################################
-			MPI_Recv( &freqs_package_one_side[0], package_size_one_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			MPI_Recv( &intensities_package_one_side[0], package_size_one_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &freqs_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			//cout << "MASTER received freqs_package" << endl;
+			MPI_Recv( &specfunc_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			//cout << "MASTER received intensities_package" << endl;
 			// #############################################################
 			
 			// #############################################################
-			MPI_Recv( &freqs_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			MPI_Recv( &intensities_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			//MPI_Recv( &freqs_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			//MPI_Recv( &intensities_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 			// #############################################################
 		}
 
 		// #############################################################
 		// applying immediate binning of values
-		for ( int i = 0; i < freqs_package_one_side.size(); i++ )
+		for ( int i = 0; i < freqs_package.size(); i++ )
 		{
 			// increases the value of appropriate bin by intensity
 			// normalizing package by bin-size 
 			// multiplying each intensity by appropriate constant factor
-			gsl_histogram_accumulate( histogram_one_side, freqs_package_one_side[i], intensities_package_one_side[i] / BIN_SIZE * CONSTANT * POWERS_OF_TEN );
+			gsl_histogram_accumulate( specfunc_histogram, freqs_package[i], specfunc_package[i] / BIN_SIZE  );
 		}
 		
-		for ( int i = 0; i < freqs_package_two_side.size(); i++ )
-		{
-			gsl_histogram_accumulate( histogram_two_side, freqs_package_two_side[i], intensities_package_two_side[i] / BIN_SIZE * CONSTANT * POWERS_OF_TEN );
-		}
+		//for ( int i = 0; i < freqs_package.size(); i++ )
+		//{
+			//gsl_histogram_accumulate( histogram_two_side, freqs_package_two_side[i], intensities_package_two_side[i] / BIN_SIZE * CONSTANT * POWERS_OF_TEN );
+		//}
 		// #############################################################
 
 		// reading another line from file
@@ -279,8 +293,9 @@ void master_code( int world_size )
 		}
 	}
 
-	gsl_histogram_free( histogram_one_side );
-	gsl_histogram_free( histogram_two_side );
+	//gsl_histogram_free( histogram_one_side );
+	//gsl_histogram_free( histogram_two_side );
+	gsl_histogram_free( specfunc_histogram );
 
 	fftw_cleanup();
 
@@ -379,6 +394,9 @@ void slave_code( int world_rank )
 	//cout << "Received B_STEP: " << B_STEP << endl;
 	//cout << "Received V0_STEP: " << V0_STEP << endl;
 	
+	// initializing special fourier class
+	Fourier fourier( MaxTrajectoryLength );
+	cout << "Initialized fourier class" << endl;
 
 	while ( true )
 	{
@@ -461,7 +479,10 @@ void slave_code( int world_rank )
 
 		double stat_weight = b_weight * v0_weight;
 
-		double specfunc_coeff = 1.0/(4.0 * M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI;
+		double specfunc_coeff = 1.0/(4.0*M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2);;
+		
+		// j -> erg; m -> cm
+		double POWERS_OF_TEN = 1E19;
 
 		//cout << "B_STEP: " << B_STEP << endl;
 		//cout << "V0_STEP: " << V0_STEP << endl;
@@ -529,9 +550,6 @@ void slave_code( int world_rank )
 		double specfunc_value;
 		double spectrum_value;
 
-		// initializing special fourier class
-		Fourier fourier;
-		cout << "Initialized fourier class" << endl;
 
 		if ( npoints != 0 )
 		{
@@ -542,11 +560,9 @@ void slave_code( int world_rank )
 			copy_to( dipx, fourier.inx );
 			copy_to( dipy, fourier.iny );
 			copy_to( dipz, fourier.inz );
-			cout << "Copied dipole to fourier arrays" << endl;
 
 			// executing fourier transform
 			fourier.do_fourier( );
-			cout << "Executed fourier transform" << endl;
 
 			freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
 			multiply_vector( freqs_one_side, constants::HZTOCM / constants::ATU );
@@ -558,10 +574,10 @@ void slave_code( int world_rank )
 				omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs_one_side[k];
 
 				dipfft = fourier.outx[k][0] * fourier.outx[k][0] + fourier.outx[k][1] * fourier.outx[k][1] +
-					     fourier.outy[k][0] * fourier.outy[k][0] + fourier.outy[k][1] * fourier.outy[k][1] +
-					 	 fourier.outz[k][0] * fourier.outz[k][0] + fourier.outz[k][1] * fourier.outz[k][1];	 
+						fourier.outy[k][0] * fourier.outy[k][0] + fourier.outy[k][1] * fourier.outy[k][1] +
+						fourier.outz[k][0] * fourier.outz[k][0] + fourier.outz[k][1] * fourier.outz[k][1];	 
 
-				specfunc_value = 1e19 * specfunc_coeff * stat_weight * dipfft;
+				specfunc_value = POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
 
 				specfunc.push_back( specfunc_value );	
 			}
@@ -643,7 +659,7 @@ void slave_code( int world_rank )
 			//// #################################################
 			// Sending data
 			MPI_Send( &freqs_size_one_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			//MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			// one-side frequencies and intensities	
 			MPI_Send( &freqs_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
 			//MPI_Send( &intensities_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
@@ -677,12 +693,17 @@ int main( int argc, char* argv[] )
 
 	if ( world_rank == 0 ) 
 	{
+		clock_t start = clock();
+		
 		master_code( world_size );
+		
+		cout << "Time elapsed: " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;
 	}	
 	else
 	{
 		slave_code( world_rank );
 	}
+
 
 	MPI_Finalize();
 

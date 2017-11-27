@@ -11,12 +11,11 @@
 #define REALPART 0
 #define IMAGPART 1
 
-const int MaxTrajectoryLength = 65536;
-const int OutLength = MaxTrajectoryLength / 2 + 1; 
-
 class Fourier
 {
 	public:
+		int MaxTrajectoryLength;
+
 		double *inx;
 		double *iny;
 		double *inz;
@@ -32,7 +31,7 @@ class Fourier
 		void zero_out_input( void );
 		void do_fourier( void );
 		
-		Fourier( void );
+		Fourier( int MaxTrajectoryLength );
 		~Fourier();
 };
 

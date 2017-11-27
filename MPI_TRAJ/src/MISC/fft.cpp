@@ -2,7 +2,7 @@
 
 void Fourier::zero_out_input( void )
 {
-	for ( int i = 0; i < MaxTrajectoryLength; i++ )
+	for ( int i = 0; i < this->MaxTrajectoryLength; i++ )
 	{
 		this->inx[i] = 0.0;
 		this->iny[i] = 0.0;
@@ -10,15 +10,19 @@ void Fourier::zero_out_input( void )
 	}
 }
 
-Fourier::Fourier( void )
+Fourier::Fourier( int MaxTrajectoryLength )
 {
+	this->MaxTrajectoryLength = MaxTrajectoryLength;
+	
+	int outlen = MaxTrajectoryLength / 2 + 1;
+
 	this->inx = (double*) fftw_malloc( sizeof(double) * MaxTrajectoryLength );
 	this->iny = (double*) fftw_malloc( sizeof(double) * MaxTrajectoryLength );
 	this->inz = (double*) fftw_malloc( sizeof(double) * MaxTrajectoryLength );
 
-	this->outx = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * OutLength );
-	this->outy = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * OutLength );
-	this->outz = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * OutLength );
+	this->outx = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * outlen ); 
+	this->outy = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * outlen );
+	this->outz = (fftw_complex*) fftw_malloc( sizeof(fftw_complex) * outlen ); 
 
 	this->px = fftw_plan_dft_r2c_1d( MaxTrajectoryLength, this->inx, this->outx, FFTW_ESTIMATE );
 	this->py = fftw_plan_dft_r2c_1d( MaxTrajectoryLength, this->iny, this->outy, FFTW_ESTIMATE );
@@ -35,25 +39,30 @@ Fourier::~Fourier()
 	fftw_destroy_plan( this->py );
 	fftw_destroy_plan( this->pz );
 
+	std::cout << "Destroyed plans" << std::endl;
+
 	fftw_free( this->inx );
+	std::cout << "Freed inx memory" << std::endl;
 	fftw_free( this->iny );
 	fftw_free( this->inz );
+	std::cout << "Freed inz memory" << std::endl;
 
 	fftw_free( this->outx );
+	std::cout << "Freed outx memory" << std::endl;
 	fftw_free( this->outy );
 	fftw_free( this->outz );
 }
 
 void Fourier::do_fourier( void )
 {
-	for ( int i = 0; i < 100; i++ )
-	{
-		if ( inz[i] != 0 )
-		{
-			std::cout << "inz[" << i << "] = " << inz[i] << std::endl;  
-		}
-	}
-		
+	//for ( int i = 0; i < 10; i++ )
+	//{
+		//if ( inz[i] != 0 )
+		//{
+			//std::cout << "inz[" << i << "] = " << inz[i] << std::endl;  
+		//}
+	//}
+	
 	fftw_execute( this->px );
 	fftw_execute( this->py );
 	fftw_execute( this->pz );
