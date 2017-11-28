@@ -31,6 +31,8 @@ namespace constants
 	// atomic unit of dipole moment == e * a0
 	const double ADIPMOMU = 8.478353552 * 1E-30; 
 
+	// speed of light in m/s
+	const double LIGHTSPEED = 2.99792458 * 1E8; 
 	// speed of light in cm/s
 	const double LIGHTSPEED_CM = 2.99792458 * 1E10; 
 	const double CMTOHZ = LIGHTSPEED_CM; 
@@ -39,6 +41,7 @@ namespace constants
 	const double PLANCKCONST = 6.626070040 * 1E-34;
 	const double PLANCKCONST_REDUCED = 1.054571800 *1E-34; 
 
+	const double LOSHMIDT_CONSTANT = 2.6867774 * 1E25; 
 	// loshmidt constant in cm^-3
 	const double LOSHMIDT_CONSTANT_CM = 2.6867774 * 1E19; 
 

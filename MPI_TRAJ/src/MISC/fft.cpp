@@ -33,22 +33,19 @@ Fourier::Fourier( int MaxTrajectoryLength )
 
 Fourier::~Fourier()
 {
-	std::cout << "Doing fourier cleanup" << std::endl;
+	//std::cout << "Doing fourier cleanup" << std::endl;
 
 	fftw_destroy_plan( this->px );
 	fftw_destroy_plan( this->py );
 	fftw_destroy_plan( this->pz );
 
-	std::cout << "Destroyed plans" << std::endl;
+	//std::cout << "Destroyed plans" << std::endl;
 
 	fftw_free( this->inx );
-	std::cout << "Freed inx memory" << std::endl;
 	fftw_free( this->iny );
 	fftw_free( this->inz );
-	std::cout << "Freed inz memory" << std::endl;
 
 	fftw_free( this->outx );
-	std::cout << "Freed outx memory" << std::endl;
 	fftw_free( this->outy );
 	fftw_free( this->outz );
 }

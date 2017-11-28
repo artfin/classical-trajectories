@@ -34,6 +34,7 @@
 
 // ############################################
 const int MaxTrajectoryLength = 150000;
+const double FREQ_MAX = 700.0;
 // ############################################
 
 // ############################################
@@ -54,10 +55,10 @@ const double Temperature = 295;
 
 // ############################################
 // GSL Histogram parameters (spectrum boundaries)
-const int NBINS = 200;
-const double LBOUND = 0.0;
-const double RBOUND = 1000.0;
-const double BIN_SIZE = (RBOUND - LBOUND) / NBINS;
+//const int NBINS = 200;
+//const double LBOUND = 0.0;
+//const double RBOUND = 1000.0;
+//const double BIN_SIZE = (RBOUND - LBOUND) / NBINS;
 // ############################################
 
 // ############################################
@@ -133,17 +134,59 @@ void syst (REAL t, REAL *y, REAL *f)
 	delete [] out;
 }
 
+void save( vector<double> v1, vector<double> v2, string filename )
+{
+	assert( v1.size() == v2.size() && "Sizes of saved vectors should be equal" );
+
+	ofstream file( filename );
+
+	for ( int k = 0; k < v1.size(); k++ )
+	{
+		file << v1[k] << " " << v2[k] << endl;
+	}
+	
+	file.close();	
+}
+
+void save( double m2, string filename )
+{
+	ofstream file( filename );
+
+	file << "M2: " << m2 << endl;
+		
+	file.close();
+}
+
+vector<double> create_frequencies_vector( void )
+{
+	double FREQ_STEP = 1.0 / (sampling_time * constants::ATU) / constants::LIGHTSPEED_CM / MaxTrajectoryLength; // cm^-1
+	//cout << "FREQ_STEP: " << FREQ_STEP << endl;
+	int FREQ_SIZE = (int) FREQ_MAX / FREQ_STEP + 1;
+
+	vector<double> freqs( FREQ_SIZE );
+	for(int k = 0; k <  FREQ_SIZE; k++) 
+	{
+		freqs[k] = k * FREQ_STEP;
+	}
+
+	return freqs;
+}
+
+
 void master_code( int world_size )
 {
 	MPI_Status status;
 	int source;
 
-	FILE* inputfile = fopen("input/DIATOM/buryak_9300_50_625_025_500_4862_20_simpson", "r" );
-	//FILE* inputfile = fopen("input/DIATOM/test2", "r" );
+	//FILE* inputfile = fopen("input/DIATOM/buryak_9300_50_625_025_500_4862_20_simpson", "r" );
+	FILE* inputfile = fopen("input/DIATOM/buryak_5650_10_625_025_100_14716_simpson", "r" );
 
-	string specfunc_filename = "buryak_9300_50_625_025_100_4862_5_simpson_specfunc";
-	string spectrum_filename_one_side = "buryak_9300_50_625_025_100_4862_5_simpson_one_side";
-	string spectrum_filename_two_side = "buryak_9300_50_625_025_100_4862_5_simpson_two_side";
+	string specfunc_filename = "specfunc.txt";
+	string spectrum_filename  = "spectrum.txt";
+	string m2_filename = "m2.txt";
+	//string specfunc_filename = "buryak_9300_50_625_025_100_4862_5_simpson_specfunc";
+	//string spectrum_filename_one_side = "buryak_9300_50_625_025_100_4862_5_simpson_one_side";
+	//string spectrum_filename_two_side = "buryak_9300_50_625_025_100_4862_5_simpson_two_side";
 
 	// counter of calculated trajectories
 	int NTRAJ = 0;
@@ -199,13 +242,23 @@ void master_code( int world_size )
 	//gsl_histogram *histogram_two_side = gsl_histogram_alloc( 2 * NBINS );
 	//gsl_histogram_set_ranges_uniform( histogram_two_side, -RBOUND, RBOUND );
 
-	gsl_histogram *specfunc_histogram = gsl_histogram_alloc( NBINS );
-	gsl_histogram_set_ranges_uniform( specfunc_histogram, LBOUND, RBOUND );
+	//gsl_histogram *specfunc_histogram = gsl_histogram_alloc( NBINS );
+	//gsl_histogram_set_ranges_uniform( specfunc_histogram, LBOUND, RBOUND );
 
 	//gsl_histogram *spectrum = gsl_histogram_alloc( NBINS );
 	//gsl_histogram_set_ranges_uniform( spectrum, LBOUND, RBOUND );
 	// ###############################################################
+	
+	vector<double> freqs = create_frequencies_vector( );
+	int FREQ_SIZE = freqs.size();
+	
+	vector<double> specfunc_package( FREQ_SIZE );
+	vector<double> total_specfunc( FREQ_SIZE );
+	vector<double> spectrum_package( FREQ_SIZE );
+	vector<double> total_spectrum( FREQ_SIZE );
 
+	double uniform_integrated_spectrum_package;
+	double uniform_integrated_spectrum_total = 0.0;
 
 	while ( true )
 	{	
@@ -217,20 +270,23 @@ void master_code( int world_size )
 
 		if ( NTRAJ % 100 == 0 )
 		{
-			cout << ">> Saving histograms... " << endl;
+			//cout << ">> Saving histograms... " << endl;
 			//save_histogram( histogram_one_side, NBINS, spectrum_filename_one_side );
 			//save_histogram( histogram_two_side, 2 * NBINS, spectrum_filename_two_side );
-			save_histogram( specfunc_histogram, NBINS, specfunc_filename );
+			//save_histogram( specfunc_histogram, NBINS, specfunc_filename );
+			save( freqs, total_specfunc, specfunc_filename );
+			save( freqs, total_spectrum, spectrum_filename );
+			save( uniform_integrated_spectrum_total, m2_filename );
 		}
 
 		// receiving message from any of slaves	
-		int package_size = 0;
+		//int package_size = 0;
 		//int package_size_one_side = 0;
 		//int package_size_two_side = 0;
 		
-		MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+		//MPI_Recv( &package_size, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
 		//cout << "MASTER received package_size: " << package_size << endl;
-		source = status.MPI_SOURCE;
+		//source = status.MPI_SOURCE;
 		
 		//MPI_Recv( &package_size_two_side, 1, MPI_INT, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 		
@@ -240,35 +296,42 @@ void master_code( int world_size )
 		//vector<double> freqs_package_two_side( package_size_two_side );
 		//vector<double> intensities_package_two_side( package_size_two_side );
 	
-		vector<double> freqs_package( package_size );
-		vector<double> specfunc_package( package_size );
-
+		//vector<double> freqs_package( package_size );
 		// #############################################################
 
-		if ( package_size != 0 )
+		// #############################################################
+		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+
+		source = status.MPI_SOURCE;
+
+		MPI_Recv( &spectrum_package[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		//cout << "MASTER received intensities_package" << endl;
+
+		MPI_Recv( &uniform_integrated_spectrum_package, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+
+		for ( int k = 0; k < FREQ_SIZE; k++ )
 		{
-			// #############################################################
-			MPI_Recv( &freqs_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//cout << "MASTER received freqs_package" << endl;
-			MPI_Recv( &specfunc_package[0], package_size, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//cout << "MASTER received intensities_package" << endl;
-			// #############################################################
-			
-			// #############################################################
-			//MPI_Recv( &freqs_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			//MPI_Recv( &intensities_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-			// #############################################################
+			total_specfunc[k] += specfunc_package[k];
+			total_spectrum[k] += spectrum_package[k];
 		}
+
+		uniform_integrated_spectrum_total += uniform_integrated_spectrum_package;
+			
+		// #############################################################
+		//MPI_Recv( &freqs_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		//MPI_Recv( &intensities_package_two_side[0], package_size_two_side, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			// #############################################################
+
 
 		// #############################################################
 		// applying immediate binning of values
-		for ( int i = 0; i < freqs_package.size(); i++ )
-		{
+		//for ( int i = 0; i < freqs_package.size(); i++ )
+		//{
 			// increases the value of appropriate bin by intensity
 			// normalizing package by bin-size 
 			// multiplying each intensity by appropriate constant factor
-			gsl_histogram_accumulate( specfunc_histogram, freqs_package[i], specfunc_package[i] / BIN_SIZE  );
-		}
+			//gsl_histogram_accumulate( specfunc_histogram, freqs_package[i], specfunc_package[i] / BIN_SIZE  );
+		//}
 		
 		//for ( int i = 0; i < freqs_package.size(); i++ )
 		//{
@@ -295,7 +358,7 @@ void master_code( int world_size )
 
 	//gsl_histogram_free( histogram_one_side );
 	//gsl_histogram_free( histogram_two_side );
-	gsl_histogram_free( specfunc_histogram );
+	//gsl_histogram_free( specfunc_histogram );
 
 	fftw_cleanup();
 
@@ -369,22 +432,22 @@ void slave_code( int world_rank )
 	// converting char pointer to string
 	string integration_type( buf, l );
 	delete [] buf;
-	cout << "integration_type: " << integration_type << endl;
 
 	int integration_denumerator = 0;
 	if ( integration_type == "simpson" )
 	{
-		cout << "Simpson integration type. Setting denumerator to 3." << endl;
+		//cout << "Simpson integration type. Setting denumerator to 3." << endl;
 		integration_denumerator = 3;
 	}
 	if ( integration_type == "trapezoid" )
 	{
-		cout << "Trapezoid integartion type. Setting denumerator to 2." << endl;
+		//cout << "Trapezoid integartion type. Setting denumerator to 2." << endl;
 		integration_denumerator = 2;
 	}
 	if ( integration_denumerator == 0 )
 	{
 		cout << "UNKNOWN INTEGRATION TYPE" << endl;
+		exit( 1 );
 	}
 
 	// receiving B_STEP and V0_STEP
@@ -396,7 +459,19 @@ void slave_code( int world_rank )
 	
 	// initializing special fourier class
 	Fourier fourier( MaxTrajectoryLength );
-	cout << "Initialized fourier class" << endl;
+	
+	vector<double> freqs = create_frequencies_vector( );
+	int FREQ_SIZE = freqs.size();
+	double FREQ_STEP = freqs[1] - freqs[0];
+
+	double specfunc_coeff = 1.0/(4.0*M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2);;
+
+	double spectrum_coeff = 8.0*M_PI*M_PI*M_PI/3.0/constants::PLANCKCONST/constants::LIGHTSPEED * 1.0/4.0/M_PI/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2) * pow(constants::LOSHMIDT_CONSTANT, 2);	
+		
+	// j -> erg; m -> cm
+	double SPECFUNC_POWERS_OF_TEN = 1e19;
+	// m^-1 -> cm^-1
+	double SPECTRUM_POWERS_OF_TEN = 1e-2;
 
 	while ( true )
 	{
@@ -479,11 +554,6 @@ void slave_code( int world_rank )
 
 		double stat_weight = b_weight * v0_weight;
 
-		double specfunc_coeff = 1.0/(4.0*M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2);;
-		
-		// j -> erg; m -> cm
-		double POWERS_OF_TEN = 1E19;
-
 		//cout << "B_STEP: " << B_STEP << endl;
 		//cout << "V0_STEP: " << V0_STEP << endl;
 		//cout << "b_weight: " << b_weight << endl;
@@ -532,24 +602,26 @@ void slave_code( int world_rank )
 		int npoints = dipz.size();
 
 		// only positive frequencies
-		int freqs_size_one_side = (int) ( npoints + 1 ) / 2.0;		
+		//int freqs_size_one_side = (int) ( npoints + 1 ) / 2.0;		
 		// both positive ang negative frequencies
-		int freqs_size_two_side = npoints;
+		//int freqs_size_two_side = npoints;
 
-		vector<double> freqs_one_side, freqs_two_side;
+		//vector<double> freqs_one_side, freqs_two_side;
 	
-		vector<double> dipx_out_one_side, dipx_out_two_side;
-		vector<double> dipy_out_one_side, dipy_out_two_side;
-		vector<double> dipz_out_one_side, dipz_out_two_side;
+		//vector<double> dipx_out_one_side, dipx_out_two_side;
+		//vector<double> dipy_out_one_side, dipy_out_two_side;
+		//vector<double> dipz_out_one_side, dipz_out_two_side;
 		
-		double power;
+		//double power;
 		//vector<double> intensities_one_side, intensities_two_side; 
 		vector<double> specfunc;
-		//vector<double> spectrum;
+		vector<double> spectrum;
 
 		double specfunc_value;
 		double spectrum_value;
 
+		double uniform_integrated_spectrum;
+		//cout << "FREQ_SIZE: " << FREQ_SIZE << endl;
 
 		if ( npoints != 0 )
 		{
@@ -564,26 +636,49 @@ void slave_code( int world_rank )
 			// executing fourier transform
 			fourier.do_fourier( );
 
-			freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
-			multiply_vector( freqs_one_side, constants::HZTOCM / constants::ATU );
-
+			//freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
+			//multiply_vector( freqs_one_side, constants::HZTOCM / constants::ATU );
+			
 			double omega, dipfft;
 
-			for ( int k = 0; k < freqs_size_one_side; k++ )
+			double ReFx, ReFy, ReFz;
+			double ImFx, ImFy, ImFz;
+
+			for ( int k = 0; k < FREQ_SIZE; k++ )
 			{
-				omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs_one_side[k];
+				omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs[k];
 
-				dipfft = fourier.outx[k][0] * fourier.outx[k][0] + fourier.outx[k][1] * fourier.outx[k][1] +
-						fourier.outy[k][0] * fourier.outy[k][0] + fourier.outy[k][1] * fourier.outy[k][1] +
-						fourier.outz[k][0] * fourier.outz[k][0] + fourier.outz[k][1] * fourier.outz[k][1];	 
+				ReFx = fourier.outx[k][0];
+				ReFy = fourier.outy[k][0];
+				ReFz = fourier.outz[k][0];
+				ImFx = fourier.outx[k][1];
+				ImFy = fourier.outy[k][1];
+				ImFz = fourier.outz[k][1];
 
-				specfunc_value = POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
+				dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
+					     ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;	
 
+				specfunc_value = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
 				specfunc.push_back( specfunc_value );	
+				
+				spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / ( constants::BOLTZCONST * Temperature )) ) * dipfft;
+				
+				uniform_integrated_spectrum += spectrum_value * FREQ_STEP; 
+				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
+
+				//if ( k % 50 == 0 )
+				//{
+					//cout << "spectrum[" << k << "] = " << spectrum_value << endl; 
+				//}
+
+				spectrum.push_back( spectrum_value );
 			}
 
 			cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
 			
+			MPI_Send( &specfunc[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &spectrum[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &uniform_integrated_spectrum, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );	
 			//// #################################################
 			//freqs_one_side = linspace( 0.0, 1.0 / ( 2.0 * sampling_time ), freqs_size_one_side );
 			//// 2 pi inside Fourier transform times \nu gives \omega (cyclic frequency) 
@@ -658,12 +753,11 @@ void slave_code( int world_rank )
 			
 			//// #################################################
 			// Sending data
-			MPI_Send( &freqs_size_one_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			//MPI_Send( &FREQ_SIZE, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			//MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			// one-side frequencies and intensities	
-			MPI_Send( &freqs_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			//MPI_Send( &freqs[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
 			//MPI_Send( &intensities_one_side[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &specfunc[0], freqs_size_one_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
 
 			//// two-side frequencies and intensities
 			//MPI_Send( &freqs_two_side[0], freqs_size_two_side, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
@@ -672,8 +766,8 @@ void slave_code( int world_rank )
 		}
 		else
 		{
-			MPI_Send( &freqs_size_one_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &npoints, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
+			//MPI_Send( &freqs_size_two_side, 1, MPI_INT, 0, 0, MPI_COMM_WORLD );
 		}
 	}
 }
