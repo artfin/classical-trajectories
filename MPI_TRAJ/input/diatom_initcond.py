@@ -16,9 +16,9 @@ ALU = 0.52917721067 * 10**(-10) # m
 AVU = ALU / ATU
 #print("AVU: {0}".format(AVU))
 
-V0_MAX = 5650 / AVU # atomic velocity units
+V0_MAX = 5655 / AVU # atomic velocity units
 #print('V0_MAX: {0}'.format(V0_MAX))
-V0_DELTA = 10 / AVU 
+V0_DELTA = 5 / AVU 
 #print('V0_STEP: {0}'.format(V0_DELTA))
 V0_POINTS = V0_MAX / V0_DELTA + 1
 
@@ -39,7 +39,7 @@ V0 = np.linspace( V0_DELTA, V0_MAX, V0_POINTS )
 #print(V0)
 B = np.linspace( B_DELTA, B_MAX, B_POINTS )
 
-R = 30.0
+R = 40.0
 
 def b_weight_simpson( b_index ):  
     if ( b_index == 0 or b_index == (len(B) - 1) ):

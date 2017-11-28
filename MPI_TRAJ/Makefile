@@ -5,7 +5,7 @@ MPICC = mpic++
 CCXX = g++
 
 CXXFLAGS_NOOPT = -std=c++11 
-CXXFLAGS = -std=c++11 -O3 -lstdc++ -march=native -mtune=native -lm
+CXXFLAGS = -std=c++11 -O3 -lstdc++ -lm
 
 INCLUDE_FFTW = -lfftw3
 INCLUDE_EIGEN = -I/usr/local/include/eigen3
@@ -140,11 +140,17 @@ $(OBJ_PATH_MISC)fft.o: $(SRC_PATH_MISC)fft.cpp
 
 $(OBJ_PATH_MISC)gsl_custom.o: $(SRC_PATH_MISC)gsl_custom.cpp 
 	$(CCXX) $(CXXFLAGS) $(INCLUDE_GSL) -c $^ -o $@ $(INC_PATH_MISC)
+
+$(OBJ_PATH_MISC)file.o: $(SRC_PATH_MISC)file.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
+
+$(OBJ_PATH_MISC)gridparameters.o: $(SRC_PATH_MISC)gridparameters.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
 ######################################################################
 
 ######################################################################
 # path to miscellaneous functions
-MISC_OBJ = aux.o fft.o gsl_custom.o
+MISC_OBJ = aux.o fft.o 
 MISC_OBJECTS = $(patsubst %,$(OBJ_PATH_MISC)%,$(MISC_OBJ))
 ######################################################################
 
@@ -198,10 +204,13 @@ diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 
 buryak: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main_buryak.cpp
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 
 formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
+
+simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)gridparameters.o
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 
 ######################################################################

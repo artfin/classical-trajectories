@@ -6,6 +6,11 @@
 // matrix multiplication
 #include "matrix.h"
 
+// FileReader class
+#include "file.h"
+// GridParameters class
+#include "gridparameters.h"
+
 // should be included BEFORE Gear header files
 // due to namespace overlap
 #include <vector>
@@ -167,126 +172,11 @@ void master_code( int world_size )
 	MPI_Status status;
 	int source;
 
-	//FILE* inputfile = fopen("input/DIATOM/buryak_9300_50_625_025_500_4862_20_simpson", "r" );
-	//FILE* inputfile = fopen("input/DIATOM/buryak_5650_10_625_025_100_14716_simpson", "r" );
-	FILE* inputfile = fopen("input/DIATOM/test", "r");
-
-	string specfunc_filename = "specfunc.txt";
-	string spectrum_filename  = "spectrum.txt";
-	string m2_filename = "m2.txt";
-	//string specfunc_filename = "buryak_9300_50_625_025_100_4862_5_simpson_specfunc";
-	//string spectrum_filename_one_side = "buryak_9300_50_625_025_100_4862_5_simpson_one_side";
-	//string spectrum_filename_two_side = "buryak_9300_50_625_025_100_4862_5_simpson_two_side";
-
-	// counter of calculated trajectories
-	int NTRAJ = 0;
-
-	double *ics = new double[ICPERTRAJ];
-
-	// result of reading values from file
-	int scanfResult;
-
-	char integration_type[256];
-	scanfResult = fwscanf( inputfile, L"%s", &integration_type[0] );
-	int l = strlen( integration_type ); // length of integration type
-
-	scanfResult = fwscanf( inputfile, L"%lf %lf\n", &B_STEP, &V0_STEP );
-	cout << "B_STEP: " << B_STEP << "; V0_STEP: " << V0_STEP << endl;
-
-	//sending integration type
-	for ( int i = 1; i < world_size; i++ )
-	{
-		MPI_Send( &l, 1, MPI_INT, i, 0, MPI_COMM_WORLD );
-		MPI_Send( &integration_type[0], l, MPI_CHAR, i, 0, MPI_COMM_WORLD ); 
-	}
-
-	// sending b_step and v_step to all slaves
-	for ( int i = 1; i < world_size; i++ )
-	{
-		MPI_Send( &B_STEP, 1, MPI_DOUBLE, i, 0, MPI_COMM_WORLD );
-		MPI_Send( &V0_STEP, 1, MPI_DOUBLE, i, 0, MPI_COMM_WORLD );
-	}
-
-	// sending first message to slaves
-	for ( int i = 1; i < world_size; i++ ) 
-	{
-		scanfResult = fwscanf( inputfile, L"%lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5] );
-		//cout << "Read initial condition: " << ics[0] << " " 
-										   //<< ics[1] << " "
-										   //<< ics[2] << " "
-										   //<< ics[3] << endl;
-		MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-
-		NTRAJ++;
-	}
-
-	// number of alive processes
-	int alive = world_size - 1;
-	
-	vector<double> freqs = create_frequencies_vector( );
-	int FREQ_SIZE = freqs.size();
-	
-	vector<double> specfunc_package( FREQ_SIZE );
-	vector<double> total_specfunc( FREQ_SIZE );
-	vector<double> spectrum_package( FREQ_SIZE );
-	vector<double> total_spectrum( FREQ_SIZE );
-
-	double uniform_integrated_spectrum_package;
-	double uniform_integrated_spectrum_total = 0.0;
-
-	while ( true )
-	{	
-		// exit when all slaves are killed
-		if ( alive == 0 )
-		{
-			break;
-		}
-
-		if ( NTRAJ % 100 == 0 )
-		{
-			save( freqs, total_specfunc, specfunc_filename );
-			save( freqs, total_spectrum, spectrum_filename );
-			save( uniform_integrated_spectrum_total, m2_filename );
-		}
-
-		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-
-		source = status.MPI_SOURCE;
-
-		MPI_Recv( &spectrum_package[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-
-		MPI_Recv( &uniform_integrated_spectrum_package, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-
-		for ( int k = 0; k < FREQ_SIZE; k++ )
-		{
-			total_specfunc[k] += specfunc_package[k];
-			total_spectrum[k] += spectrum_package[k];
-		}
-
-		uniform_integrated_spectrum_total += uniform_integrated_spectrum_package;
-			
-		// reading another line from file
-		scanfResult = fwscanf(inputfile, L"%lf %lf %lf %lf %lf %lf\n", &ics[0], &ics[1], &ics[2], &ics[3], &ics[4], &ics[5] );	
-		// if it's not ended yet then sending new chunk of work to slave
-		if ( scanfResult != -1)
-		{
-			//cout << "Master sends new initial conditions to process " << source << endl;
-			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, 0, MPI_COMM_WORLD);
-			NTRAJ++;
-		}
-		// work is done, sending a killing message
-		else
-		{
-			MPI_Send(&ics[0], ICPERTRAJ, MPI_DOUBLE, source, EXIT_TAG, MPI_COMM_WORLD);
-			alive--;
-		}
-	}
-
-	fftw_cleanup();
-
-	delete [] ics;	
-
-	fclose(inputfile);
+	// initialzing GridParameters class
+	// maybe a simple struct would do??? will see
+	GridParameters grid;
+	// initializing file reader class and passing it a grid class to fill in
+	FileReader fileReader( "grid.in", grid ); 
 }
 
 void copy_initial_conditions( double* ics, REAL* y0, const int length )
