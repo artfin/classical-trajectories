@@ -1,5 +1,5 @@
 #pragma once
-#include "gridparameters.h"
+#include "parameters.h"
 
 #include <iostream>
 #include <string>
@@ -13,29 +13,42 @@ using std::endl;
 using std::string;
 using std::ifstream;
 
-#define MAXLINE 64
+#define MAXLINE 100 
 
 class FileReader
 {
+	Parameters* parameters;
+
 	public:
-		FileReader( string filename, GridParameters& grid );
+		FileReader( string filename, Parameters* parameters );
 		~FileReader();
 
-		void parse_file( ifstream& infile, GridParameters& grid );
-		
+		void parse_file( ifstream& infile );
+	
+		double string_to_double( string& value, int& line );
+
 		void parse_string( string curr_str, 
 						   string& keyword,
 						   string& variable,
 						   string& value,
 						   bool& is_doolar,
 						   bool& is_empty,
+						   bool& is_assignment,
 						   int& line 
 						 );
 
 		void analyse_grid_group_line( string& variable,
 						 			  string& value,
-									  int& line,
-					   				  GridParameters& grid
-									);
+									  int& line
+					   				 );
+
+		void analyse_mcparameters_group_line( string& variable,
+											  string& value,
+											  int& line
+											 );
+		void analyse_files_group_line( string& variable,
+									   string& value,
+								   	   int& line
+									 );	   
 };
 

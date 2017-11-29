@@ -8,8 +8,8 @@
 
 // FileReader class
 #include "file.h"
-// GridParameters class
-#include "gridparameters.h"
+// Parameters class
+#include "parameters.h"
 
 // should be included BEFORE Gear header files
 // due to namespace overlap
@@ -45,10 +45,8 @@ const int EXIT_TAG = 42;
 // ############################################
 
 // ############################################
-// Number of initial conditions per trajectory
-const int ICPERTRAJ = 6; 
-// R0, b, v0 -- atomic units (ALU, ALU, AVU)
-// counter, R0, b, b_weight(integration), v0, v0_weight(integration)  
+// initial R (A.U.)
+const double RDIST = 40.0;
 // ############################################
 
 // ############################################
@@ -60,6 +58,9 @@ const double HE_MASS = 4.00260325413;
 const double AR_MASS = 39.9623831237; 
 const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
 const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
+const double MU_SI = MU * constants::AMU;
+
+const double TWO_PI = 2 * M_PI;
 // ############################################
 
 // ############################################
@@ -72,14 +73,22 @@ double B_STEP;
 const double sampling_time = 100; 
 // ############################################
 
+struct ICHamPoint
+{
+	double R;
+	double pR;
+	double theta;
+	double pT;
+};
+
 using namespace std;
 
-static mt19937 generator;
+static mt19937 uniform_generator;
 
-static double nextDouble( const double &min = 0.0, const double &max = 1.0 )
+static double UniformDouble( const double &min = 0.0, const double &max = 1.0 )
 {
     uniform_real_distribution<double> distribution( min, max );
-    return distribution( generator );
+    return distribution( uniform_generator );
 }
 
 void show( string name, vector<double> v )
@@ -166,17 +175,138 @@ vector<double> create_frequencies_vector( void )
 	return freqs;
 }
 
-
 void master_code( int world_size )
 {
 	MPI_Status status;
 	int source;
 
-	// initialzing GridParameters class
-	// maybe a simple struct would do??? will see
-	GridParameters grid;
-	// initializing file reader class and passing it a grid class to fill in
-	FileReader fileReader( "grid.in", grid ); 
+	Parameters parameters;
+
+	FileReader fileReader( "parameters.in", &parameters ); 
+	parameters.show_parameters();
+
+	// #####################################################
+	// creating custom data type for MPI
+	int blocksCount = 3; // number of entities inside struct
+	int blocksLength[3] = {1, 1, 1}; // lengths of entities inside struct
+
+	// types of variables in struct
+	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE};
+
+	MPI_Aint offsets[3]; // mpi_aint holds address (pointer)
+	MPI_Datatype MPI_ICPoint;
+	offsets[0] = offsetof( ICPoint, counter ); // sizes of variables?
+	offsets[1] = offsetof( ICPoint, b );
+	offsets[2] = offsetof( ICPoint, v0 );
+
+	MPI_Type_create_struct( blocksCount, blocksLength, offsets, types, &MPI_ICPoint );
+	MPI_Type_commit( &MPI_ICPoint );
+	// #####################################################
+
+	ICPoint p;
+	int point_counter = 0;
+	int cycle_counter = 0;
+
+	// sending first point to slaves
+	for ( int i = 1; i < world_size; i++ )
+	{
+		p = parameters.generate_uniform_point( );
+		p.counter = point_counter;
+			
+		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
+		//cout << "Master sends first message" << endl;
+
+		point_counter++;
+	}
+
+	// status of calculation: set to true if all cycles are done
+	bool finished = false;
+
+	// number of alive processes
+	int alive = world_size - 1;
+	
+	vector<double> freqs = create_frequencies_vector( );
+	int FREQ_SIZE = freqs.size();
+	
+	vector<double> specfunc_package( FREQ_SIZE );
+	vector<double> total_specfunc( FREQ_SIZE );
+	vector<double> spectrum_package( FREQ_SIZE );
+	vector<double> total_spectrum( FREQ_SIZE );
+	
+	double uniform_integrated_spectrum_package;
+	double uniform_integrated_spectrum_total = 0.0;
+
+	while( true )
+	{
+		if ( alive == 0 )
+		{
+			//cout << "All slaves are dead" << endl;
+			break;
+		}
+
+		if ( point_counter == parameters.CYCLE_POINTS )
+		{
+			cout << "Cycle " << cycle_counter << " is finished." << endl;
+	
+			// multiplyting spectrum and spectral function by AREA and dividing by NPOINTS
+			double b_length = parameters.B_MAX - parameters.B_MIN;
+			double v0_length = parameters.V0_MAX - parameters.V0_MIN;
+			double multiplier = b_length * v0_length / point_counter;
+			for ( int i = 0; i < total_specfunc.size(); i++ )
+			{
+				total_specfunc[i] *= multiplier; 
+				total_spectrum[i] *= multiplier; 
+			}
+
+			uniform_integrated_spectrum_total *= multiplier; 
+
+			cout << "Saving data to files..." << endl;
+					
+			save( freqs, total_specfunc, parameters.specfunc_filename );
+			save( freqs, total_spectrum, parameters.spectrum_filename );
+			save( uniform_integrated_spectrum_total, parameters.m2_filename );
+
+			point_counter = 0;
+			cycle_counter++;
+		}		
+		
+		if ( cycle_counter == parameters.CYCLES )
+		{
+			finished = true;
+		}
+	
+		// ############################################################
+		// Receiving data
+		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		source = status.MPI_SOURCE;
+
+		MPI_Recv( &spectrum_package[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		MPI_Recv (&uniform_integrated_spectrum_package, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		// ############################################################
+		
+		// ############################################################
+		for ( int i = 0; i < FREQ_SIZE; i++ )
+		{
+			total_specfunc[i] += specfunc_package[i];
+			total_spectrum[i] += spectrum_package[i];
+		}
+		uniform_integrated_spectrum_total += uniform_integrated_spectrum_package;
+		// ############################################################
+		
+		if ( !finished )
+		{
+			p = parameters.generate_uniform_point();
+			p.counter = point_counter;	
+			point_counter++;
+			
+			MPI_Send( &p, 1, MPI_ICPoint, source, 0, MPI_COMM_WORLD );
+		}
+		else
+		{
+			MPI_Send( &finished, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
+			alive--;
+		}
+	}
 }
 
 void copy_initial_conditions( double* ics, REAL* y0, const int length )
@@ -187,8 +317,71 @@ void copy_initial_conditions( double* ics, REAL* y0, const int length )
 	}
 }
 
+void show_point( ICPoint p )
+{
+	cout << "%%%%%%%%%%" << endl;
+	cout << "p.counter: " << p.counter << endl;
+	cout << "p.b: " << p.b << endl;
+	cout << "p.v0: " << p.v0 << endl;
+	cout << "%%%%%%%%%%" << endl;
+}
+
+void transform_ICPoint_to_ICHamPoint( ICPoint &p, ICHamPoint &ics )
+{
+	// input: p.b, p.vo -- in SI 
+	// output: ics.R, pR, theta, pT -- in A.U.
+	
+	ics.R = RDIST;
+   	ics.pR = MU * p.v0 / constants::AVU;
+	ics.theta = UniformDouble( 0.0, 2 * M_PI );
+	ics.pT = p.b / constants::ALU * ics.pR;	
+	
+	//cout << "p.b: " << p.b << endl;
+	//cout << "ics.pR: " << ics.pR << endl;
+	//cout << "ics.pT: " << ics.pT << endl;
+}
+
 void slave_code( int world_rank )
 {
+	MPI_Status status;
+	
+	// #####################################################
+	// creating custom data type for MPI
+	int blocksCount = 3; // number of entities inside struct
+	int blocksLength[3] = {1, 1, 1}; // lengths of entities inside struct
+
+	// types of variables in struct
+	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE};
+
+	MPI_Aint offsets[3]; // mpi_aint holds address (pointer)
+	MPI_Datatype MPI_ICPoint;
+	offsets[0] = offsetof( ICPoint, counter ); // sizes of variables?
+	offsets[1] = offsetof( ICPoint, b );
+	offsets[2] = offsetof( ICPoint, v0 );
+
+	MPI_Type_create_struct( blocksCount, blocksLength, offsets, types, &MPI_ICPoint );
+	MPI_Type_commit( &MPI_ICPoint );
+	// #####################################################
+	
+	// #####################################################
+	// initializing special fourier class
+	Fourier fourier( MaxTrajectoryLength );
+
+	vector<double> freqs = create_frequencies_vector( );
+	int FREQ_SIZE = freqs.size();
+	double FREQ_STEP = freqs[1] - freqs[0];
+
+	double specfunc_coeff = 1.0/(4.0*M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2);;
+
+	double spectrum_coeff = 8.0*M_PI*M_PI*M_PI/3.0/constants::PLANCKCONST/constants::LIGHTSPEED * 1.0/4.0/M_PI/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2) * pow(constants::LOSHMIDT_CONSTANT, 2);	
+
+	// j -> erg; m -> cm
+	double SPECFUNC_POWERS_OF_TEN = 1e19;
+	// m^-1 -> cm^-1
+	double SPECTRUM_POWERS_OF_TEN = 1e-2;
+	// #####################################################
+	
+	// #####################################################
 	REAL epsabs;    //  absolute error bound
 	REAL epsrel;    //  relative error bound    
 	REAL t0;        // left edge of integration interval
@@ -200,184 +393,92 @@ void slave_code( int world_rank )
 	long aufrufe;   // actual number of function calls
 	int  N;         // number of DEs in system
 	int  fehler;    // error code from umleiten(), gear4()
-	int  i;         // loop counter
 
 	void *vmblock;  // List of dynamically allocated vectors
-
-	// array to store initial conditions
-	double *ics = new double [ICPERTRAJ];
-
-	// auxiliary variable to store status of message
-	MPI_Status status;
-
-	// receiving integration type
-  	int l;
-	MPI_Recv( &l, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-	//cout << "Received length of buffer: " << l << endl;
-
-	char *buf = new char [l];
-	MPI_Recv( buf, l, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status ); 
-	// converting char pointer to string
-	string integration_type( buf, l );
-	delete [] buf;
-
-	int integration_denumerator = 0;
-	if ( integration_type == "simpson" )
-	{
-		//cout << "Simpson integration type. Setting denumerator to 3." << endl;
-		integration_denumerator = 3;
-	}
-	if ( integration_type == "trapezoid" )
-	{
-		//cout << "Trapezoid integartion type. Setting denumerator to 2." << endl;
-		integration_denumerator = 2;
-	}
-	if ( integration_denumerator == 0 )
-	{
-		cout << "UNKNOWN INTEGRATION TYPE" << endl;
-		exit( 1 );
-	}
-
-	// receiving B_STEP and V0_STEP
-	MPI_Recv( &B_STEP, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-	MPI_Recv( &V0_STEP, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-
-	//cout << "Received B_STEP: " << B_STEP << endl;
-	//cout << "Received V0_STEP: " << V0_STEP << endl;
 	
-	// initializing special fourier class
-	Fourier fourier( MaxTrajectoryLength );
+	N = 4;
+	vmblock = vminit();
+	y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
 	
-	vector<double> freqs = create_frequencies_vector( );
-	int FREQ_SIZE = freqs.size();
-	double FREQ_STEP = freqs[1] - freqs[0];
+	// accuracy of trajectory
+	epsabs = 1E-13;
+	epsrel = 1E-13;
+	
+	fmax = 1e8;  		  // maximal number of calls 
+	// #####################################################
 
-	double specfunc_coeff = 1.0/(4.0*M_PI)/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2);;
-
-	double spectrum_coeff = 8.0*M_PI*M_PI*M_PI/3.0/constants::PLANCKCONST/constants::LIGHTSPEED * 1.0/4.0/M_PI/constants::EPSILON0 * pow(sampling_time * constants::ATU, 2)/2.0/M_PI * pow(constants::ADIPMOMU, 2) * pow(constants::LOSHMIDT_CONSTANT, 2);	
-		
-	// j -> erg; m -> cm
-	double SPECFUNC_POWERS_OF_TEN = 1e19;
-	// m^-1 -> cm^-1
-	double SPECTRUM_POWERS_OF_TEN = 1e-2;
+	ICPoint p;
+	ICHamPoint ics;
 
 	while ( true )
 	{
-		MPI_Recv(&ics[0], ICPERTRAJ, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-		//cout << ">> Process " << world_rank << " received new initial conditions." << endl; 
+		MPI_Recv( &p, 1, MPI_ICPoint, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status ); 
+		//cout << "Received ICPoint: " << p.counter << endl;
+		//show_point( p );
+		transform_ICPoint_to_ICHamPoint( p, ics );
 
 		if ( status.MPI_TAG == EXIT_TAG )
 		{
+			cout << "Received exit tag." << endl;
 			break;
 		}
 
-		//cout << "Received conditions: " << endl;
-		//cout << "ics[0] = " << ics[0] << endl;
-		//cout << "ics[1] = " << ics[1] << endl;
-		//cout << "ics[2] = " << ics[2] << endl;
-		//cout << "ics[3] = " << ics[3] << endl;
-		//cout << "ics[4] = " << ics[4] << endl;
-		//cout << "ics[5] = " << ics[5] << endl;
-		//cout << "########################" << endl;
-
-		int trajectory_number = ics[0];
-		double R = ics[1];
-		double b = ics[2];
-		double b_weight_integration = ics[3];
-		double v0 = -ics[4];
-		double v0_weight_integration = ics[5];
-
-		double pR = MU * v0;
-		double pT = b * pR;
-	
-		// initial orientation doesn't matter 
-		// it gives the same result as if theta is set to theta = 0 	
-		// theta is choosed uniformly from [0, 2pi]
-		double theta = nextDouble( 0.0, 2 * M_PI );	
-
-		N = 4;
-		vmblock = vminit();
-		y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
-
-		y0[0] = R;
-		y0[1] = pR;
-		y0[2] = theta;
-		y0[3] = pT;
-
-		// out of memory?
-		if ( !vmcomplete(vmblock) )
-		{ 
-			printf("mgear: out of memory.\n");
-			return;
-		}
-
-		// according to Ivanov:
-		// sampling time = 50 fs
-
-		epsabs = 1E-13;
-		epsrel = 1E-13;
-
-		t0 = 0.0;
-
-		h = 0.1;         		// initial step size
-		xend = sampling_time;   // initial right bound of integration
-		fmax = 1e8;  	 		// maximal number of calls 
-
+		y0[0] = ics.R;
+		y0[1] = - ics.pR;
+		y0[2] = ics.theta;
+		y0[3] = ics.pT;
 		//cout << "y0[0] = " << y0[0] << endl;
 		//cout << "y0[1] = " << y0[1] << endl;
 		//cout << "y0[2] = " << y0[2] << endl;
 		//cout << "y0[3] = " << y0[3] << endl;
-	
-		double energy = pow(y0[1], 2) / 2 / MU + pow(y0[3], 2) / ( 2 * MU * pow(y0[0], 2));
-		//cout << "energy: " << energy << endl;
+
+		// out of memory?
+		if ( !vmcomplete(vmblock) )
+		{ 
+			cout << "mgear: out of memory" << endl;
+			return;
+		}
+
+		// #####################################################
+		// p.v0, p.b -- in SI
+		double b_integrand = 2 * M_PI * p.v0 * p.b;  
+		double v0_integrand = pow( MU_SI / (TWO_PI * constants::BOLTZCONST * Temperature), 1.5 ) * exp( - MU_SI * p.v0 * p.v0 / (2 * constants::BOLTZCONST * Temperature)) * 4 * M_PI * p.v0 * p.v0; 
 		
-		cout << "b (a.u): " << b << "; b (SI): " << b * constants::ALU << endl;
-		cout << "v0 (a.u.): " << v0 << "; v0 (SI): " << v0 * constants::AVU << endl;
-
-		double b_weight = fabs( 2 * M_PI * v0 * b ) * constants::AVU * constants::ALU * b_weight_integration;
-		cout << "b_weight (SI): " << b_weight << endl;
-		// integration-denumerator = 2.0 -- trapezoid rule
-		// integration-denumerator = 3.0 -- simpson rule
-
-		double v0_weight_constant = pow((MU * constants::AMU / (2 * M_PI * constants::BOLTZCONST * Temperature)), 1.5);
-		double v0_weight = v0_weight_constant * exp(- MU * constants::AMU * pow(v0 * constants::AVU, 2) / ( 2 * constants::BOLTZCONST * Temperature )) * 4 * M_PI * pow(v0, 2) * V0_STEP * pow(constants::AVU, 3) * v0_weight_integration;
-		cout << "v0_weight: " << v0_weight << endl;
-
-		//double fourier_weight = pow(sampling_time * constants::ATU, 2);
-		double stat_weight = b_weight * v0_weight * B_STEP * constants::ALU;
-		cout << "stat_weight: " << stat_weight << endl;
-
-		double stat_weight_si = stat_weight * constants::ALU * constants::ALU * constants::AVU;
-		cout << "stat_weight_si: " << stat_weight_si << endl;
-
-		//cout << "B_STEP: " << B_STEP << endl;
-		//cout << "V0_STEP: " << V0_STEP << endl;
-		//cout << "b_weight: " << b_weight << endl;
-		//cout << "v0_weight: " << v0_weight << endl;
-		//cout << "weight: " << weight << endl;
-
+		double stat_weight = b_integrand * v0_integrand;
+		// #####################################################
+		
 		int counter = 0;
-		double end_value = y0[0] + 0.001; 
+		double R_end_value = y0[0] + 0.001;
 
 		// dipole moment in laboratory frame
 		vector<double> temp( 3 );
-
 		vector<double> dipx;
 		vector<double> dipy;
 		vector<double> dipz;
+		
+		// #####################################################
+		t0 = 0.0;
 
-		while ( y0[0] < end_value ) 
+		h = 0.1;    		  // initial step size
+		xend = sampling_time; // initial right bound of integration
+		// #####################################################
+
+		// #####################################################
+		while ( y0[0] < R_end_value ) 
 		{
 			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
+			//cout << "%%%" << endl;
+			//cout << "xend: " << xend << endl;
+			//cout << "%%%" << endl;
 
 			if ( fehler != 0 ) 
 			{
-				printf(" Gear4: error n° %d\n", 10 + fehler);
+				cout << "Gear4: error n = " << 10 + fehler << endl;
 				break;
 			}
 
 			//cout << "t0: " << t0 << "; r: " << y0[0] << endl;
-			
+
 			// y0[0] -- R
 			// y0[1] -- PR
 			// y0[2] -- \theta
@@ -389,11 +490,14 @@ void slave_code( int world_rank )
 			dipz.push_back( temp[2] );
 
 			xend = sampling_time * (counter + 2);
+
 			aufrufe = 0;  // actual number of calls
 
 			counter++;
 		}
+		// #####################################################
 		
+		// #####################################################
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();
 
@@ -424,31 +528,31 @@ void slave_code( int world_rank )
 
 		for ( int k = 0; k < FREQ_SIZE; k++ )
 		{
-			omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs[k];
+				omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs[k];
 
-			ReFx = fourier.outx[k][0];
-			ReFy = fourier.outy[k][0];
-			ReFz = fourier.outz[k][0];
-			ImFx = fourier.outx[k][1];
-			ImFy = fourier.outy[k][1];
-			ImFz = fourier.outz[k][1];
+				ReFx = fourier.outx[k][0];
+				ReFy = fourier.outy[k][0];
+				ReFz = fourier.outz[k][0];
+				ImFx = fourier.outx[k][1];
+				ImFy = fourier.outy[k][1];
+				ImFz = fourier.outz[k][1];
 
-			dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
-				     ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;	
+				dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
+						 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;	
 
-			specfunc_value = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
-			specfunc.push_back( specfunc_value );	
-				
-			spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / ( constants::BOLTZCONST * Temperature )) ) * dipfft;
-				
-			uniform_integrated_spectrum += spectrum_value * FREQ_STEP; 
-			// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
+				specfunc_value = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
+				specfunc.push_back( specfunc_value );	
 
-			spectrum.push_back( spectrum_value );
+				spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / ( constants::BOLTZCONST * Temperature )) ) * dipfft;
+
+				uniform_integrated_spectrum += spectrum_value * FREQ_STEP; 
+				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
+
+				spectrum.push_back( spectrum_value );
 		}
 
-		cout << ">> Processing " << trajectory_number << " trajectory. npoints = " << npoints << endl;
-			
+		cout << ">> Processing " << p.counter << " trajectory. npoints = " << npoints << endl;
+		
 		//// #################################################
 		// Sending data
 		MPI_Send( &specfunc[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );

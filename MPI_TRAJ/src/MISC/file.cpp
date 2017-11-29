@@ -1,7 +1,9 @@
 #include "file.h"
 
-FileReader::FileReader( string filename, GridParameters& grid )
+FileReader::FileReader( string filename, Parameters* parameters )
 {
+	this->parameters = parameters;
+
 	ifstream infile( filename );
 	if ( !infile )
 	{
@@ -9,15 +11,13 @@ FileReader::FileReader( string filename, GridParameters& grid )
 	}	
 	else
 	{
-		parse_file( infile, grid );
+		parse_file( infile );
 		infile.close();
 	}
 }
 
-void FileReader::parse_file( ifstream& infile, GridParameters& grid )
+void FileReader::parse_file( ifstream& infile )
 {
-	cout << "Inside parse_file" << endl;
-    
 	string current_string;
 	string keyword;
 	string variable = "";
@@ -26,6 +26,7 @@ void FileReader::parse_file( ifstream& infile, GridParameters& grid )
 	char buf[ MAXLINE ];
     int line = 1;
 	
+	bool is_assignment;
 	bool is_dollar;
 	bool is_empty;	
 
@@ -33,27 +34,34 @@ void FileReader::parse_file( ifstream& infile, GridParameters& grid )
 
 	while( infile.getline( buf, MAXLINE ) ) 
 	{
-	   	is_dollar = false;
-		is_empty = false;
-       
-        current_string = buf;
-        parse_string( current_string, keyword, variable, value, is_dollar, is_empty, line );
+		current_string = buf;
+		parse_string( current_string, keyword, variable, value, is_dollar, is_empty, is_assignment, line );
 
-		cout << "current_string: " << current_string << endl;
-		cout << "keyword: " << keyword << endl;
-		cout << "variable: " << variable << endl;
-		cout << "value: " << value << endl;
-		cout << "is_dollar: " << is_dollar << endl;
-		cout << "is_empty: " << is_empty << endl << endl;
-		
+		//cout << "current_string: " << current_string << endl;
+		//cout << "current_group: " << current_group << endl;
+		//cout << "keyword: " << keyword << endl;
+		//cout << "variable: " << variable << endl;
+		//cout << "value: " << value << endl;
+		//cout << "is_dollar: " << is_dollar << endl;
+		//cout << "is_empty: " << is_empty << endl;
+		//cout << "is_assignment: " << is_assignment << endl;
+		//cout << "line: " << line << endl << endl;
+
+		// if line is empty then proceeding to the next one
+		if ( is_empty )
+		{
+			continue;
+		}
+
 		// all assignments should be enclosed in some group
 		if ( is_dollar && current_group == "" ) 
 		{
 			current_group = keyword;
 			keyword = "";
 		} 
-		
-		if ( &variable && current_group == "" ) 
+	
+		// if assignment occured outside of any group block then throw an exception
+		if ( is_assignment && current_group == "" ) 
 		{
 			throw std::invalid_argument( "Expecting '$group' keyword!" );
 		}
@@ -71,10 +79,37 @@ void FileReader::parse_file( ifstream& infile, GridParameters& grid )
 			current_group = "";
 			continue;
 		}
-
-		if ( current_group == "$grid" )
+		
+		if ( current_group == "$gridparameters" )
 		{
-			analyse_grid_group_line( variable, value, line, grid ); 
+			if ( is_assignment ) 
+			{
+				analyse_grid_group_line( variable, value, line );
+
+				variable.erase();
+				value.erase();	
+			}
+			else continue;
+		}
+		else if ( current_group == "$mcparameters" )
+		{
+			if ( is_assignment )
+			{
+				analyse_mcparameters_group_line( variable, value, line );
+
+				variable.erase();
+				value.erase();
+			}
+		}
+		else if ( current_group == "$files" )
+		{
+			if ( is_assignment )
+			{
+				analyse_files_group_line( variable, value, line );
+
+				variable.erase();
+				value.erase();
+			}
 		}
 		else 
 		{
@@ -84,15 +119,58 @@ void FileReader::parse_file( ifstream& infile, GridParameters& grid )
 		
 		line++;
     }
-
 }
-
-void FileReader::analyse_grid_group_line( string& variable, string& value, int& line, GridParameters &grid )
+ 
+double FileReader::string_to_double( string& value, int& line ) 
 {
-	cout << "Inside parser of grid group" << endl;
+	double result;
+	if ( sscanf( value.c_str(), "%lg", &result ) != 1 ) 
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument("Can't transform string to double in " + line_number_string );
+	}
+
+	return result;
 }
 
-void FileReader::parse_string( string curr_str, string& keyword, string& variable, string& value, bool& is_dollar, bool& is_empty, int& line ) 
+void FileReader::analyse_grid_group_line( string& variable, string& value, int& line )
+{
+	if ( variable == "V0_MIN" ) this->parameters->V0_MIN = string_to_double( value, line );
+	else if ( variable == "V0_MAX" ) this->parameters->V0_MAX = string_to_double( value, line );
+	else if ( variable == "B_MIN" ) this->parameters->B_MIN = string_to_double( value, line );
+	else if ( variable == "B_MAX" ) this->parameters->B_MAX = string_to_double( value, line );
+	else
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument( "Invalid variable name " + variable + " in $grid group! Line number: " + line_number_string );
+	}
+}
+
+void FileReader::analyse_mcparameters_group_line( string& variable, string& value, int& line )
+{
+	if ( variable == "CYCLES" ) this->parameters->CYCLES = string_to_double( value, line );
+	else if ( variable == "CYCLE_POINTS" ) this->parameters->CYCLE_POINTS = string_to_double( value, line );
+	else if ( variable == "STDDEV_MAX" ) this->parameters->STDDEV_MAX = string_to_double( value, line );
+	else
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument( "Invalid variable name " + variable + " in $mcparameters group! Line number: " + line_number_string );
+	}
+}
+
+void FileReader::analyse_files_group_line( string& variable, string& value, int& line )
+{
+	if ( variable == "specfunc_filename" ) this->parameters->specfunc_filename.assign( value );
+	else if ( variable == "spectrum_filename" ) this->parameters->spectrum_filename.assign( value ); 
+	else if ( variable == "m2_filename" ) this->parameters->m2_filename.assign( value );
+	else
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument( "Invalid variable name " + variable + " in $files group! Line number; " + line_number_string );
+	}
+}
+
+void FileReader::parse_string( string curr_str, string& keyword, string& variable, string& value, bool& is_dollar, bool& is_empty, bool& is_assignment, int& line ) 
 {
 	// remove comments from line
 	size_t pos = curr_str.find("%");
@@ -111,7 +189,12 @@ void FileReader::parse_string( string curr_str, string& keyword, string& variabl
 	{
     	is_empty = true;
     	is_dollar = false;
-    	
+		is_assignment = false;
+		
+		keyword.erase();
+		variable.erase();
+		value.erase();
+
 		return;
     }
 	else
@@ -130,13 +213,10 @@ void FileReader::parse_string( string curr_str, string& keyword, string& variabl
 	{
         // found $
         is_dollar = true;
+		is_assignment = false;
 
 		// isolating keyword 
 		start_keyword = curr_str.find_first_not_of( space_symbols );
-        //if (start_col != col)
-	   	//{
-            //throw std::invalid_argument("Non space symbols before $ occured.", line);
-        //}
         end_keyword = curr_str.find_last_not_of( space_symbols );
 
         keyword = curr_str.substr( pos, end_keyword - start_keyword + 1 ); 
@@ -157,6 +237,9 @@ void FileReader::parse_string( string curr_str, string& keyword, string& variabl
 		// suppose we found assignment
         if ( pos != string::npos ) 
 		{
+			// setting an assignment indicator to true
+			is_assignment = true;
+
 			// left-hand side must be a variable
 			// right-hand side must be it's value
             string lhs, rhs;
@@ -196,5 +279,5 @@ void FileReader::parse_string( string curr_str, string& keyword, string& variabl
 
 FileReader::~FileReader()
 {
-	cout << "File destructor" << endl;
+	//cout << "File destructor" << endl;
 }

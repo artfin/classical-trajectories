@@ -1,0 +1,22 @@
+$gridparameters
+	V0_MIN = 1.0
+	V0_MAX = 2500.0
+
+	B_MIN = 0.0
+	B_MAX = 6.25e-10
+$end
+
+$mcparameters
+	CYCLES = 3 
+	CYCLE_POINTS = 1000
+
+	STDDEV_MAX = 0.01
+$end
+
+$files
+	specfunc_filename = specfunc.txt
+	m2_filename = m2.txt
+	spectrum_filename = spectrum.txt
+$end
+
+

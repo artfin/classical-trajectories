@@ -144,7 +144,7 @@ $(OBJ_PATH_MISC)gsl_custom.o: $(SRC_PATH_MISC)gsl_custom.cpp
 $(OBJ_PATH_MISC)file.o: $(SRC_PATH_MISC)file.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
 
-$(OBJ_PATH_MISC)gridparameters.o: $(SRC_PATH_MISC)gridparameters.cpp
+$(OBJ_PATH_MISC)parameters.o: $(SRC_PATH_MISC)parameters.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
 ######################################################################
 
@@ -209,8 +209,9 @@ buryak: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main_buryak.cpp
 formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 
-simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)gridparameters.o
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
+SIMPLE_MC_ADDITIONAL_OBJ = $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)parameters.o 
+simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp $(SIMPLE_MC_ADDITIONAL_OBJ) 
+	$(MPICC) $(CXXFLAGS) -Wall $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 
 ######################################################################
