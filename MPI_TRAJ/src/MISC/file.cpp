@@ -127,7 +127,19 @@ double FileReader::string_to_double( string& value, int& line )
 	if ( sscanf( value.c_str(), "%lg", &result ) != 1 ) 
 	{
 		string line_number_string = std::to_string( line );
-		throw std::invalid_argument("Can't transform string to double in " + line_number_string );
+		throw std::invalid_argument("Can't transform string to double in line " + line_number_string );
+	}
+
+	return result;
+}
+
+int FileReader::string_to_int( string& value, int& line )
+{
+	int result;
+	if ( sscanf( value.c_str(), "%d", &result ) != 1 )
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument( "Can't transform string to int in line " + line_number_string ); 
 	}
 
 	return result;
@@ -137,8 +149,10 @@ void FileReader::analyse_grid_group_line( string& variable, string& value, int& 
 {
 	if ( variable == "V0_MIN" ) this->parameters->V0_MIN = string_to_double( value, line );
 	else if ( variable == "V0_MAX" ) this->parameters->V0_MAX = string_to_double( value, line );
+	else if ( variable == "V0_PARTS" ) this->parameters->V0_PARTS = string_to_int( value, line );
 	else if ( variable == "B_MIN" ) this->parameters->B_MIN = string_to_double( value, line );
 	else if ( variable == "B_MAX" ) this->parameters->B_MAX = string_to_double( value, line );
+	else if ( variable == "B_PARTS" ) this->parameters->B_PARTS = string_to_int( value, line );
 	else
 	{
 		string line_number_string = std::to_string( line );

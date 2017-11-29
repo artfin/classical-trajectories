@@ -26,6 +26,7 @@ class FileReader
 		void parse_file( ifstream& infile );
 	
 		double string_to_double( string& value, int& line );
+		int string_to_int( string& value, int& line );
 
 		void parse_string( string curr_str, 
 						   string& keyword,

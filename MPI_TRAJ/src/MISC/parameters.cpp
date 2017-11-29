@@ -20,8 +20,10 @@ void Parameters::show_parameters( void )
 	cout << "Gridparameters: " << endl;
 	cout << "B_MIN: " << this->B_MIN << endl;
 	cout << "B_MAX: " << this->B_MAX << endl;
+	cout << "B_PARTS: " << this->B_PARTS << endl;
 	cout << "V0_MIN: " << this->V0_MIN << endl;
 	cout << "V0_MAX: " << this->V0_MAX << endl;
+	cout << "V0_PARTS: " << this->V0_PARTS << endl;
 	cout << "################################" << endl;
 }
 
@@ -42,3 +44,16 @@ ICPoint Parameters::generate_uniform_point( void )
 
 	return p;
 }
+
+ICPoint Parameters::generate_uniform_point( const double& bmin,
+			   								const double& bmax,
+											const double& v0min,
+											const double& v0max )
+{
+	ICPoint p;
+
+	p.b = nextDouble( bmin, bmax );
+	p.v0 = nextDouble( v0min, v0max );
+
+	return p;
+}	

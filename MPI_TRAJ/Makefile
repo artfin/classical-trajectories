@@ -152,8 +152,10 @@ $(OBJ_PATH_MISC)parameters.o: $(SRC_PATH_MISC)parameters.cpp
 # path to miscellaneous functions
 MISC_OBJ = aux.o fft.o 
 MISC_OBJECTS = $(patsubst %,$(OBJ_PATH_MISC)%,$(MISC_OBJ))
-######################################################################
 
+MISC_OBJ_CUT = fft.o
+MISC_OBJECTS_CUT = $(patsubst %,$(OBJ_PATH_MISC)%,$(MISC_OBJ_CUT))
+######################################################################
 
 ######################################################################
 # CO2-Ar trajectory spectrum
@@ -197,7 +199,7 @@ DIATOM_OBJ = matrix.o
 DIATOM_OBJECTS = $(patsubst %,$(OBJ_PATH_DIATOM)%,$(DIATOM_OBJ))
 
 # using special Gear method without additional parameters 
-DIATOM_TRAJ_OBJ = $(GEAR_OBJECTS_DIATOM) $(DIATOM_POT_OBJECTS) $(DIATOM_DIP_OBJECTS) $(DIATOM_OBJECTS) $(MISC_OBJECTS) $(CONSTANTS_OBJECTS)
+DIATOM_TRAJ_OBJ = $(GEAR_OBJECTS_DIATOM) $(DIATOM_POT_OBJECTS) $(DIATOM_DIP_OBJECTS) $(DIATOM_OBJECTS) $(MISC_OBJECTS) 
 DIATOM_TRAJ_INC = $(INC_PATH_POT) $(INC_PATH_DIP) $(INC_PATH_GEAR) $(INC_PATH_MISC) $(INC_PATH_DIATOM) $(INC_PATH_CONSTANTS)
 
 diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
@@ -209,8 +211,8 @@ buryak: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main_buryak.cpp
 formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 
-SIMPLE_MC_ADDITIONAL_OBJ = $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)parameters.o 
-simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp $(SIMPLE_MC_ADDITIONAL_OBJ) 
+SIMPLE_MC_OBJ = $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)parameters.o 
+simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SIMPLE_MC_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp 
 	$(MPICC) $(CXXFLAGS) -Wall $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 

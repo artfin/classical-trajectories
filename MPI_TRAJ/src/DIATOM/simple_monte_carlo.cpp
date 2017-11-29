@@ -17,8 +17,6 @@
 
 // miscellaneous functions
 #include "fft.h"
-#include "gsl_custom.h"
-#include "aux.h"
 
 // physical constants
 #include "constants.h"
@@ -35,7 +33,7 @@
 #include <ctime>
 
 // ############################################
-const int MaxTrajectoryLength = 150000;
+const int MaxTrajectoryLength = 131072; 
 const double FREQ_MAX = 700.0;
 // ############################################
 
@@ -72,6 +70,18 @@ double B_STEP;
 // sampling time in atomic time units
 const double sampling_time = 100; 
 // ############################################
+
+// ############################################
+const double RELATIVE_DEVIATION_MAX = 0.1; 
+// ############################################
+
+struct Stat
+{
+	int length;
+	double mean;
+	double sd;
+   	double rel_dev;	
+};
 
 struct ICHamPoint
 {
@@ -175,6 +185,88 @@ vector<double> create_frequencies_vector( void )
 	return freqs;
 }
 
+void add_vectors( vector<double>& v1, vector<double>& v2 )
+{
+	assert( v1.size() == v2.size() );
+
+	for ( int i = 0; i < v1.size(); i++ )
+	{
+		v1[i] += v2[i];
+	}
+}
+
+void zero_out_vector( vector<double>& v )
+{
+	for ( int i = 0; i < v.size(); i++ )
+	{
+		v[i] = 0.0;
+	}
+}
+
+void mult_vector( vector<double> v, const double& coeff )
+{
+	for ( int i = 0; i < v.size(); i++ )
+	{
+		v[i] *= coeff;
+	}
+}	
+
+Stat run_statistics( vector<double> arr )
+{
+	Stat res;
+
+	res.length = arr.size();
+	res.mean = accumulate( arr.begin(), arr.end(), 0.0 ) / arr.size();
+
+	double var = 0;
+	for ( int i = 0; i < arr.size(); i++ )
+	{
+		var += pow( arr[i] - res.mean, 2 ); 
+	}
+	var /= arr.size();
+
+	res.sd = sqrt( var );
+
+	res.rel_dev = res.sd / res.mean;
+
+	return res;
+}
+
+void create_chunks( Parameters& parameters, vector<double>& B_CHUNKS_VECTOR, vector<double>& V0_CHUNKS_VECTOR )
+{
+	double B_CHUNK, V0_CHUNK;
+
+	if ( parameters.B_PARTS != 1 )
+	{
+		B_CHUNK = (parameters.B_MAX - parameters.B_MIN) / (parameters.B_PARTS);
+	}
+	else 
+	{
+		B_CHUNK = parameters.B_MAX - parameters.B_MIN;
+	}
+
+	if ( parameters.V0_PARTS != 1 )
+	{
+		V0_CHUNK = (parameters.V0_MAX - parameters.V0_MIN) / (parameters.V0_PARTS );
+	}
+	else
+	{
+		V0_CHUNK = parameters.V0_MAX - parameters.V0_MIN;
+	}
+
+	double temp;
+	for ( int i = 0; i < parameters.B_PARTS + 1; i++ )
+	{
+		temp = parameters.B_MIN + i * B_CHUNK; 
+		B_CHUNKS_VECTOR.push_back( temp );
+	}	
+	for ( int i = 0; i < parameters.V0_PARTS + 1; i++ )
+	{
+		temp = parameters.V0_MIN + i * V0_CHUNK;
+		V0_CHUNKS_VECTOR.push_back( temp );
+	}
+}
+
 void master_code( int world_size )
 {
 	MPI_Status status;
@@ -210,7 +302,9 @@ void master_code( int world_size )
 	// sending first point to slaves
 	for ( int i = 1; i < world_size; i++ )
 	{
-		p = parameters.generate_uniform_point( );
+		// making first trajectory inadecuate (so doesn't matter what chunk it will fall in)
+		p.v0 = -5000.0;
+		p.b = 20e-10;
 		p.counter = point_counter;
 			
 		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
@@ -220,7 +314,7 @@ void master_code( int world_size )
 	}
 
 	// status of calculation: set to true if all cycles are done
-	bool finished = false;
+	bool is_finished = false;
 
 	// number of alive processes
 	int alive = world_size - 1;
@@ -232,9 +326,31 @@ void master_code( int world_size )
 	vector<double> total_specfunc( FREQ_SIZE );
 	vector<double> spectrum_package( FREQ_SIZE );
 	vector<double> total_spectrum( FREQ_SIZE );
-	
+	vector<double> chunk_specfunc( FREQ_SIZE );
+	vector<double> chunk_spectrum( FREQ_SIZE );
+
 	double uniform_integrated_spectrum_package;
+	double uniform_integrated_spectrum_chunk = 0.0;
 	double uniform_integrated_spectrum_total = 0.0;
+
+	// ##########################################################
+	int chunk_counter = 0;
+	int chunk_max = parameters.B_PARTS * parameters.V0_PARTS;
+
+	vector<double> m2_statistics;
+
+	vector<double> B_CHUNKS_VECTOR;
+	vector<double> V0_CHUNKS_VECTOR;
+	create_chunks( parameters, B_CHUNKS_VECTOR, V0_CHUNKS_VECTOR );
+
+	for ( int i = 0; i < B_CHUNKS_VECTOR.size(); i++ )
+	{
+		cout << "B_CHUNKS_VECTOR[" << i << "] = " << B_CHUNKS_VECTOR[i] << endl;
+	}
+
+	double B_CHUNK;
+	double V0_CHUNK;
+	// ##########################################################
 
 	while( true )
 	{
@@ -246,33 +362,90 @@ void master_code( int world_size )
 
 		if ( point_counter == parameters.CYCLE_POINTS )
 		{
-			cout << "Cycle " << cycle_counter << " is finished." << endl;
+			cout << endl << ">> Cycle " << cycle_counter << " is finished." << endl;
 	
+			// ##################################################
 			// multiplyting spectrum and spectral function by AREA and dividing by NPOINTS
-			double b_length = parameters.B_MAX - parameters.B_MIN;
-			double v0_length = parameters.V0_MAX - parameters.V0_MIN;
-			double multiplier = b_length * v0_length / point_counter;
-			for ( int i = 0; i < total_specfunc.size(); i++ )
+			B_CHUNK = B_CHUNKS_VECTOR[chunk_counter + 1] -
+					  B_CHUNKS_VECTOR[chunk_counter];
+			V0_CHUNK = V0_CHUNKS_VECTOR[chunk_counter + 1] -
+					   V0_CHUNKS_VECTOR[chunk_counter];
+			
+			double multiplier = B_CHUNK * V0_CHUNK / point_counter;
+			for ( int i = 0; i < chunk_specfunc.size(); i++ )
 			{
-				total_specfunc[i] *= multiplier; 
-				total_spectrum[i] *= multiplier; 
+				chunk_specfunc[i] *= multiplier; 
+				chunk_spectrum[i] *= multiplier; 
 			}
 
-			uniform_integrated_spectrum_total *= multiplier; 
+			uniform_integrated_spectrum_chunk *= multiplier; 
+			// ##################################################
 
-			cout << "Saving data to files..." << endl;
-					
-			save( freqs, total_specfunc, parameters.specfunc_filename );
-			save( freqs, total_spectrum, parameters.spectrum_filename );
-			save( uniform_integrated_spectrum_total, parameters.m2_filename );
+			m2_statistics.push_back( uniform_integrated_spectrum_chunk );
+			Stat m2_stat = run_statistics( m2_statistics );
+
+			cout << "#####################################" << endl;
+			cout << "Current chunk: " << chunk_counter << endl;
+			cout << "B: " << B_CHUNKS_VECTOR[chunk_counter] << " -- " << B_CHUNKS_VECTOR[chunk_counter + 1] << endl;
+			cout << "V0: " << V0_CHUNKS_VECTOR[chunk_counter] << " -- " << V0_CHUNKS_VECTOR[chunk_counter + 1] << endl << endl;
+			cout << "M2 length: " << m2_stat.length << endl; 
+			cout << "M2 mean: " << m2_stat.mean << endl;
+			cout << "M2 stddev: " << m2_stat.sd << endl;
+			cout << "M2 relative deviation: " << m2_stat.rel_dev << endl;
+			cout << "#####################################" << endl;
+			
+			// ##################################################
+			// adding chunk spectrum to total; zeroing out chunk data
+		
+			cout << ">> Added chunk spectrum to total" << endl;	
+			add_vectors( total_specfunc, chunk_specfunc );
+			add_vectors( total_spectrum, chunk_spectrum );
+			
+			zero_out_vector( chunk_specfunc );
+			zero_out_vector( chunk_spectrum );
+		
+			uniform_integrated_spectrum_total += uniform_integrated_spectrum_chunk;
+			uniform_integrated_spectrum_chunk = 0.0;
+			// ##################################################
 
 			point_counter = 0;
 			cycle_counter++;
+			
+			if ( m2_stat.rel_dev < RELATIVE_DEVIATION_MAX && m2_stat.length > 2 )
+			{
+				cout << ">> CHUNK FINISHED!" << endl << endl;
+
+				if ( chunk_counter != chunk_max - 1 )
+				{
+					chunk_counter++;
+					
+					cout << ">> Divided total spectrum by number of cycles" << endl;
+					mult_vector( total_specfunc, 1.0 / cycle_counter );
+					mult_vector( total_spectrum, 1.0 / cycle_counter );
+				
+					cout << ">> Spectrum saved" << endl;
+					save( freqs, total_specfunc, parameters.specfunc_filename );
+					save( freqs, total_spectrum, parameters.spectrum_filename );
+					save( uniform_integrated_spectrum_total, parameters.m2_filename );
+
+					cycle_counter = 0;
+					point_counter = 0;
+				}
+
+				else is_finished = true;
+			}
 		}		
 		
 		if ( cycle_counter == parameters.CYCLES )
 		{
-			finished = true;
+			if ( chunk_counter != chunk_max - 1 )
+			{
+				chunk_counter++;
+
+				cycle_counter = 0;
+				point_counter = 0;
+			}
+			else is_finished = true;
 		}
 	
 		// ############################################################
@@ -287,15 +460,18 @@ void master_code( int world_size )
 		// ############################################################
 		for ( int i = 0; i < FREQ_SIZE; i++ )
 		{
-			total_specfunc[i] += specfunc_package[i];
-			total_spectrum[i] += spectrum_package[i];
+			chunk_specfunc[i] += specfunc_package[i];
+			chunk_spectrum[i] += spectrum_package[i];
 		}
-		uniform_integrated_spectrum_total += uniform_integrated_spectrum_package;
+		uniform_integrated_spectrum_chunk += uniform_integrated_spectrum_package;
 		// ############################################################
 		
-		if ( !finished )
+		if ( !is_finished )
 		{
-			p = parameters.generate_uniform_point();
+			p = parameters.generate_uniform_point( B_CHUNKS_VECTOR[chunk_counter],
+												   B_CHUNKS_VECTOR[chunk_counter + 1],
+												   V0_CHUNKS_VECTOR[chunk_counter],
+												   V0_CHUNKS_VECTOR[chunk_counter + 1]);
 			p.counter = point_counter;	
 			point_counter++;
 			
@@ -303,7 +479,7 @@ void master_code( int world_size )
 		}
 		else
 		{
-			MPI_Send( &finished, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
+			MPI_Send( &is_finished, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
 			alive--;
 		}
 	}
@@ -466,6 +642,12 @@ void slave_code( int world_rank )
 		// #####################################################
 		while ( y0[0] < R_end_value ) 
 		{
+			if ( counter == MaxTrajectoryLength )
+			{
+				cout << "Trajectory cut!" << endl;
+				break;
+			}
+
 			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
 			//cout << "%%%" << endl;
 			//cout << "xend: " << xend << endl;
@@ -488,7 +670,7 @@ void slave_code( int world_rank )
 			dipx.push_back( temp[0] );
 			dipy.push_back( temp[1] );
 			dipz.push_back( temp[2] );
-
+			
 			xend = sampling_time * (counter + 2);
 
 			aufrufe = 0;  // actual number of calls
@@ -544,14 +726,13 @@ void slave_code( int world_rank )
 				specfunc.push_back( specfunc_value );	
 
 				spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / ( constants::BOLTZCONST * Temperature )) ) * dipfft;
+				spectrum.push_back( spectrum_value );
 
 				uniform_integrated_spectrum += spectrum_value * FREQ_STEP; 
 				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
-
-				spectrum.push_back( spectrum_value );
 		}
 
-		cout << ">> Processing " << p.counter << " trajectory. npoints = " << npoints << endl;
+		cout << "Processing " << p.counter << " trajectory. npoints = " << npoints << endl;
 		
 		//// #################################################
 		// Sending data

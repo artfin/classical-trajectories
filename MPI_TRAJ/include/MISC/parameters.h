@@ -22,10 +22,12 @@ class Parameters
 	public:
 		double B_MIN;
 		double B_MAX;
+		int B_PARTS;
 
 		double V0_MIN;
 		double V0_MAX;
-		
+		int V0_PARTS;
+
 		int CYCLES;
 		int CYCLE_POINTS;
 
@@ -42,4 +44,8 @@ class Parameters
 		
 		double nextDouble( const double &min, const double &max );	
 		ICPoint generate_uniform_point( void );
+		ICPoint generate_uniform_point( const double& bmin,
+										const double& bmax,
+										const double& v0min,
+										const double& v0max );
 };
