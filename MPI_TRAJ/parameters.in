@@ -25,7 +25,7 @@ $gridparameters
 $end
 
 $mcparameters
-	NPOINTS = 100 
+	NPOINTS = 10 
 $end
 
 $files

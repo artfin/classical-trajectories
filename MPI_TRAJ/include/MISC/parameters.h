@@ -8,7 +8,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-static std::mt19937 generator();
+static std::mt19937 generator( 27717 );
 
 struct ICPoint
 {

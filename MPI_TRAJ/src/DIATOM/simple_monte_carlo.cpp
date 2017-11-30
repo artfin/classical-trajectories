@@ -67,7 +67,7 @@ struct ICHamPoint
 
 using namespace std;
 
-static mt19937 uniform_generator();
+static mt19937 uniform_generator( 27717 );
 
 static double UniformDouble( const double &min = 0.0, const double &max = 1.0 )
 {
@@ -278,22 +278,11 @@ void master_code( int world_size )
 	// #####################################################
 
 	ICPoint p;
-	int point_counter = 0;
-	int cycle_counter = 0;
 
-	// sending first point to slaves
-	//for ( int i = 1; i < world_size; i++ )
-	//{
-		// making first trajectory inadecuate (so doesn't matter what chunk it will fall in)
-		//p.v0 = -5000.0;
-		//p.b = 20e-10;
-		//p.counter = point_counter;
-			
-		//MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
-		//cout << "Master sends first message" << endl;
-		//}
+	int sent = 0;	
+	int received = 0;
 
-	// status of calculation: set to true if all cycles are done
+	// status of calculation
 	bool is_finished = false;
 
 	// number of alive processes
@@ -321,7 +310,6 @@ void master_code( int world_size )
 	int b_chunk_max = parameters.B_PARTS;
 	int v0_chunk_max = parameters.V0_PARTS;
 
-	vector<double> m2_statistics;
 
 	vector<double> B_CHUNKS_VECTOR;
 	vector<double> V0_CHUNKS_VECTOR;
@@ -336,6 +324,7 @@ void master_code( int world_size )
 	double V0_CHUNK;
 	// ##########################################################
 
+
 	// sending first trajectory	
 	for ( int i = 1; i < world_size; i++ )
 	{
@@ -343,7 +332,7 @@ void master_code( int world_size )
 												   B_CHUNKS_VECTOR[ b_chunk_counter + 1 ],
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter ],
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
-		p.counter = point_counter;	
+		p.counter = sent; 
 			
 		//cout << "###" << endl;
 		//cout << "generated p.b: " << p.b << endl;
@@ -353,7 +342,7 @@ void master_code( int world_size )
 
 		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
 		//cout << "point_counter: " << point_counter << endl;
-		//point_counter++;
+		sent++;
 	}
 
 	while( true )
@@ -371,11 +360,11 @@ void master_code( int world_size )
 		MPI_Recv( &spectrum_package[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 		MPI_Recv (&uniform_integrated_spectrum_package, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 
-		point_counter++;
+		received++;
 		// ############################################################
-		
-		//cout << "point_coutner: " << point_counter << "; NPOINTS: " << parameters.NPOINTS << endl;	
-		if ( point_counter == parameters.NPOINTS )
+
+		//cout << "sent: " << sent << "; received: " << received << "; NPOINTS: " << parameters.NPOINTS << endl;	
+		if ( received == parameters.NPOINTS )
 		{
 			// multiplyting spectrum and spectral function by AREA and dividing by NPOINTS
 			B_CHUNK = B_CHUNKS_VECTOR[b_chunk_counter + 1] -
@@ -427,8 +416,8 @@ void master_code( int world_size )
 			uniform_integrated_spectrum_chunk = 0.0;
 			
 			//cout << "point counter is set to 0" << endl << endl;
-			point_counter = 0;
-			cycle_counter++;
+			sent = 0;
+			received = 0;
 			// ##################################################
 
 			saving_procedure( parameters, freqs, total_specfunc, total_spectrum, uniform_integrated_spectrum_total ); 
@@ -438,7 +427,6 @@ void master_code( int world_size )
 			{
 				cout << ">> b_chunk_counter is not maximum. incrementing..." << endl;
 				b_chunk_counter++;
-				cycle_counter = 0;
 			}	
 			else
 			{
@@ -448,7 +436,6 @@ void master_code( int world_size )
 					cout << ">> setting b_chunk_counter to 0" << endl;
 					v0_chunk_counter++;
 					b_chunk_counter = 0;
-					cycle_counter = 0;
 				}
 				else
 				{
@@ -470,13 +457,13 @@ void master_code( int world_size )
 		//cout << "chunk_specfunc[0]: " << chunk_specfunc[0] << endl;
 		// ############################################################
 		
-		if ( !is_finished )
+		if ( sent < parameters.NPOINTS )
 		{
 			p = parameters.generate_uniform_point( B_CHUNKS_VECTOR[ b_chunk_counter ],
 												   B_CHUNKS_VECTOR[ b_chunk_counter + 1 ],
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter ],
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
-			p.counter = point_counter;	
+			p.counter = sent; 
 			
 			//cout << "###" << endl;
 			//cout << "generated p.b: " << p.b << endl;
@@ -486,9 +473,9 @@ void master_code( int world_size )
 
 			MPI_Send( &p, 1, MPI_ICPoint, source, 0, MPI_COMM_WORLD );
 			//cout << "point_counter: " << point_counter << endl;
-			//point_counter++;
+			sent++;
 		}
-		else	
+		else if ( is_finished )	
 		{
 			MPI_Send( &is_finished, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
 			alive--;

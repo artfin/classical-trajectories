@@ -4,6 +4,7 @@
 
 #include <fftw3.h>
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 
 #include <iostream>
