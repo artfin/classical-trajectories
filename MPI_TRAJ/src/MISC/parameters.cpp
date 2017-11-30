@@ -2,21 +2,31 @@
 
 Parameters::Parameters( )
 {
-	//cout << "Initialized GridParameters class" << endl;
+	// constructor
 }
 
 Parameters::~Parameters()
 {
-	//cout << "Destructing GridParameters class" << endl;
+	// destructor
 }
 
 void Parameters::show_parameters( void )
 {
+   	cout << "#######################" << endl;	
+   	cout << "Conditions parameters: " << endl;
+	cout << "Temperature: " << this->Temperature << endl;
+	cout << "#######################" << endl;	
+	cout << "Trajectory parameters: " << endl;
+	cout << "RDIST (initial distance): " << this->RDIST << endl;
+	cout << "sampling time: " << this->sampling_time << endl;
+	cout << "MaxTrajectoryLength: " << this->MaxTrajectoryLength << endl;
+	cout << "FREQ_MAX (maximum frequency in spectrum): " << this->FREQ_MAX << endl;
+	cout << "#######################" << endl;	
 	cout << "Monte-Carlo parameters:" << endl;
 	cout << "CYCLES: " << this->CYCLES << endl;
 	cout << "CYCLE_POINTS: " << this->CYCLE_POINTS << endl;
 	cout << "STDDEV_MAX: " << this->STDDEV_MAX << endl;
-   	cout << "#################################" << endl;	
+   	cout << "#######################" << endl;	
 	cout << "Gridparameters: " << endl;
 	cout << "B_MIN: " << this->B_MIN << endl;
 	cout << "B_MAX: " << this->B_MAX << endl;
@@ -24,7 +34,11 @@ void Parameters::show_parameters( void )
 	cout << "V0_MIN: " << this->V0_MIN << endl;
 	cout << "V0_MAX: " << this->V0_MAX << endl;
 	cout << "V0_PARTS: " << this->V0_PARTS << endl;
-	cout << "################################" << endl;
+	cout << "########################" << endl;
+	cout << "Files parameters: " << endl;
+	cout << "specfunc filename: " << this->specfunc_filename << endl;
+	cout << "spectrum filename: " << this->spectrum_filename << endl;
+	cout << "m2 filename: " << this->m2_filename << endl;
 }
 
 

@@ -30,9 +30,15 @@ class Parameters
 
 		int CYCLES;
 		int CYCLE_POINTS;
-
 		double STDDEV_MAX;
 
+		double RDIST;
+		double sampling_time;
+		int MaxTrajectoryLength;
+		double FREQ_MAX;
+
+		double Temperature;
+			
 		string specfunc_filename = "";
 		string spectrum_filename = "";
 		string m2_filename = "";

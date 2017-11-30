@@ -1,3 +1,17 @@
+$conditions
+	Temperature = 295.0
+$end
+
+$trajectory
+	RDIST = 40.0 
+	
+	sampling_time = 100.0
+
+	MaxTrajectoryLength = 131072
+
+	FREQ_MAX = 700.0
+$end
+
 $gridparameters
 	V0_MIN = 1.0
 	V0_MAX = 2500.0
@@ -9,10 +23,10 @@ $gridparameters
 $end
 
 $mcparameters
-	CYCLES = 10 
-	CYCLE_POINTS = 100
+	CYCLES = 5 
+	CYCLE_POINTS = 50
 
-	STDDEV_MAX = 0.01
+	STDDEV_MAX = 0.05
 $end
 
 $files

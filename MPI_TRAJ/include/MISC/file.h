@@ -50,6 +50,14 @@ class FileReader
 		void analyse_files_group_line( string& variable,
 									   string& value,
 								   	   int& line
-									 );	   
+									 );
+	   	void analyse_trajectory_group_line( string& variable, 
+											string& value,
+											int& line 
+										   );
+		void analyse_conditions_group_line( string& variable,
+											string& value,
+											int& line 
+										  );	
 };
 

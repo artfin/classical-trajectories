@@ -111,6 +111,26 @@ void FileReader::parse_file( ifstream& infile )
 				value.erase();
 			}
 		}
+		else if ( current_group == "$trajectory" )
+		{
+			if ( is_assignment )
+			{
+				analyse_trajectory_group_line( variable, value, line );
+
+				variable.erase();
+				value.erase();
+			}
+		}
+		else if ( current_group == "$conditions" )
+		{
+			if ( is_assignment )
+			{
+				analyse_conditions_group_line( variable, value, line );
+
+				variable.erase();
+				value.erase();
+			}
+		}
 		else 
 		{
 			string line_number_string = std::to_string( line );
@@ -180,7 +200,30 @@ void FileReader::analyse_files_group_line( string& variable, string& value, int&
 	else
 	{
 		string line_number_string = std::to_string( line );
-		throw std::invalid_argument( "Invalid variable name " + variable + " in $files group! Line number; " + line_number_string );
+		throw std::invalid_argument( "Invalid variable name " + variable + " in $files group! Line number: " + line_number_string );
+	}
+}
+
+void FileReader::analyse_trajectory_group_line( string& variable, string& value, int& line )
+{
+	if ( variable == "RDIST" ) this->parameters->RDIST = string_to_double( value, line );
+	else if ( variable == "sampling_time" ) this->parameters->sampling_time = string_to_double( value, line );
+	else if ( variable == "MaxTrajectoryLength" ) this->parameters->MaxTrajectoryLength = string_to_int( value, line );
+	else if( variable == "FREQ_MAX" ) this->parameters->FREQ_MAX = string_to_double( value, line );
+	else
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument( "Invalid variable name " + variable + " in $trajectory group! Line number: " + line_number_string );
+	}
+}
+
+void FileReader::analyse_conditions_group_line( string& variable, string& value, int& line )
+{
+	if ( variable == "Temperature" ) this->parameters->Temperature = string_to_double( value, line );
+	else
+	{
+		string line_number_string = std::to_string( line );
+		throw std::invalid_argument( "Invalid variable name " + variable + " in $conditions group! Line number: " + line_number_string );
 	}
 }
 
