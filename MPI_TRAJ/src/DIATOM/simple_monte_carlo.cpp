@@ -1,6 +1,7 @@
 #include <mpi.h>
 
 #include <iostream>
+#include <iomanip>
 #include <random>
 #include <ctime>
 
@@ -37,13 +38,15 @@ const int EXIT_TAG = 42;
 // ############################################
 
 // ############################################
+const double DALTON_UNIT = 1.660539040 * 1e-27;
+
 const double HE_MASS = 4.00260325413;
 const double AR_MASS = 39.9623831237; 
-const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
-const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
-const double MU_SI = MU * constants::AMU;
+const double MU_SI = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * DALTON_UNIT; 
+const double MU = MU_SI / constants::AMU;
 
-const double TWO_PI = 2 * M_PI;
+static const double MYPI = 3.141592653589793; 
+const double TWO_PI = 2 * MYPI; 
 // ############################################
 
 struct Stat
@@ -64,7 +67,7 @@ struct ICHamPoint
 
 using namespace std;
 
-static mt19937 uniform_generator;
+static mt19937 uniform_generator();
 
 static double UniformDouble( const double &min = 0.0, const double &max = 1.0 )
 {
@@ -255,7 +258,7 @@ void master_code( int world_size )
 	Parameters parameters;
 	FileReader fileReader( "parameters.in", &parameters ); 
 	//parameters.show_parameters();
-
+	
 	// #####################################################
 	// creating custom data type for MPI
 	int blocksCount = 3; // number of entities inside struct
@@ -279,16 +282,16 @@ void master_code( int world_size )
 	int cycle_counter = 0;
 
 	// sending first point to slaves
-	for ( int i = 1; i < world_size; i++ )
-	{
+	//for ( int i = 1; i < world_size; i++ )
+	//{
 		// making first trajectory inadecuate (so doesn't matter what chunk it will fall in)
-		p.v0 = -5000.0;
-		p.b = 20e-10;
-		p.counter = point_counter;
+		//p.v0 = -5000.0;
+		//p.b = 20e-10;
+		//p.counter = point_counter;
 			
-		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
+		//MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
 		//cout << "Master sends first message" << endl;
-	}
+		//}
 
 	// status of calculation: set to true if all cycles are done
 	bool is_finished = false;
@@ -300,11 +303,13 @@ void master_code( int world_size )
 	int FREQ_SIZE = freqs.size();
 	
 	vector<double> specfunc_package( FREQ_SIZE );
-	vector<double> total_specfunc( FREQ_SIZE );
 	vector<double> spectrum_package( FREQ_SIZE );
-	vector<double> total_spectrum( FREQ_SIZE );
+	
 	vector<double> chunk_specfunc( FREQ_SIZE );
 	vector<double> chunk_spectrum( FREQ_SIZE );
+	
+	vector<double> total_spectrum( FREQ_SIZE );
+	vector<double> total_specfunc( FREQ_SIZE );
 
 	double uniform_integrated_spectrum_package;
 	double uniform_integrated_spectrum_chunk = 0.0;
@@ -322,14 +327,34 @@ void master_code( int world_size )
 	vector<double> V0_CHUNKS_VECTOR;
 	create_chunks( parameters, B_CHUNKS_VECTOR, V0_CHUNKS_VECTOR );
 
-	//for ( int i = 0; i < B_CHUNKS_VECTOR.size(); i++ )
-	//{
-		//cout << "B_CHUNKS_VECTOR[" << i << "] = " << B_CHUNKS_VECTOR[i] << endl;
-	//}
+	for ( int i = 0; i < B_CHUNKS_VECTOR.size(); i++ )
+	{
+		cout << "B_CHUNKS_VECTOR[" << i << "] = " << B_CHUNKS_VECTOR[i] << endl;
+	}
 
 	double B_CHUNK;
 	double V0_CHUNK;
 	// ##########################################################
+
+	// sending first trajectory	
+	for ( int i = 1; i < world_size; i++ )
+	{
+		p = parameters.generate_uniform_point( B_CHUNKS_VECTOR[ b_chunk_counter ],
+												   B_CHUNKS_VECTOR[ b_chunk_counter + 1 ],
+												   V0_CHUNKS_VECTOR[ v0_chunk_counter ],
+												   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
+		p.counter = point_counter;	
+			
+		//cout << "###" << endl;
+		//cout << "generated p.b: " << p.b << endl;
+		//cout << "generated p.v0: " << p.v0 << endl;
+		//cout << "p.counter: " << p.counter << endl;
+		//cout << "###" << endl;
+
+		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
+		//cout << "point_counter: " << point_counter << endl;
+		//point_counter++;
+	}
 
 	while( true )
 	{
@@ -338,98 +363,6 @@ void master_code( int world_size )
 			//cout << "All slaves are dead" << endl;
 			break;
 		}
-
-		if ( point_counter == parameters.CYCLE_POINTS )
-		{
-			cout << endl << ">> Cycle " << cycle_counter << " is finished." << endl;
-
-			m2_statistics.push_back( uniform_integrated_spectrum_chunk );
-			Stat m2_stat = run_statistics( m2_statistics );
-
-			cout << "#####################################" << endl;
-			cout << "Current chunk: (b) " << b_chunk_counter << " (v0) " << v0_chunk_counter << endl;
-			cout << "B: " << B_CHUNKS_VECTOR[b_chunk_counter] << " -- " << B_CHUNKS_VECTOR[b_chunk_counter + 1] << endl;
-			cout << "V0: " << V0_CHUNKS_VECTOR[v0_chunk_counter] << " -- " << V0_CHUNKS_VECTOR[v0_chunk_counter + 1] << endl << endl;
-			cout << "M2 length: " << m2_stat.length << endl; 
-			cout << "M2 mean: " << m2_stat.mean << endl;
-			cout << "M2 stddev: " << m2_stat.sd << endl;
-			cout << "M2 relative deviation: " << m2_stat.rel_dev << endl;
-			cout << "#####################################" << endl;
-			
-			//cout << "point counter is set to 0" << endl << endl;
-			point_counter = 0;
-			cycle_counter++;
-			
-			if ( (m2_stat.rel_dev < parameters.STDDEV_MAX && m2_stat.length > 2) || cycle_counter == parameters.CYCLES )	
-			{
-				cout << "Flushing M2 statistics!" << endl << endl;
-				m2_statistics.clear();
-
-				if ( cycle_counter == parameters.CYCLES )
-				{
-					cout << "cycle_counter reached its maximum!" << endl << endl;
-				}
-				else
-				{
-					cout << ">> CHUNK FINISHED!" << endl << endl;
-				}
-				
-				// ##################################################
-				// multiplyting spectrum and spectral function by AREA and dividing by NPOINTS
-				B_CHUNK = B_CHUNKS_VECTOR[b_chunk_counter + 1] -
-						  B_CHUNKS_VECTOR[b_chunk_counter];
-				V0_CHUNK = V0_CHUNKS_VECTOR[v0_chunk_counter + 1] -
-						   V0_CHUNKS_VECTOR[v0_chunk_counter];
-			
-				double multiplier = B_CHUNK * V0_CHUNK / parameters.CYCLE_POINTS / cycle_counter;
-				cout << ">> WEIGHT of chunk: " << multiplier << endl;
-
-				mult_vector( chunk_specfunc, multiplier );
-				mult_vector( chunk_spectrum, multiplier );
-
-				uniform_integrated_spectrum_chunk *= multiplier; 
-				
-				// adding chunk spectrum to total; zeroing out chunk data
-				cout << ">> Added chunk spectrum to total" << endl << endl;	
-				add_vectors( total_specfunc, chunk_specfunc );
-				add_vectors( total_spectrum, chunk_spectrum );
-				//cout << ">> chunk_specfunc[0]: " << total_specfunc[0] << endl;
-				cout << ">> total_specfunc[0]: " << total_specfunc[0] << endl;
-
-				zero_out_vector( chunk_specfunc );
-				zero_out_vector( chunk_spectrum );
-		
-				uniform_integrated_spectrum_total += uniform_integrated_spectrum_chunk;
-				uniform_integrated_spectrum_chunk = 0.0;
-				
-				saving_procedure( parameters, freqs, total_specfunc, total_spectrum, uniform_integrated_spectrum_total ); 
-				// ##################################################
-
-				if ( b_chunk_counter < b_chunk_max - 1 )
-				{
-					cout << ">> b_chunk_counter is not maximum. incrementing..." << endl;
-					b_chunk_counter++;
-					cycle_counter = 0;
-				}	
-				else
-				{
-					if ( v0_chunk_counter < v0_chunk_max - 1 )
-					{
-						cout << ">> v0_chunk_counter is not maximum. Incrementing..." << endl;
-						cout << ">> setting b_chunk_counter to 0" << endl;
-						v0_chunk_counter++;
-						b_chunk_counter = 0;
-						cycle_counter = 0;
-					}
-					else
-					{
-						cout << ">> all chunks are integrated!" << endl;
-						is_finished = true;
-					}
-				}
-			}
-		}		
-		
 		// ############################################################
 		// Receiving data
 		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
@@ -437,10 +370,93 @@ void master_code( int world_size )
 
 		MPI_Recv( &spectrum_package[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 		MPI_Recv (&uniform_integrated_spectrum_package, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-		
-		//cout << "point_counter: " << point_counter << endl;
+
 		point_counter++;
 		// ############################################################
+		
+		//cout << "point_coutner: " << point_counter << "; NPOINTS: " << parameters.NPOINTS << endl;	
+		if ( point_counter == parameters.NPOINTS )
+		{
+			// multiplyting spectrum and spectral function by AREA and dividing by NPOINTS
+			B_CHUNK = B_CHUNKS_VECTOR[b_chunk_counter + 1] -
+					  B_CHUNKS_VECTOR[b_chunk_counter];
+			V0_CHUNK = V0_CHUNKS_VECTOR[v0_chunk_counter + 1] -
+					   V0_CHUNKS_VECTOR[v0_chunk_counter];
+			
+			double multiplier = B_CHUNK * V0_CHUNK / parameters.NPOINTS; 
+			//cout << "multiplier: " << multiplier << endl;
+
+			mult_vector( chunk_specfunc, multiplier );
+			mult_vector( chunk_spectrum, multiplier );
+
+			uniform_integrated_spectrum_chunk *= multiplier; 
+			
+			cout << "#####################################" << endl;
+			cout << "Current chunk: (b) " << b_chunk_counter << " (v0) " << v0_chunk_counter << endl;
+			cout << "B: " << B_CHUNKS_VECTOR[b_chunk_counter] << " -- " << B_CHUNKS_VECTOR[b_chunk_counter + 1] << endl;
+			cout << "V0: " << V0_CHUNKS_VECTOR[v0_chunk_counter] << " -- " << V0_CHUNKS_VECTOR[v0_chunk_counter + 1] << endl;
+			cout << "M2: " << uniform_integrated_spectrum_chunk << endl;
+			cout << "#####################################" << endl;
+			
+			// adding chunk spectrum to total; zeroing out chunk data
+			cout << ">> Added chunk spectrum to total" << endl << endl;	
+			add_vectors( total_specfunc, chunk_specfunc );
+			add_vectors( total_spectrum, chunk_spectrum );
+			//cout << ">> chunk_specfunc[0]: " << total_specfunc[0] << endl;
+			//cout << ">> total_specfunc[0]: " << total_specfunc[0] << endl;
+			//for ( int k = 0; k < parameters.FREQ_MAX; k++ )
+			//{
+				//if ( k % 50 == 0 )
+				//{
+					//cout << "total_spectrum[" << k << "] = " << total_spectrum[k] << endl;
+				//}
+			//}
+			
+			//for ( int k = 0; k < parameters.FREQ_MAX; k++ )
+			//{
+				//if ( k % 50 == 0 )
+				//{
+					//cout << "total_specfunc[" << k << "] = " << total_specfunc[k] << endl;
+				//}
+			//}
+			
+			zero_out_vector( chunk_specfunc );
+			zero_out_vector( chunk_spectrum );
+		
+			uniform_integrated_spectrum_total += uniform_integrated_spectrum_chunk;
+			uniform_integrated_spectrum_chunk = 0.0;
+			
+			//cout << "point counter is set to 0" << endl << endl;
+			point_counter = 0;
+			cycle_counter++;
+			// ##################################################
+
+			saving_procedure( parameters, freqs, total_specfunc, total_spectrum, uniform_integrated_spectrum_total ); 
+		
+			// ##################################################
+			if ( b_chunk_counter < b_chunk_max - 1 )
+			{
+				cout << ">> b_chunk_counter is not maximum. incrementing..." << endl;
+				b_chunk_counter++;
+				cycle_counter = 0;
+			}	
+			else
+			{
+				if ( v0_chunk_counter < v0_chunk_max - 1 )
+				{
+					cout << ">> v0_chunk_counter is not maximum. Incrementing..." << endl;
+					cout << ">> setting b_chunk_counter to 0" << endl;
+					v0_chunk_counter++;
+					b_chunk_counter = 0;
+					cycle_counter = 0;
+				}
+				else
+				{
+					cout << ">> all chunks are integrated!" << endl;
+					is_finished = true;
+				}
+			}
+		}		
 		
 		
 		// ############################################################
@@ -462,9 +478,17 @@ void master_code( int world_size )
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
 			p.counter = point_counter;	
 			
+			//cout << "###" << endl;
+			//cout << "generated p.b: " << p.b << endl;
+			//cout << "generated p.v0: " << p.v0 << endl;
+			//cout << "p.counter: " << p.counter << endl;
+			//cout << "###" << endl;
+
 			MPI_Send( &p, 1, MPI_ICPoint, source, 0, MPI_COMM_WORLD );
+			//cout << "point_counter: " << point_counter << endl;
+			//point_counter++;
 		}
-		else
+		else	
 		{
 			MPI_Send( &is_finished, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
 			alive--;
@@ -596,10 +620,15 @@ void slave_code( int world_rank )
 		y0[1] = - ics.pR;
 		y0[2] = ics.theta;
 		y0[3] = ics.pT;
-		//cout << "y0[0] = " << y0[0] << endl;
-		//cout << "y0[1] = " << y0[1] << endl;
-		//cout << "y0[2] = " << y0[2] << endl;
-		//cout << "y0[3] = " << y0[3] << endl;
+		
+		//cout << "####" << endl;
+		//cout << "p.v0: " << p.v0 << endl;
+		//cout << "p.b: " << p.b << endl;
+		//cout << "ics.R = " << y0[0] << endl;
+		//cout << "ics.pR = " << y0[1] << endl;
+		//cout << "ics.theta = " << y0[2] << endl;
+		//cout << "ics.pT = " << y0[3] << endl;
+		//cout << "#####" << endl;
 
 		// out of memory?
 		if ( !vmcomplete(vmblock) )
@@ -610,10 +639,12 @@ void slave_code( int world_rank )
 
 		// #####################################################
 		// p.v0, p.b -- in SI
-		double b_integrand = fabs( 2 * M_PI * p.v0 * p.b );  
-		double v0_integrand = pow( MU_SI / (TWO_PI * kT), 1.5 ) * exp( - MU_SI * p.v0 * p.v0 / (2.0 * kT)) * 4 * M_PI * p.v0 * p.v0; 
-		
+		double b_integrand = fabs( 2 * M_PI * p.v0 * p.b ); 
+
+		double v0_integrand = (MU_SI/TWO_PI/kT) * sqrt(MU_SI/TWO_PI/kT) * exp( -MU_SI*p.v0*p.v0 / (2.0 * kT)) * 4 * MYPI * p.v0 * p.v0; 
+
 		double stat_weight = b_integrand * v0_integrand;
+		//cout << "stat_weight: " << stat_weight << endl;
 		// #####################################################
 		
 		int counter = 0;
@@ -637,7 +668,7 @@ void slave_code( int world_rank )
 		{
 			if ( counter == parameters.MaxTrajectoryLength )
 			{
-				cout << "Trajectory cut!" << endl;
+				//cout << "Trajectory cut!" << endl;
 				break;
 			}
 
@@ -659,6 +690,11 @@ void slave_code( int world_rank )
 			// y0[2] -- \theta
 			// y0[3] -- p_\theta
 			transform_dipole( temp, y0[0], y0[2] );
+			
+			//cout << "t: " << t0 * constants::ATU <<
+				   	//"; R (alu): " << y0[0] << 	
+					//"; R: " << y0[0] * constants::ALU << 
+					//"; dipole z: " << temp[2] * constants::ADIPMOMU << endl;
 
 			dipx.push_back( temp[0] );
 			dipy.push_back( temp[1] );
@@ -671,7 +707,12 @@ void slave_code( int world_rank )
 			counter++;
 		}
 		// #####################################################
-		
+	
+		//for ( int i = 0; i < dipz.size(); i++ )
+		//{
+			//cout << "dipz[" << i << "] = " << dipz[i] * constants::ADIPMOMU << endl;
+		//}
+
 		// #####################################################
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();
@@ -713,7 +754,8 @@ void slave_code( int world_rank )
 				ImFz = fourier.outz[k][1];
 
 				dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
-						 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;	
+						 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
+				//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl;	
 
 				specfunc_value = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
 				specfunc.push_back( specfunc_value );	
@@ -725,7 +767,7 @@ void slave_code( int world_rank )
 				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
 		}
 
-		//cout << "Processing " << p.counter << " trajectory. npoints = " << npoints << endl;
+		cout << "Processing " << p.counter << " trajectory. npoints = " << npoints << endl;
 		
 		//// #################################################
 		// Sending data

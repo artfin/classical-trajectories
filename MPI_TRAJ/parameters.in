@@ -3,9 +3,11 @@ $conditions
 $end
 
 $trajectory
-	RDIST = 40.0 
-	
-	sampling_time = 100.0
+	% 20Angstrom
+	RDIST = 37.794522509156565
+
+	% 5*10**(-16) s
+	sampling_time = 20.67068666828068
 
 	MaxTrajectoryLength = 131072
 
@@ -14,19 +16,16 @@ $end
 
 $gridparameters
 	V0_MIN = 1.0
-	V0_MAX = 2500.0
+	V0_MAX = 2500.0 
 	V0_PARTS = 3
 
 	B_MIN = 0.0
-	B_MAX = 6.25e-10
+	B_MAX = 6.5e-10
 	B_PARTS = 3
 $end
 
 $mcparameters
-	CYCLES = 5 
-	CYCLE_POINTS = 50
-
-	STDDEV_MAX = 0.05
+	NPOINTS = 100 
 $end
 
 $files

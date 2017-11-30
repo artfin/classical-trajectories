@@ -8,7 +8,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-static std::mt19937 generator;
+static std::mt19937 generator();
 
 struct ICPoint
 {
@@ -28,9 +28,7 @@ class Parameters
 		double V0_MAX;
 		int V0_PARTS;
 
-		int CYCLES;
-		int CYCLE_POINTS;
-		double STDDEV_MAX;
+		int NPOINTS;
 
 		double RDIST;
 		double sampling_time;

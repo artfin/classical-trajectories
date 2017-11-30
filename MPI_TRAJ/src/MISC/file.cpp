@@ -182,9 +182,7 @@ void FileReader::analyse_grid_group_line( string& variable, string& value, int& 
 
 void FileReader::analyse_mcparameters_group_line( string& variable, string& value, int& line )
 {
-	if ( variable == "CYCLES" ) this->parameters->CYCLES = string_to_double( value, line );
-	else if ( variable == "CYCLE_POINTS" ) this->parameters->CYCLE_POINTS = string_to_double( value, line );
-	else if ( variable == "STDDEV_MAX" ) this->parameters->STDDEV_MAX = string_to_double( value, line );
+	if ( variable == "NPOINTS" ) this->parameters->NPOINTS = string_to_int( value, line );
 	else
 	{
 		string line_number_string = std::to_string( line );

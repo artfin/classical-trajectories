@@ -23,9 +23,7 @@ void Parameters::show_parameters( void )
 	cout << "FREQ_MAX (maximum frequency in spectrum): " << this->FREQ_MAX << endl;
 	cout << "#######################" << endl;	
 	cout << "Monte-Carlo parameters:" << endl;
-	cout << "CYCLES: " << this->CYCLES << endl;
-	cout << "CYCLE_POINTS: " << this->CYCLE_POINTS << endl;
-	cout << "STDDEV_MAX: " << this->STDDEV_MAX << endl;
+	cout << "NPOINTS" << this->NPOINTS << endl;
    	cout << "#######################" << endl;	
 	cout << "Gridparameters: " << endl;
 	cout << "B_MIN: " << this->B_MIN << endl;
