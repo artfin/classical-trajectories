@@ -17,11 +17,11 @@ $end
 $gridparameters
 	V0_MIN = 1.0
 	V0_MAX = 2500.0 
-	V0_PARTS = 2
+	V0_PARTS = 8 
 
 	B_MIN = 0.0
 	B_MAX = 6.5e-10
-	B_PARTS = 2
+	B_PARTS = 8
 $end
 
 $mcparameters

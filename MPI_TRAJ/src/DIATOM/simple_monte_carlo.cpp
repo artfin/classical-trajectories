@@ -313,8 +313,20 @@ void master_code( int world_size )
 		sent++;
 	}
 
+	clock_t start = clock();
+
 	while( true )
 	{
+		if ( is_finished )	
+		{
+			for ( int i = 1; i < world_size; i++ )
+			{	
+				MPI_Send( &is_finished, 1, MPI_INT, i, EXIT_TAG, MPI_COMM_WORLD );
+			}
+
+			break;
+		}
+		
 		// ############################################################
 		// Receiving data
 		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
@@ -348,6 +360,8 @@ void master_code( int world_size )
 			cout << "B: " << B_CHUNKS_VECTOR[b_chunk_counter] << " -- " << B_CHUNKS_VECTOR[b_chunk_counter + 1] << endl;
 			cout << "V0: " << V0_CHUNKS_VECTOR[v0_chunk_counter] << " -- " << V0_CHUNKS_VECTOR[v0_chunk_counter + 1] << endl;
 			cout << "M2: " << uniform_integrated_spectrum_chunk << endl;
+			cout << "Time for chunk: " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;
+			start = clock();
 			cout << "#####################################" << endl;
 			
 			// adding chunk spectrum to total; zeroing out chunk data
@@ -403,11 +417,35 @@ void master_code( int world_size )
 				else
 				{
 					cout << ">> all chunks are integrated!" << endl;
+					// setting finished flag to true
 					is_finished = true;
+					// starting new iteration which checks the finished flag 
+					continue;
 				}
 			}
+			// ##################################################
+
+			// ##################################################
+			for ( int i = 1; i < world_size; i++ )
+			{
+				p = parameters.generate_uniform_point( B_CHUNKS_VECTOR[ b_chunk_counter ],
+												   	   B_CHUNKS_VECTOR[ b_chunk_counter + 1 ],
+												   	   V0_CHUNKS_VECTOR[ v0_chunk_counter ],
+													   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
+				p.counter = sent; 	
+			
+				//cout << "###" << endl;
+				//cout << "generated p.b: " << p.b << endl;
+				//cout << "generated p.v0: " << p.v0 << endl;
+				//cout << "p.counter: " << p.counter << endl;
+				//cout << "###" << endl;
+
+				MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
+				//cout << "point_counter: " << point_counter << endl;
+				sent++;
+			}
+			// ##################################################
 		}		
-		
 		
 		// ############################################################
 		for ( int i = 0; i < FREQ_SIZE; i++ )
@@ -420,15 +458,6 @@ void master_code( int world_size )
 		//cout << "chunk_specfunc[0]: " << chunk_specfunc[0] << endl;
 		// ############################################################
 		
-		if ( is_finished )	
-		{
-			for ( int i = 1; i < world_size; i++ )
-			{	
-				MPI_Send( &is_finished, 1, MPI_INT, i, EXIT_TAG, MPI_COMM_WORLD );
-			}
-
-			break;
-		}
 		
 		if ( sent < parameters.NPOINTS )
 		{
@@ -561,7 +590,7 @@ void slave_code( int world_rank )
 	while ( true )
 	{
 		MPI_Recv( &p, 1, MPI_ICPoint, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status ); 
-		//cout << "Received ICPoint: " << p.counter << endl;
+		//cout << "(" << world_rank << ") Received ICPoint: " << p.counter << endl;
 		//show_point( p );
 		transform_ICPoint_to_ICHamPoint( parameters, p, ics );
 
@@ -617,6 +646,8 @@ void slave_code( int world_rank )
 		h = 0.1;    		  // initial step size
 		xend = parameters.sampling_time; // initial right bound of integration
 		// #####################################################
+
+		clock_t start = clock();
 
 		// #####################################################
 		while ( y0[0] < R_end_value ) 
@@ -722,7 +753,7 @@ void slave_code( int world_rank )
 				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
 		}
 
-		cout << "Processing " << p.counter << " trajectory. npoints = " << npoints << endl;
+		cout << "(" << world_rank << ") Processing " << p.counter << " trajectory. npoints = " << npoints << "; time = " << ( clock() - start ) / (double) CLOCKS_PER_SEC << "s" << endl;
 		
 		//// #################################################
 		// Sending data
