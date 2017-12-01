@@ -49,14 +49,6 @@ static const double MYPI = 3.141592653589793;
 const double TWO_PI = 2 * MYPI; 
 // ############################################
 
-struct Stat
-{
-	int length;
-	double mean;
-	double sd;
-   	double rel_dev;	
-};
-
 struct ICHamPoint
 {
 	double R;
@@ -185,27 +177,6 @@ void mult_vector( vector<double>& v, const double& coeff )
 	}
 }	
 
-Stat run_statistics( vector<double>& arr )
-{
-	Stat res;
-
-	res.length = arr.size();
-	res.mean = accumulate( arr.begin(), arr.end(), 0.0 ) / arr.size();
-
-	double var = 0;
-	for ( int i = 0; i < arr.size(); i++ )
-	{
-		var += pow( arr[i] - res.mean, 2 ); 
-	}
-	var /= arr.size();
-
-	res.sd = sqrt( var );
-
-	res.rel_dev = res.sd / res.mean;
-
-	return res;
-}
-
 void saving_procedure( Parameters& parameters, vector<double>& freqs, vector<double>& total_specfunc, vector<double>& total_spectrum, const double& uniform_integrated_spectrum_total )
 {
 	cout << "Saving spectrum" << endl;
@@ -285,9 +256,6 @@ void master_code( int world_size )
 	// status of calculation
 	bool is_finished = false;
 
-	// number of alive processes
-	int alive = world_size - 1;
-	
 	vector<double> freqs = create_frequencies_vector( parameters );
 	int FREQ_SIZE = freqs.size();
 	
@@ -347,11 +315,6 @@ void master_code( int world_size )
 
 	while( true )
 	{
-		if ( alive == 0 )
-		{
-			//cout << "All slaves are dead" << endl;
-			break;
-		}
 		// ############################################################
 		// Receiving data
 		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
@@ -457,6 +420,16 @@ void master_code( int world_size )
 		//cout << "chunk_specfunc[0]: " << chunk_specfunc[0] << endl;
 		// ############################################################
 		
+		if ( is_finished )	
+		{
+			for ( int i = 1; i < world_size; i++ )
+			{	
+				MPI_Send( &is_finished, 1, MPI_INT, i, EXIT_TAG, MPI_COMM_WORLD );
+			}
+
+			break;
+		}
+		
 		if ( sent < parameters.NPOINTS )
 		{
 			p = parameters.generate_uniform_point( B_CHUNKS_VECTOR[ b_chunk_counter ],
@@ -474,11 +447,6 @@ void master_code( int world_size )
 			MPI_Send( &p, 1, MPI_ICPoint, source, 0, MPI_COMM_WORLD );
 			//cout << "point_counter: " << point_counter << endl;
 			sent++;
-		}
-		else if ( is_finished )	
-		{
-			MPI_Send( &is_finished, 1, MPI_INT, source, EXIT_TAG, MPI_COMM_WORLD );
-			alive--;
 		}
 	}
 }
