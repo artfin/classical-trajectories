@@ -1,10 +1,13 @@
 #include "matrix.h"
 
+
+const double DALTON_UNIT = 1.660539040 * 1e-27;
+const double AMU = 9.10938356 * 1e-31; 
+
 const double HE_MASS = 4.00260325413;
 const double AR_MASS = 39.9623831237; 
-const double PROTON_TO_ELECTRON_RATIO = 1836.15267389; 
-
-const double MU = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * PROTON_TO_ELECTRON_RATIO; 
+const double MU_SI = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * DALTON_UNIT; 
+const double MU = MU_SI / AMU;
 
 void transform_dipole( std::vector<double> &res, double R, double theta )
 {
@@ -22,7 +25,7 @@ void transform_dipole( std::vector<double> &res, double R, double theta )
 	S(2, 1) = sin(theta);
 	S(2, 2) = cos( theta );
 
-	double dipz = ar_he_dip( R );
+	double dipz = ar_he_dip_buryak_fit( R );
 	Eigen::Vector3d mol_dipole( 0, 0, dipz );
 	Eigen::Vector3d lab_dipole = S * mol_dipole;
 

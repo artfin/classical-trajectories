@@ -121,6 +121,9 @@ $(OBJ_PATH_DIP)co2_ar_dipole.o: $(SRC_PATH_DIP)co2_ar_dipole.cpp
 $(OBJ_PATH_DIP)ar_he_dip.o: $(SRC_PATH_DIP)ar_he_dip.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_DIP)
 
+$(OBJ_PATH_DIP)ar_he_dip_buryak_fit.o: $(SRC_PATH_DIP)ar_he_dip_buryak_fit.cpp
+	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_DIP)
+
 $(OBJ_PATH_DIP)ar_he_dip_derivative.o: $(SRC_PATH_DIP)ar_he_dip_derivative.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_DIP)
 ######################################################################
@@ -192,7 +195,7 @@ co2ar_trajs_euler: $(CO2AR_TRAJ_OBJ_EULER) $(SRC_PATH_CO2AR)main_euler.cpp
 DIATOM_POT_OBJ = ar_he_pes.o ar_he_pes_derivative.o
 DIATOM_POT_OBJECTS = $(patsubst %,$(OBJ_PATH_POT)%,$(DIATOM_POT_OBJ))
 
-DIATOM_DIP_OBJ = ar_he_dip.o ar_he_dip_derivative.o
+DIATOM_DIP_OBJ = ar_he_dip_buryak_fit.o 
 DIATOM_DIP_OBJECTS = $(patsubst %,$(OBJ_PATH_DIP)%,$(DIATOM_DIP_OBJ))
 
 DIATOM_OBJ = matrix.o

@@ -7,7 +7,7 @@
 
 #include "ar_he_pes.h"
 #include "ar_he_pes_derivative.h"
-#include "ar_he_dip.h"
+#include "ar_he_dip_buryak_fit.h"
 
 #include <Eigen/Dense>
 

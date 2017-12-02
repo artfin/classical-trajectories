@@ -17,21 +17,21 @@ $end
 $gridparameters
 	V0_MIN = 1.0
 	V0_MAX = 2500.0 
-	V0_PARTS = 8 
+	V0_PARTS = 6 
 
 	B_MIN = 0.0
 	B_MAX = 6.5e-10
-	B_PARTS = 8
+	B_PARTS = 6
 $end
 
 $mcparameters
-	NPOINTS = 5 
+	NPOINTS = 50 
 $end
 
 $files
-	specfunc_filename = specfunc.txt
-	m2_filename = m2.txt
-	spectrum_filename = spectrum.txt
+	specfunc_filename = specfunc_buryak_dipole.txt
+	m2_filename = m2_buryak_dipole.txt
+	spectrum_filename = spectrum_buryak_dipole.txt
 $end
 
 
