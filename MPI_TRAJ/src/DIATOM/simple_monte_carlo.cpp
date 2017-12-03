@@ -746,7 +746,8 @@ void slave_code( int world_rank )
 				specfunc_value = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
 				specfunc.push_back( specfunc_value );	
 
-				spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
+				//spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
+				spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 ) * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
 				spectrum.push_back( spectrum_value );
 
 				uniform_integrated_spectrum += spectrum_value * FREQ_STEP; 
