@@ -1,5 +1,23 @@
 import sys
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.unicode'] = True
+
+mpl.rcParams['font.family'] = 'serif'
+mpl.rcParams['font.serif'] = 'Times'
+
+mpl.rcParams['figure.titlesize'] = "xx-large"
+mpl.rcParams['legend.fontsize'] = "large"
+mpl.rcParams['axes.labelsize'] = "x-large"
+mpl.rcParams['axes.titlesize'] = "large"
+
+mpl.rcParams['xtick.labelsize'] = "large"
+mpl.rcParams['ytick.labelsize'] = "large"
+
+def norm( arr ):
+    return [ v * 10**7 for v in arr ]
 
 def read_file( filename ):
     with open( filename, mode = 'r' ) as inputfile:
@@ -29,12 +47,40 @@ def plot_specfunc( filename ):
     plt.show()
 
 def plot_spectrum( filename ):
+    
     freqs, spectrum_vals = read_file( filename )
     spectrum_vals = [ v * 10**7 for v in spectrum_vals ]
 
+    freqs_bg, spectrum_bg = read_file( './pictures/bosomworth_gash1965_295K.txt' )
+    freqs_kw, spectrum_kw = read_file( './pictures/kiss_welsh.txt' )
+    freqs_mq, spectrum_mq = read_file( './pictures/mcquarrie1968_295K.txt' )
+
+    freqs_my2, spectrum_my2 = read_file('./pictures/spectrum_buryak_fit_dipole2.txt' )
+    spectrum_my2 = norm( spectrum_my2 )
+
+    freqs_matlab_buryak_fernandez, spectrum_matlab_buryak_fernandez = read_file( './pictures/buryak_matlab_spectrum_fernandez_295K.txt' )
+    spectrum_matlab_buryak_fernandez = norm( spectrum_matlab_buryak_fernandez )
+    freqs_matlab_buryak_meyer, spectrum_matlab_buryak_meyer = read_file( './pictures/buryak_matlab_spectrum_meyer_295K.txt' )
+    spectrum_matlab_buryak_meyer = norm( spectrum_matlab_buryak_meyer )
+
+    fig = plt.figure()
+    plt.title( r'\LARGE He-Ar binary adsorption coefficient, 295 K')
+    plt.xlabel(r'$\omega$, cm$^{-1}$') 
+    plt.ylabel(r'$\alpha$, cm$^{-1} \cdot$ amagat$^{-2}$')
+
     plt.xlim(( 0.0, 700.0 ))
-    plt.plot( freqs, spectrum_vals, color = 'k', linewidth = 2.0, linestyle = '-' )
+    l1, = plt.plot( freqs, spectrum_vals, color = 'k', linewidth = 2.0, linestyle = '-' )
+    l2 = plt.scatter( freqs_bg, spectrum_bg, color = 'k', s = 20 )
+    #l4 = plt.scatter( freqs_mq, spectrum_mq, color = 'g', s = 20 )
+    l5, = plt.plot( freqs_matlab_buryak_fernandez, spectrum_matlab_buryak_fernandez, color = 'r' )
+    l6, = plt.plot( freqs_matlab_buryak_meyer, spectrum_matlab_buryak_meyer, color = 'b' )
+    l7, = plt.plot( freqs_my2, spectrum_my2, color = 'k', linestyle = ':' )
     plt.grid( linestyle = ':', alpha = 0.7 )
+    
+    #fig.legend((l1, l2, l4, l5, l6, l7), ( r'My MPI program', r'Bosomworth, Gass, 1965', r'McQuarrie 1968', r'I. Buryak (Fernandez)', r'I. Buryak (Meyer)'), 'lower center', ncol = 5, fancybox = True, shadow = True)
+    fig.legend((l1, l2, l5, l6, l7), ( r'My MPI program', r'Bosomworth, Gass, 1965', r'I. Buryak (Fernandez)', r'I. Buryak (Meyer)'), 'lower center', ncol = 4, fancybox = True, shadow = True)
+
+    plt.tight_layout()
     plt.show()
 
 

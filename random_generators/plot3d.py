@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-with open('rvectors', 'r') as inputfile:
+with open('rvectors.txt', 'r') as inputfile:
     lines = inputfile.readlines()
 
 x_comps = []
