@@ -177,13 +177,47 @@ void mult_vector( vector<double>& v, const double& coeff )
 	}
 }	
 
-void saving_procedure( Parameters& parameters, vector<double>& freqs, vector<double>& total_specfunc, vector<double>& total_spectrum, const double& uniform_integrated_spectrum_total )
+string modify_filename( string filename, string modifier )
+{
+	size_t dot_position = filename.find( "." );
+	if ( dot_position != string::npos )
+	{
+		string str = filename.substr( 0, dot_position );
+		cout << "str: " << str << endl;
+			
+		str = str + "_" + modifier + ".txt";
+
+		return str;
+	}
+	else
+	{
+		cout << "There is not dot in filename! Setting filename to base" << endl;
+		
+		return modifier + ".txt";
+	}
+}
+
+void saving_procedure( Parameters& parameters, vector<double>& freqs, vector<double>& total_specfunc, vector<double>& total_spectrum, const double& uniform_integrated_spectrum_total, string modifier = "class" )
 {
 	cout << "Saving spectrum" << endl;
 	
-	save( freqs, total_specfunc, parameters.specfunc_filename );
-	save( freqs, total_spectrum, parameters.spectrum_filename );
-	save( uniform_integrated_spectrum_total, parameters.m2_filename );
+	if ( modifier == "class" )
+	{
+		save( freqs, total_specfunc, parameters.specfunc_filename );
+		save( freqs, total_spectrum, parameters.spectrum_filename );
+		save( uniform_integrated_spectrum_total, parameters.m2_filename );
+	}
+	else	
+	{
+		string specfunc_filename = modify_filename( parameters.specfunc_filename, modifier );
+		save( freqs, total_specfunc, specfunc_filename );
+
+		string spectrum_filename = modify_filename( parameters.spectrum_filename, modifier );
+		save( freqs, total_spectrum, spectrum_filename );
+
+		string m2_filename = modify_filename( parameters.m2_filename, modifier );
+		save( uniform_integrated_spectrum_total, m2_filename );
+	}
 }
 
 void create_chunks( Parameters& parameters, vector<double>& B_CHUNKS_VECTOR, vector<double>& V0_CHUNKS_VECTOR )
@@ -259,25 +293,63 @@ void master_code( int world_size )
 	vector<double> freqs = create_frequencies_vector( parameters );
 	int FREQ_SIZE = freqs.size();
 	
-	vector<double> specfunc_package( FREQ_SIZE );
-	vector<double> spectrum_package( FREQ_SIZE );
-	
-	vector<double> chunk_specfunc( FREQ_SIZE );
-	vector<double> chunk_spectrum( FREQ_SIZE );
-	
-	vector<double> total_spectrum( FREQ_SIZE );
-	vector<double> total_specfunc( FREQ_SIZE );
+	// ##########################################################
+	vector<double> specfunc_package_class( FREQ_SIZE );
+	vector<double> spectrum_package_class( FREQ_SIZE );
+	vector<double> chunk_specfunc_class( FREQ_SIZE );
+	vector<double> chunk_spectrum_class( FREQ_SIZE );
+	vector<double> total_spectrum_class( FREQ_SIZE );
+	vector<double> total_specfunc_class( FREQ_SIZE );
 
-	double uniform_integrated_spectrum_package;
-	double uniform_integrated_spectrum_chunk = 0.0;
-	double uniform_integrated_spectrum_total = 0.0;
+	double uniform_integrated_spectrum_package_class;
+	double uniform_integrated_spectrum_chunk_class = 0.0;
+	double uniform_integrated_spectrum_total_class = 0.0;
+	// ##########################################################
+
+	// ##########################################################
+	vector<double> spectrum_package_d1( FREQ_SIZE );
+	vector<double> specfunc_package_d1( FREQ_SIZE );
+	vector<double> chunk_spectrum_d1( FREQ_SIZE );
+	vector<double> chunk_specfunc_d1( FREQ_SIZE );
+	vector<double> total_spectrum_d1( FREQ_SIZE );
+	vector<double> total_specfunc_d1( FREQ_SIZE );
+
+	double uniform_integrated_spectrum_package_d1;
+	double uniform_integrated_spectrum_chunk_d1 = 0.0;
+	double uniform_integrated_spectrum_total_d1 = 0.0;
+	// ##########################################################
+
+	// ##########################################################
+	vector<double> spectrum_package_d2( FREQ_SIZE );
+	vector<double> specfunc_package_d2( FREQ_SIZE );
+	vector<double> chunk_spectrum_d2( FREQ_SIZE );
+	vector<double> chunk_specfunc_d2( FREQ_SIZE );
+	vector<double> total_spectrum_d2( FREQ_SIZE );
+	vector<double> total_specfunc_d2( FREQ_SIZE );
+
+	double uniform_integrated_spectrum_package_d2;
+	double uniform_integrated_spectrum_chunk_d2 = 0.0;
+	double uniform_integrated_spectrum_total_d2 = 0.0;
+	// ##########################################################
+
+	// ##########################################################
+	vector<double> spectrum_package_d3( FREQ_SIZE );
+	vector<double> specfunc_package_d3( FREQ_SIZE );
+	vector<double> chunk_spectrum_d3( FREQ_SIZE );
+	vector<double> chunk_specfunc_d3( FREQ_SIZE );
+	vector<double> total_spectrum_d3( FREQ_SIZE );
+	vector<double> total_specfunc_d3( FREQ_SIZE );
+
+	double uniform_integrated_spectrum_package_d3;
+	double uniform_integrated_spectrum_chunk_d3 = 0.0;
+	double uniform_integrated_spectrum_total_d3 = 0.0;
+	// ##########################################################
 
 	// ##########################################################
 	int b_chunk_counter = 0;
 	int v0_chunk_counter = 0;
 	int b_chunk_max = parameters.B_PARTS;
 	int v0_chunk_max = parameters.V0_PARTS;
-
 
 	vector<double> B_CHUNKS_VECTOR;
 	vector<double> V0_CHUNKS_VECTOR;
@@ -309,7 +381,6 @@ void master_code( int world_size )
 		//cout << "###" << endl;
 
 		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
-		//cout << "point_counter: " << point_counter << endl;
 		sent++;
 	}
 
@@ -329,13 +400,35 @@ void master_code( int world_size )
 		
 		// ############################################################
 		// Receiving data
-		MPI_Recv( &specfunc_package[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		MPI_Recv( &specfunc_package_class[0], FREQ_SIZE, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 		source = status.MPI_SOURCE;
 
-		MPI_Recv( &spectrum_package[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
-		MPI_Recv (&uniform_integrated_spectrum_package, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		MPI_Recv( &spectrum_package_class[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		MPI_Recv (&uniform_integrated_spectrum_package_class, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 
 		received++;
+		
+		if ( parameters.d1_status == true )
+		{
+			MPI_Recv( &specfunc_package_d1[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &spectrum_package_d1[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &uniform_integrated_spectrum_package_d1, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		}
+
+		if ( parameters.d2_status == true )
+		{
+			MPI_Recv( &specfunc_package_d2[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &spectrum_package_d2[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &uniform_integrated_spectrum_package_d2, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		}
+
+		if ( parameters.d3_status == true )
+		{
+			MPI_Recv( &specfunc_package_d3[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &spectrum_package_d3[0], FREQ_SIZE, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+			MPI_Recv( &uniform_integrated_spectrum_package_d3, 1, MPI_DOUBLE, source, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
+		}
+
 		// ############################################################
 
 		//cout << "sent: " << sent << "; received: " << received << "; NPOINTS: " << parameters.NPOINTS << endl;	
@@ -350,55 +443,118 @@ void master_code( int world_size )
 			double multiplier = B_CHUNK * V0_CHUNK / parameters.NPOINTS; 
 			//cout << "multiplier: " << multiplier << endl;
 
-			mult_vector( chunk_specfunc, multiplier );
-			mult_vector( chunk_spectrum, multiplier );
+			// ##################################################################################
+			mult_vector( chunk_specfunc_class, multiplier );
+			mult_vector( chunk_spectrum_class, multiplier );
+			uniform_integrated_spectrum_chunk_class *= multiplier; 
 
-			uniform_integrated_spectrum_chunk *= multiplier; 
+			if ( parameters.d1_status == true )
+			{
+				mult_vector( chunk_specfunc_d1, multiplier );
+				mult_vector( chunk_spectrum_d1, multiplier );
+
+				uniform_integrated_spectrum_chunk_d1 *= multiplier;
+			}
 			
+			if ( parameters.d2_status == true )
+			{
+				mult_vector( chunk_specfunc_d2, multiplier );
+				mult_vector( chunk_spectrum_d2, multiplier );
+
+				uniform_integrated_spectrum_chunk_d2 *= multiplier;
+			}
+
+			if ( parameters.d3_status == true )
+			{
+				mult_vector( chunk_specfunc_d3, multiplier );
+				mult_vector( chunk_spectrum_d3, multiplier );
+
+				uniform_integrated_spectrum_chunk_d3 *= multiplier;
+			}
+
+			// ##################################################################################
+
 			cout << "#####################################" << endl;
 			cout << "Current chunk: (b) " << b_chunk_counter << " (v0) " << v0_chunk_counter << endl;
 			cout << "B: " << B_CHUNKS_VECTOR[b_chunk_counter] << " -- " << B_CHUNKS_VECTOR[b_chunk_counter + 1] << endl;
 			cout << "V0: " << V0_CHUNKS_VECTOR[v0_chunk_counter] << " -- " << V0_CHUNKS_VECTOR[v0_chunk_counter + 1] << endl;
-			cout << "M2: " << uniform_integrated_spectrum_chunk << endl;
+			cout << "M2 (class): " << uniform_integrated_spectrum_chunk_class << endl;
+			cout << "M2 (d1): " << uniform_integrated_spectrum_chunk_d1 << endl;
+			cout << "M2 (d2): " << uniform_integrated_spectrum_chunk_d2 << endl;
+			cout << "M2 (d3): " << uniform_integrated_spectrum_chunk_d3 << endl;
 			cout << "Time for chunk: " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;
 			start = clock();
 			cout << "#####################################" << endl;
 			
 			// adding chunk spectrum to total; zeroing out chunk data
 			cout << ">> Added chunk spectrum to total" << endl << endl;	
-			add_vectors( total_specfunc, chunk_specfunc );
-			add_vectors( total_spectrum, chunk_spectrum );
-			//cout << ">> chunk_specfunc[0]: " << total_specfunc[0] << endl;
-			//cout << ">> total_specfunc[0]: " << total_specfunc[0] << endl;
-			//for ( int k = 0; k < parameters.FREQ_MAX; k++ )
-			//{
-				//if ( k % 50 == 0 )
-				//{
-					//cout << "total_spectrum[" << k << "] = " << total_spectrum[k] << endl;
-				//}
-			//}
+			add_vectors( total_specfunc_class, chunk_specfunc_class );
+			add_vectors( total_spectrum_class, chunk_spectrum_class );
 			
-			//for ( int k = 0; k < parameters.FREQ_MAX; k++ )
-			//{
-				//if ( k % 50 == 0 )
-				//{
-					//cout << "total_specfunc[" << k << "] = " << total_specfunc[k] << endl;
-				//}
-			//}
+			zero_out_vector( chunk_specfunc_class );
+			zero_out_vector( chunk_spectrum_class );
 			
-			zero_out_vector( chunk_specfunc );
-			zero_out_vector( chunk_spectrum );
+			uniform_integrated_spectrum_total_class += uniform_integrated_spectrum_chunk_class;
+			uniform_integrated_spectrum_chunk_class = 0.0;
+			
+			if ( parameters.d1_status == true )
+			{
+				add_vectors( total_specfunc_d1, chunk_specfunc_d1 );
+				add_vectors( total_spectrum_d1, chunk_spectrum_d1 );
+
+				zero_out_vector( chunk_specfunc_d1 );
+				zero_out_vector( chunk_spectrum_d1 );
+
+				uniform_integrated_spectrum_total_d1 += uniform_integrated_spectrum_chunk_d1;
+				uniform_integrated_spectrum_chunk_d1 = 0.0;
+			}
 		
-			uniform_integrated_spectrum_total += uniform_integrated_spectrum_chunk;
-			uniform_integrated_spectrum_chunk = 0.0;
+			if ( parameters.d2_status == true )
+			{
+				add_vectors( total_specfunc_d2, chunk_specfunc_d2 );
+				add_vectors( total_spectrum_d2, chunk_spectrum_d2 );
+
+				zero_out_vector( chunk_specfunc_d2 );
+				zero_out_vector( chunk_spectrum_d2 );
+
+				uniform_integrated_spectrum_total_d2 += uniform_integrated_spectrum_chunk_d2;
+				uniform_integrated_spectrum_chunk_d2 = 0.0;
+			}
 			
+			if ( parameters.d3_status == true )
+			{
+				add_vectors( total_specfunc_d3, chunk_specfunc_d3 );
+				add_vectors( total_spectrum_d3, chunk_spectrum_d3 );
+
+				zero_out_vector( chunk_specfunc_d3 );
+				zero_out_vector( chunk_spectrum_d3 );
+
+				uniform_integrated_spectrum_total_d3 += uniform_integrated_spectrum_chunk_d3;
+				uniform_integrated_spectrum_chunk_d3 = 0.0;
+			}
+
 			//cout << "point counter is set to 0" << endl << endl;
 			sent = 0;
 			received = 0;
 			// ##################################################
 
-			saving_procedure( parameters, freqs, total_specfunc, total_spectrum, uniform_integrated_spectrum_total ); 
-		
+			saving_procedure( parameters, freqs, total_specfunc_class, total_spectrum_class, uniform_integrated_spectrum_total_class ); 
+	
+			if ( parameters.d1_status == true )
+			{
+				saving_procedure( parameters, freqs, total_specfunc_d1, total_spectrum_d1, uniform_integrated_spectrum_total_d1, "d1" );
+			}
+
+			if ( parameters.d2_status == true )
+			{
+				saving_procedure( parameters, freqs, total_specfunc_d2, total_spectrum_d2, uniform_integrated_spectrum_total_d2, "d2" );
+			}
+
+			if ( parameters.d3_status == true )
+			{
+				saving_procedure( parameters, freqs, total_specfunc_d3, total_spectrum_d3, uniform_integrated_spectrum_total_d3, "d3" );
+			}
+
 			// ##################################################
 			if ( b_chunk_counter < b_chunk_max - 1 )
 			{
@@ -450,10 +606,41 @@ void master_code( int world_size )
 		// ############################################################
 		for ( int i = 0; i < FREQ_SIZE; i++ )
 		{
-			chunk_specfunc[i] += specfunc_package[i];
-			chunk_spectrum[i] += spectrum_package[i];
+			chunk_specfunc_class[i] += specfunc_package_class[i];
+			chunk_spectrum_class[i] += spectrum_package_class[i];
 		}
-		uniform_integrated_spectrum_chunk += uniform_integrated_spectrum_package;
+		uniform_integrated_spectrum_chunk_class += uniform_integrated_spectrum_package_class;
+
+		if ( parameters.d1_status == true )
+		{
+			for ( int i = 0; i < FREQ_SIZE; i++ )
+			{
+				chunk_specfunc_d1[i] += specfunc_package_d1[i];
+				chunk_spectrum_d1[i] += spectrum_package_d1[i];
+			}
+			uniform_integrated_spectrum_chunk_d1 += uniform_integrated_spectrum_package_d1;
+		}
+		
+		if ( parameters.d2_status == true )
+		{
+			for ( int i = 0; i < FREQ_SIZE; i++ )
+			{
+				chunk_specfunc_d2[i] += specfunc_package_d2[i];
+				chunk_spectrum_d2[i] += spectrum_package_d2[i];
+			}
+			uniform_integrated_spectrum_chunk_d2 += uniform_integrated_spectrum_package_d2;
+		}
+		
+		if ( parameters.d3_status == true )
+		{
+			for ( int i = 0; i < FREQ_SIZE; i++ )
+			{
+				chunk_specfunc_d3[i] += specfunc_package_d3[i];
+				chunk_spectrum_d3[i] += spectrum_package_d3[i];
+			}
+			uniform_integrated_spectrum_chunk_d3 += uniform_integrated_spectrum_package_d3;
+		}
+		
 		//cout << "Added package spectrum to chunk." << endl;
 		//cout << "chunk_specfunc[0]: " << chunk_specfunc[0] << endl;
 		// ############################################################
@@ -675,7 +862,7 @@ void slave_code( int world_rank )
 			// y0[1] -- PR
 			// y0[2] -- \theta
 			// y0[3] -- p_\theta
-			transform_dipole( temp, y0[0], y0[2] );
+			transform_dipole( temp, y0[0], y0[2], parameters.use_S_matrix );
 			
 			//cout << "t: " << t0 * constants::ATU <<
 				   	//"; R (alu): " << y0[0] << 	
@@ -703,13 +890,6 @@ void slave_code( int world_rank )
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();
 
-		vector<double> specfunc;
-		vector<double> spectrum;
-
-		double specfunc_value;
-		double spectrum_value;
-
-		double uniform_integrated_spectrum = 0;
 		//cout << "FREQ_SIZE: " << FREQ_SIZE << endl;
 
 		// zeroing input arrays
@@ -727,6 +907,28 @@ void slave_code( int world_rank )
 
 		double ReFx, ReFy, ReFz;
 		double ImFx, ImFy, ImFz;
+		
+		vector<double> specfunc_class;
+		vector<double> spectrum_class;
+
+		vector<double> specfunc_d1;
+		vector<double> specfunc_d2;
+		vector<double> specfunc_d3;
+		vector<double> specfunc_d4;
+
+		vector<double> spectrum_d1;
+		vector<double> spectrum_d2;
+		vector<double> spectrum_d3;
+		vector<double> spectrum_d4;
+
+		double specfunc_value_class;
+		double spectrum_value_class;
+
+		double uniform_integrated_spectrum_class = 0;
+		double uniform_integrated_spectrum_d1 = 0;
+		double uniform_integrated_spectrum_d2 = 0;
+		double uniform_integrated_spectrum_d3 = 0;
+		double uniform_integrated_spectrum_d4 = 0;
 
 		for ( int k = 0; k < FREQ_SIZE; k++ )
 		{
@@ -743,24 +945,85 @@ void slave_code( int world_rank )
 						 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
 				//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl;	
 
-				specfunc_value = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
-				specfunc.push_back( specfunc_value );	
+				specfunc_value_class = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
+				specfunc_class.push_back( specfunc_value_class );	
 
-				//spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
-				spectrum_value = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega * exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 ) * ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
-				spectrum.push_back( spectrum_value );
+				spectrum_value_class = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega *  ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
+				spectrum_class.push_back( spectrum_value_class );
 
-				uniform_integrated_spectrum += spectrum_value * FREQ_STEP; 
+				uniform_integrated_spectrum_class += spectrum_value_class * FREQ_STEP; 
 				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
+
+				if ( parameters.d1_status == true )
+				{
+					double d1 = 2.0 / (1.0 + exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+					double specfunc_value_d1 = specfunc_value_class * d1;
+					double spectrum_value_d1 = spectrum_value_class * d1;
+										
+					specfunc_d1.push_back( specfunc_value_d1 );
+					spectrum_d1.push_back( spectrum_value_d1 );
+
+					uniform_integrated_spectrum_d1 += spectrum_value_d1 * FREQ_STEP;
+				}
+
+				if ( parameters.d2_status == true )
+				{
+					double d2 = constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+					double specfunc_value_d2 = specfunc_value_class * d2;
+					double spectrum_value_d2 = spectrum_value_class * d2;
+					
+					specfunc_d2.push_back( specfunc_value_d2 );
+					spectrum_d2.push_back( spectrum_value_d2 );
+							
+					uniform_integrated_spectrum_d2 += spectrum_value_d2 * FREQ_STEP;
+				}
+
+				if ( parameters.d3_status == true )
+				{
+					double d3 = exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 );
+				   	double specfunc_value_d3 = specfunc_value_class * d3;
+					double spectrum_value_d3 = spectrum_value_class * d3;
+
+					specfunc_d3.push_back( specfunc_value_d3 );
+					spectrum_d3.push_back( spectrum_value_d3 );
+
+					uniform_integrated_spectrum_d3 += spectrum_value_d3 * FREQ_STEP;
+				}
+
+				if ( parameters.d4_status == true )
+				{
+					// to be done
+				}
 		}
 
 		cout << "(" << world_rank << ") Processing " << p.counter << " trajectory. npoints = " << npoints << "; time = " << ( clock() - start ) / (double) CLOCKS_PER_SEC << "s" << endl;
 		
 		//// #################################################
 		// Sending data
-		MPI_Send( &specfunc[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		MPI_Send( &spectrum[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		MPI_Send( &uniform_integrated_spectrum, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );	
+		MPI_Send( &specfunc_class[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+		MPI_Send( &spectrum_class[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+		MPI_Send( &uniform_integrated_spectrum_class, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );	
+		
+		if ( parameters.d1_status == true )
+		{
+			MPI_Send( &specfunc_d1[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &spectrum_d1[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &uniform_integrated_spectrum_d1, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+		}
+
+		if ( parameters.d2_status == true )
+		{
+			MPI_Send( &specfunc_d2[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &spectrum_d2[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &uniform_integrated_spectrum_d2, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+		}
+
+		if ( parameters.d3_status == true )
+		{
+			MPI_Send( &specfunc_d3[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &spectrum_d3[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+			MPI_Send( &uniform_integrated_spectrum_d3, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
+		}
 		// #################################################
 	}
 }

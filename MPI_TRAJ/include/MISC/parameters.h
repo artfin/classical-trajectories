@@ -34,6 +34,12 @@ class Parameters
 		double sampling_time;
 		int MaxTrajectoryLength;
 		double FREQ_MAX;
+		bool use_S_matrix;
+
+		bool d1_status;
+		bool d2_status;
+		bool d3_status;
+		bool d4_status;
 
 		double Temperature;
 			

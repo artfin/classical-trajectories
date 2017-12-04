@@ -12,7 +12,7 @@
 #include <Eigen/Dense>
 
 void rhs( double* out, double R, double pR, double theta, double pTheta );
-void transform_dipole( std::vector<double> &res, double R, double theta );
+void transform_dipole( std::vector<double> &res, double R, double theta, bool use_S_Matrix );
 void transform_coordinates( std::tuple<double, double, double> &he_coords, 
 							std::tuple<double, double, double> &ar_coords, 
 							const double &R, const double &theta );

@@ -27,6 +27,7 @@ class FileReader
 	
 		double string_to_double( string& value, int& line );
 		int string_to_int( string& value, int& line );
+		bool string_to_bool( string& value, int& line );
 
 		void parse_string( string curr_str, 
 						   string& keyword,
@@ -58,6 +59,10 @@ class FileReader
 		void analyse_conditions_group_line( string& variable,
 											string& value,
 											int& line 
-										  );	
+										  );
+		void analyse_desymmetrization_group_line( string& variable,
+												  string& value,
+											  	  int& line
+												);	  
 };
 

@@ -216,7 +216,7 @@ formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
 
 SIMPLE_MC_OBJ = $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)parameters.o 
 simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SIMPLE_MC_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp 
-	$(MPICC) $(CXXFLAGS) -Wall $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 
 ######################################################################
