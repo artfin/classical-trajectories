@@ -415,11 +415,11 @@ void master_code( int world_size )
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
 		p.counter = sent; 
 			
-		//cout << "###" << endl;
-		//cout << "generated p.b: " << p.b << endl;
-		//cout << "generated p.v0: " << p.v0 << endl;
-		//cout << "p.counter: " << p.counter << endl;
-		//cout << "###" << endl;
+		cout << "###" << endl;
+		cout << "generated p.b: " << p.b << endl;
+		cout << "generated p.v0: " << p.v0 << endl;
+		cout << "p.counter: " << p.counter << endl;
+		cout << "###" << endl;
 
 		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
 		sent++;
@@ -992,7 +992,8 @@ void slave_code( int world_rank )
 
 				dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
 						 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
-				//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl;	
+				//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl; 
+				
 
 				specfunc_value_class = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
 				specfunc_class.push_back( specfunc_value_class );	

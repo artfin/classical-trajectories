@@ -27,23 +27,23 @@ $gridparameters
 	V0_MIN = 200.0
 	V0_MAX = 4600 
 	%V0_PARTS = 22
-	V0_PARTS = 3
+	V0_PARTS = 1
 
 	B_MIN = 0.0
 	B_MAX = 4e-10
 	%B_PARTS = 16 
-	B_PARTS = 3
+	B_PARTS = 1
 $end
 
 $mcparameters
-	NPOINTS = 10 
+	NPOINTS = 1 
 $end
 
 $files
-	output_directory = test_output
-	specfunc_filename = specfunc_buryak_dipole.txt
-	m2_filename = m2_buryak_dipole.txt
-	spectrum_filename = spectrum_buryak_dipole.txt
+	output_directory = experiment 
+	specfunc_filename = specfunc_buryak_dipole_woutS.txt
+	m2_filename = m2_buryak_dipole_woutS.txt
+	spectrum_filename = spectrum_buryak_dipole_woutS.txt
 $end
 
 
