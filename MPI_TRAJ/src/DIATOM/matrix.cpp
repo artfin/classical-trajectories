@@ -1,6 +1,5 @@
 #include "matrix.h"
 
-
 const double DALTON_UNIT = 1.660539040 * 1e-27;
 const double AMU = 9.10938356 * 1e-31; 
 
@@ -9,7 +8,7 @@ const double AR_MASS = 39.9623831237;
 const double MU_SI = HE_MASS * AR_MASS / ( HE_MASS + AR_MASS ) * DALTON_UNIT; 
 const double MU = MU_SI / AMU;
 
-void transform_dipole( std::vector<double> &res, double R, double theta, bool use_S_matrix )
+void transform_dipole( std::vector<double> &res, double R, double theta )
 {
 	// constructing simple S matrix
 	Eigen::Matrix<double, 3, 3> S;
@@ -28,20 +27,20 @@ void transform_dipole( std::vector<double> &res, double R, double theta, bool us
 	double dipz = ar_he_dip_buryak_fit( R );
 	Eigen::Vector3d mol_dipole( 0, 0, dipz );
 	
-	if ( use_S_matrix == true )
-	{
-		Eigen::Vector3d lab_dipole = S * mol_dipole;
+	Eigen::Vector3d lab_dipole = S * mol_dipole;
 		
-		res[0] = lab_dipole[0];
-		res[1] = lab_dipole[1];
-		res[2] = lab_dipole[2];
-	}
-	else
-	{
-		res[0] = mol_dipole(0);
-		res[1] = mol_dipole(1);
-		res[2] = mol_dipole(2);
-	}
+	res[0] = lab_dipole[0];
+	res[1] = lab_dipole[1];
+	res[2] = lab_dipole[2];
+}
+
+void dipole_without_S( std::vector<double>& res, double R )
+{
+	double dipz = ar_he_dip_buryak_fit( R );
+
+	res[0] = 0;
+	res[1] = 0;
+	res[2] = dipz;
 }
 
 void transform_coordinates( std::tuple<double, double, double> &he_coords, 
@@ -82,5 +81,5 @@ void rhs( double* out, double R, double pR, double theta, double pTheta )
 	out[0] = pR / MU; // dot{R} 
 	out[1] = pow(pTheta, 2) / MU / pow(R, 3) - ar_he_pot_derivative( R ); // dot{pR}
 	out[2] = pTheta / MU / pow(R, 2); // dot{theta}
-	out[3] = 0; // dot[pTheta}
+	out[3] = 0; // dot{pTheta}
 }

@@ -802,6 +802,7 @@ void slave_code( int world_rank )
 
 	void *vmblock;  // List of dynamically allocated vectors
 	
+	
 	N = 4;
 	vmblock = vminit();
 	y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
@@ -833,7 +834,7 @@ void slave_code( int world_rank )
 		y0[1] = - ics.pR;
 		y0[2] = ics.theta;
 		y0[3] = ics.pT;
-		
+
 		//cout << "####" << endl;
 		//cout << "p.v0: " << p.v0 << endl;
 		//cout << "p.b: " << p.b << endl;
@@ -886,9 +887,11 @@ void slave_code( int world_rank )
 				//cout << "Trajectory cut!" << endl;
 				break;
 			}
-
+			
 			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
+			
 			//cout << "%%%" << endl;
+			//cout << "t0: " << t0 << endl;
 			//cout << "xend: " << xend << endl;
 			//cout << "%%%" << endl;
 
@@ -904,7 +907,16 @@ void slave_code( int world_rank )
 			// y0[1] -- PR
 			// y0[2] -- \theta
 			// y0[3] -- p_\theta
-			transform_dipole( temp, y0[0], y0[2], parameters.use_S_matrix );
+			
+			if ( parameters.use_S_matrix == true )
+			{
+				transform_dipole( temp, y0[0], y0[2] );
+			}
+			else
+			{
+				dipole_without_S( temp, y0[0] );
+				//cout << "transformed dipole" << endl;
+			}
 			
 			//cout << "t: " << t0 * constants::ATU <<
 				   	//"; R (alu): " << y0[0] << 	
@@ -914,7 +926,7 @@ void slave_code( int world_rank )
 			dipx.push_back( temp[0] );
 			dipy.push_back( temp[1] );
 			dipz.push_back( temp[2] );
-			
+
 			xend = parameters.sampling_time * (counter + 2);
 
 			aufrufe = 0;  // actual number of calls
@@ -923,11 +935,6 @@ void slave_code( int world_rank )
 		}
 		// #####################################################
 	
-		//for ( int i = 0; i < dipz.size(); i++ )
-		//{
-			//cout << "dipz[" << i << "] = " << dipz[i] * constants::ADIPMOMU << endl;
-		//}
-
 		// #####################################################
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();
