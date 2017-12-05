@@ -42,7 +42,8 @@ class Parameters
 		bool d4_status;
 
 		double Temperature;
-			
+		
+		string output_directory = "";	
 		string specfunc_filename = "";
 		string spectrum_filename = "";
 		string m2_filename = "";

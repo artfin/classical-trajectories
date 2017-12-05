@@ -40,6 +40,7 @@ $mcparameters
 $end
 
 $files
+	output_directory = output
 	specfunc_filename = specfunc_buryak_dipole.txt
 	m2_filename = m2_buryak_dipole.txt
 	spectrum_filename = spectrum_buryak_dipole.txt

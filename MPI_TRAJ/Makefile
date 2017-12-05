@@ -147,7 +147,7 @@ $(OBJ_PATH_MISC)gsl_custom.o: $(SRC_PATH_MISC)gsl_custom.cpp
 $(OBJ_PATH_MISC)file.o: $(SRC_PATH_MISC)file.cpp
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
 
-$(OBJ_PATH_MISC)parameters.o: $(SRC_PATH_MISC)parameters.cpp
+$(OBJ_PATH_MISC)parameters.o: $(SRC_PATH_MISC)parameters.cpp 
 	$(CCXX) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
 ######################################################################
 

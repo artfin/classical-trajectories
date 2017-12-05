@@ -5,6 +5,10 @@
 #include <random>
 #include <ctime>
 
+// checking if dir exists
+#include <dirent.h>
+#include <sys/stat.h> // mkdir
+
 // matrix multiplication
 #include "matrix.h"
 
@@ -183,7 +187,7 @@ string modify_filename( string filename, string modifier )
 	if ( dot_position != string::npos )
 	{
 		string str = filename.substr( 0, dot_position );
-		cout << "str: " << str << endl;
+		//cout << "str: " << str << endl;
 			
 		str = str + "_" + modifier + ".txt";
 
@@ -197,26 +201,63 @@ string modify_filename( string filename, string modifier )
 	}
 }
 
+bool check_dir_exists( string dirname )
+{
+	DIR* dir = opendir( dirname.c_str() );
+	if ( dir )
+	{
+		// directory exists
+		closedir( dir );
+		return true;
+	}
+	else if ( ENOENT == errno )
+	{
+		// directory doesn't exist
+		return false;
+	}
+	else
+	{
+		// unknown wtf
+		cout << "Unknown error status while checking ouput dir" << endl;
+		return false;
+	}
+}
+
+void create_dir( string dirname )
+{
+	int status = mkdir ( dirname.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
+}
+
 void saving_procedure( Parameters& parameters, vector<double>& freqs, vector<double>& total_specfunc, vector<double>& total_spectrum, const double& uniform_integrated_spectrum_total, string modifier = "class" )
 {
-	cout << "Saving spectrum" << endl;
-	
+	string out_dir = parameters.output_directory;
+	bool status = check_dir_exists( out_dir );
+	if ( status == true )
+	{
+		//cout << "Directory exists" << endl;
+	}
+	else
+	{
+		//cout << "Creating directory" << endl;
+		create_dir( out_dir );
+	}
+
 	if ( modifier == "class" )
 	{
-		save( freqs, total_specfunc, parameters.specfunc_filename );
-		save( freqs, total_spectrum, parameters.spectrum_filename );
-		save( uniform_integrated_spectrum_total, parameters.m2_filename );
+		save( freqs, total_specfunc, out_dir + "/" + parameters.specfunc_filename );
+		save( freqs, total_spectrum, out_dir + "/" + parameters.spectrum_filename );
+		save( uniform_integrated_spectrum_total, out_dir + "/" + parameters.m2_filename );
 	}
 	else	
 	{
 		string specfunc_filename = modify_filename( parameters.specfunc_filename, modifier );
-		save( freqs, total_specfunc, specfunc_filename );
+		save( freqs, total_specfunc, out_dir + "/" + specfunc_filename );
 
 		string spectrum_filename = modify_filename( parameters.spectrum_filename, modifier );
-		save( freqs, total_spectrum, spectrum_filename );
+		save( freqs, total_spectrum, out_dir + "/" + spectrum_filename );
 
 		string m2_filename = modify_filename( parameters.m2_filename, modifier );
-		save( uniform_integrated_spectrum_total, m2_filename );
+		save( uniform_integrated_spectrum_total, out_dir + "/" + m2_filename );
 	}
 }
 
@@ -538,6 +579,7 @@ void master_code( int world_size )
 			received = 0;
 			// ##################################################
 
+			cout << "Saving spectrum" << endl;
 			saving_procedure( parameters, freqs, total_specfunc_class, total_spectrum_class, uniform_integrated_spectrum_total_class ); 
 	
 			if ( parameters.d1_status == true )
@@ -704,7 +746,7 @@ void slave_code( int world_rank )
 	// it would be easier for slave to read parameters file by himself, rather than sending him parameters object (or just several parameters)
 	Parameters parameters;
 	FileReader fileReader( "parameters.in", &parameters ); 
-	
+
 	MPI_Status status;
 	
 	// #####################################################
@@ -968,7 +1010,10 @@ void slave_code( int world_rank )
 
 				if ( parameters.d2_status == true )
 				{
-					double d2 = constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+					double d2;
+					if ( omega == 0 ) d2 = 0.0;	
+					else d2 = constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+
 					double specfunc_value_d2 = specfunc_value_class * d2;
 					double spectrum_value_d2 = spectrum_value_class * d2;
 					
@@ -1044,7 +1089,7 @@ int main( int argc, char* argv[] )
 	if ( world_rank == 0 ) 
 	{
 		clock_t start = clock();
-		
+	
 		master_code( world_size );
 		
 		cout << "Time elapsed: " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;

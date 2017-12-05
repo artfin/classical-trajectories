@@ -229,7 +229,8 @@ void FileReader::analyse_mcparameters_group_line( string& variable, string& valu
 
 void FileReader::analyse_files_group_line( string& variable, string& value, int& line )
 {
-	if ( variable == "specfunc_filename" ) this->parameters->specfunc_filename.assign( value );
+	if ( variable == "output_directory" ) this->parameters->output_directory.assign( value );
+	else if ( variable == "specfunc_filename" ) this->parameters->specfunc_filename.assign( value );
 	else if ( variable == "spectrum_filename" ) this->parameters->spectrum_filename.assign( value ); 
 	else if ( variable == "m2_filename" ) this->parameters->m2_filename.assign( value );
 	else
