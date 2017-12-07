@@ -27,16 +27,16 @@ $gridparameters
 	V0_MIN = 200.0
 	V0_MAX = 4600 
 	%V0_PARTS = 22
-	V0_PARTS = 1
+	V0_PARTS = 3
 
 	B_MIN = 0.0
 	B_MAX = 4e-10
 	%B_PARTS = 16 
-	B_PARTS = 1
+	B_PARTS = 3
 $end
 
 $mcparameters
-	NPOINTS = 1 
+	NPOINTS = 10 
 $end
 
 $files

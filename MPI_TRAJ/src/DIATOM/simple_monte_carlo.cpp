@@ -73,31 +73,6 @@ static double UniformDouble( const double &min = 0.0, const double &max = 1.0 )
     return distribution( uniform_generator );
 }
 
-void show( string name, vector<double> v )
-{
-	cout << "#########################" << endl;
-	
-	for ( int i = 0; i < v.size(); i++ )
-	{
-		cout << name << "[" << i << "] = " << v[i] << endl;
-	}
-	
-	cout << "#########################" << endl;
-}
-
-void show( string name1, string name2, vector<double> v1, vector<double> v2 )
-{
-	cout << "#########################" << endl;
-
-	for ( int i = 0; i < v1.size(); i++ )
-	{
-		cout << name1 << "[" << i << "] = " << v1[i] << "; " <<
-				name2 << "[" << i << "] = " << v2[i] << endl;
-	}	
-	
-	cout << "#########################" << endl;
-}
-
 void syst (REAL t, REAL *y, REAL *f)
 {
   	(void)(t); // avoid unused parameter warning 
@@ -119,7 +94,7 @@ void syst (REAL t, REAL *y, REAL *f)
 	delete [] out;
 }
 
-void save( vector<double> v1, vector<double> v2, string filename )
+void save( vector<double>& v1, vector<double>& v2, string filename )
 {
 	assert( v1.size() == v2.size() && "Sizes of saved vectors should be equal" );
 
@@ -186,14 +161,11 @@ bool check_dir_exists( string dirname )
 		closedir( dir );
 		return true;
 	}
-	else if ( ENOENT == errno )
-	{
-		// directory doesn't exist
-		return false;
-	}
+	// directory doesn't exist
+	else if ( ENOENT == errno ) return false;
+	// unknown error
 	else
 	{
-		// unknown wtf
 		cout << "Unknown error status while checking ouput dir" << endl;
 		return false;
 	}
@@ -207,12 +179,9 @@ void create_dir( string dirname )
 void saving_procedure( Parameters& parameters, vector<double>& freqs, SpectrumInfo& spectrumInfo, string modifier = "class" )
 {
 	string out_dir = parameters.output_directory;
+	
 	bool status = check_dir_exists( out_dir );
-	if ( status == true )
-	{
-		//cout << "Directory exists" << endl;
-	}
-	else
+	if ( !status )
 	{
 		//cout << "Creating directory" << endl;
 		create_dir( out_dir );
@@ -371,14 +340,12 @@ void master_code( int world_size )
 		
 		// ############################################################
 		// Receiving data
-		source = classical.receive();
-		cout << "classical.package: " << classical.specfunc_package[0] << endl;
-		cout << "m2 classical: " << classical.m2_package << endl;
+		source = classical.receive( true );
 		received++;
 		
-		if ( parameters.d1_status == true )	d1.receive( source );
-		if ( parameters.d2_status == true ) d2.receive( source );
-		if ( parameters.d3_status == true ) d3.receive( source );
+		d1.receive( source );
+		d2.receive( source );
+		d3.receive( source );
 
 		// ############################################################
 
@@ -397,13 +364,9 @@ void master_code( int world_size )
 			// ##################################################################################
 
 			classical.multiply_chunk( multiplier );
-			cout << "multiplier: " << multiplier << endl;
-			cout << "classical.package: " << classical.specfunc_package[0] << endl;
-			cout << "m2 classical: " << classical.m2_package << endl;
-			
-			if ( parameters.d1_status ) d1.multiply_chunk( multiplier );
-			if ( parameters.d2_status ) d2.multiply_chunk( multiplier );
-			if ( parameters.d3_status ) d3.multiply_chunk( multiplier );
+			d1.multiply_chunk( multiplier );
+			d2.multiply_chunk( multiplier );
+			d3.multiply_chunk( multiplier );
 
 			// ##################################################################################
 
@@ -411,21 +374,22 @@ void master_code( int world_size )
 			cout << "Current chunk: (b) " << b_chunk_counter << " (v0) " << v0_chunk_counter << endl;
 			cout << "B: " << B_CHUNKS_VECTOR[b_chunk_counter] << " -- " << B_CHUNKS_VECTOR[b_chunk_counter + 1] << endl;
 			cout << "V0: " << V0_CHUNKS_VECTOR[v0_chunk_counter] << " -- " << V0_CHUNKS_VECTOR[v0_chunk_counter + 1] << endl;
-			cout << "M2 (class): " << classical.m2_total << endl;
-			cout << "M2 (d1): " << d1.m2_total << endl;
-			cout << "M2 (d2): " << d2.m2_total << endl;
-			cout << "M2 (d3): " << d3.m2_total << endl;
+			cout << "M2 (class): " << classical.m2_chunk << endl;
+			cout << "M2 (d1): " << d1.m2_chunk << endl;
+			cout << "M2 (d2): " << d2.m2_chunk << endl;
+			cout << "M2 (d3): " << d3.m2_chunk << endl;
 			cout << "Time for chunk: " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;
 			start = clock();
 			cout << "#####################################" << endl;
 			
 			// adding chunk spectrum to total; zeroing out chunk data
 			cout << ">> Added chunk spectrum to total" << endl << endl;	
+			
 			classical.add_chunk_to_total_and_zero_out();
 
-			if ( parameters.d1_status ) d1.add_chunk_to_total_and_zero_out();
-			if ( parameters.d2_status ) d2.add_chunk_to_total_and_zero_out();
-			if ( parameters.d3_status ) d3.add_chunk_to_total_and_zero_out();
+			d1.add_chunk_to_total_and_zero_out();
+			d2.add_chunk_to_total_and_zero_out();
+			d3.add_chunk_to_total_and_zero_out();
 
 			//cout << "point counter is set to 0" << endl << endl;
 			sent = 0;
@@ -434,15 +398,9 @@ void master_code( int world_size )
 
 			cout << "Saving spectrum" << endl;
 			saving_procedure( parameters, freqs, classical ); 
-	
-			if ( parameters.d1_status ) 
-				saving_procedure( parameters, freqs, d1, "d1" );
-
-			if ( parameters.d2_status )
-				saving_procedure( parameters, freqs, d2, "d2" );
-
-			if ( parameters.d3_status )
-				saving_procedure( parameters, freqs, d3, "d3" );
+			saving_procedure( parameters, freqs, d1, "d1" );
+			saving_procedure( parameters, freqs, d2, "d2" );
+			saving_procedure( parameters, freqs, d3, "d3" );
 
 			// ##################################################
 			if ( b_chunk_counter < b_chunk_max - 1 )
@@ -495,12 +453,9 @@ void master_code( int world_size )
 		// ############################################################
 		classical.add_package_to_chunk();
 
-		if ( parameters.d1_status  )
-			d1.add_package_to_chunk();	
-		if ( parameters.d2_status )
-			d2.add_package_to_chunk();	
-		if ( parameters.d3_status )
-			d3.add_package_to_chunk();
+		d1.add_package_to_chunk();	
+		d2.add_package_to_chunk();	
+		d3.add_package_to_chunk();
 
 		//cout << "Added package spectrum to chunk." << endl;
 		//cout << "chunk_specfunc[0]: " << chunk_specfunc[0] << endl;
@@ -520,19 +475,10 @@ void master_code( int world_size )
 			//cout << "generated p.v0: " << p.v0 << endl;
 			//cout << "p.counter: " << p.counter << endl;
 			//cout << "###" << endl;
-
+			
 			MPI_Send( &p, 1, MPI_ICPoint, source, 0, MPI_COMM_WORLD );
-			//cout << "point_counter: " << point_counter << endl;
 			sent++;
 		}
-	}
-}
-
-void copy_initial_conditions( double* ics, REAL* y0, const int length )
-{
-	for ( int i = 0; i < length; i++ )
-	{
-		y0[i] = ics[i + 1];
 	}
 }
 
@@ -558,6 +504,21 @@ void transform_ICPoint_to_ICHamPoint( Parameters& parameters, ICPoint& p, ICHamP
 	//cout << "p.b: " << p.b << endl;
 	//cout << "ics.pR: " << ics.pR << endl;
 	//cout << "ics.pT: " << ics.pT << endl;
+}
+
+double d1_corrector( double omega, double kT )
+{
+	return 2.0 / (1.0 + exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+}	
+
+double d2_corrector( double omega, double kT )
+{
+	return constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));	
+}
+
+double d3_corrector( double omega, double kT )
+{
+	return exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 );
 }
 
 void slave_code( int world_rank )
@@ -776,126 +737,57 @@ void slave_code( int world_rank )
 		double ReFx, ReFy, ReFz;
 		double ImFx, ImFy, ImFz;
 		
-		vector<double> specfunc_class;
-		vector<double> spectrum_class;
+		// creating objects to hold spectal info
+		SpectrumInfo classical;
+		SpectrumInfo d1( d1_corrector );
+		SpectrumInfo d2( d2_corrector );
+		SpectrumInfo d3( d3_corrector );
 
-		vector<double> specfunc_d1;
-		vector<double> specfunc_d2;
-		vector<double> specfunc_d3;
-		vector<double> specfunc_d4;
-
-		vector<double> spectrum_d1;
-		vector<double> spectrum_d2;
-		vector<double> spectrum_d3;
-		vector<double> spectrum_d4;
-
-		double specfunc_value_class;
-		double spectrum_value_class;
-
-		double uniform_integrated_spectrum_class = 0;
-		double uniform_integrated_spectrum_d1 = 0;
-		double uniform_integrated_spectrum_d2 = 0;
-		double uniform_integrated_spectrum_d3 = 0;
-		double uniform_integrated_spectrum_d4 = 0;
+		double specfunc_value_classical;
+		double spectrum_value_classical;
 
 		for ( int k = 0; k < FREQ_SIZE; k++ )
 		{
-				omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs[k];
+			omega = 2.0 * M_PI * constants::LIGHTSPEED_CM * freqs[k];
 
-				ReFx = fourier.outx[k][0];
-				ReFy = fourier.outy[k][0];
-				ReFz = fourier.outz[k][0];
-				ImFx = fourier.outx[k][1];
-				ImFy = fourier.outy[k][1];
-				ImFz = fourier.outz[k][1];
+			ReFx = fourier.outx[k][0];
+			ReFy = fourier.outy[k][0];
+			ReFz = fourier.outz[k][0];
+			ImFx = fourier.outx[k][1];
+			ImFy = fourier.outy[k][1];
+			ImFz = fourier.outz[k][1];
 
-				dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
-						 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
-				//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl; 
+			dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
+					 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
+			//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl; 
 				
+			specfunc_value_classical = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
+			classical.specfunc_package.push_back( specfunc_value_classical );
+	
+			spectrum_value_classical = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega *  ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
+			classical.spectrum_package.push_back( spectrum_value_classical );
 
-				specfunc_value_class = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
-				specfunc_class.push_back( specfunc_value_class );	
+			classical.m2_package += spectrum_value_classical * FREQ_STEP; 
+			// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
 
-				spectrum_value_class = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega *  ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
-				spectrum_class.push_back( spectrum_value_class );
-
-				uniform_integrated_spectrum_class += spectrum_value_class * FREQ_STEP; 
-				// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
-
-				if ( parameters.d1_status == true )
-				{
-					double d1 = 2.0 / (1.0 + exp(-constants::PLANCKCONST_REDUCED * omega / kT));
-					double specfunc_value_d1 = specfunc_value_class * d1;
-					double spectrum_value_d1 = spectrum_value_class * d1;
-										
-					specfunc_d1.push_back( specfunc_value_d1 );
-					spectrum_d1.push_back( spectrum_value_d1 );
-
-					uniform_integrated_spectrum_d1 += spectrum_value_d1 * FREQ_STEP;
-				}
-
-				if ( parameters.d2_status == true )
-				{
-					double d2;
-					if ( omega == 0 ) d2 = 0.0;	
-					else d2 = constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
-
-					double specfunc_value_d2 = specfunc_value_class * d2;
-					double spectrum_value_d2 = spectrum_value_class * d2;
-					
-					specfunc_d2.push_back( specfunc_value_d2 );
-					spectrum_d2.push_back( spectrum_value_d2 );
-							
-					uniform_integrated_spectrum_d2 += spectrum_value_d2 * FREQ_STEP;
-				}
-
-				if ( parameters.d3_status == true )
-				{
-					double d3 = exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 );
-				   	double specfunc_value_d3 = specfunc_value_class * d3;
-					double spectrum_value_d3 = spectrum_value_class * d3;
-
-					specfunc_d3.push_back( specfunc_value_d3 );
-					spectrum_d3.push_back( spectrum_value_d3 );
-
-					uniform_integrated_spectrum_d3 += spectrum_value_d3 * FREQ_STEP;
-				}
-
-				if ( parameters.d4_status == true )
-				{
-					// to be done
-				}
+			d1.correct( classical, omega, FREQ_STEP, kT );
+			d2.correct( classical, omega, FREQ_STEP, kT, true );
+			d3.correct( classical, omega, FREQ_STEP, kT );
 		}
 
 		cout << "(" << world_rank << ") Processing " << p.counter << " trajectory. npoints = " << npoints << "; time = " << ( clock() - start ) / (double) CLOCKS_PER_SEC << "s" << endl;
 		
 		//// #################################################
 		// Sending data
-		MPI_Send( &specfunc_class[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		MPI_Send( &spectrum_class[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		MPI_Send( &uniform_integrated_spectrum_class, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );	
-		
-		if ( parameters.d1_status == true )
-		{
-			MPI_Send( &specfunc_d1[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &spectrum_d1[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &uniform_integrated_spectrum_d1, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		}
+		classical.send();
+		d1.send();
+		d2.send();
+		d3.send();
 
-		if ( parameters.d2_status == true )
-		{
-			MPI_Send( &specfunc_d2[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &spectrum_d2[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &uniform_integrated_spectrum_d2, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		}
-
-		if ( parameters.d3_status == true )
-		{
-			MPI_Send( &specfunc_d3[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &spectrum_d3[0], FREQ_SIZE, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-			MPI_Send( &uniform_integrated_spectrum_d3, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD );
-		}
+		classical.zero_out_package();
+		d1.zero_out_package();
+		d2.zero_out_package();
+		d3.zero_out_package();
 		// #################################################
 	}
 }
