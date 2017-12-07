@@ -5,10 +5,6 @@
 #include <random>
 #include <ctime>
 
-// checking if dir exists
-#include <dirent.h>
-#include <sys/stat.h> // mkdir
-
 // matrix multiplication
 #include "matrix.h"
 
@@ -32,11 +28,8 @@
 // library for FFT
 #include <fftw3.h>
 
-// Gear header files
-#include "basis.h"
-#include "vmblock.h"
-#include "gear.h"
-#include "t_dgls.h"
+// Trajectory class (INCLUDED LAST!)
+#include "trajectory.hpp"
 
 // ############################################
 // Exit tag for killing slave
@@ -94,29 +87,6 @@ void syst (REAL t, REAL *y, REAL *f)
 	delete [] out;
 }
 
-void save( vector<double>& v1, vector<double>& v2, string filename )
-{
-	assert( v1.size() == v2.size() && "Sizes of saved vectors should be equal" );
-
-	ofstream file( filename );
-
-	for ( int k = 0; k < v1.size(); k++ )
-	{
-		file << v1[k] << " " << v2[k] << endl;
-	}
-	
-	file.close();	
-}
-
-void save( double m2, string filename )
-{
-	ofstream file( filename );
-
-	file << "M2: " << m2 << endl;
-		
-	file.close();
-}
-
 vector<double> create_frequencies_vector( Parameters& parameters )
 {
 	double FREQ_STEP = 1.0 / (parameters.sampling_time * constants::ATU) / constants::LIGHTSPEED_CM / parameters.MaxTrajectoryLength; // cm^-1
@@ -130,80 +100,6 @@ vector<double> create_frequencies_vector( Parameters& parameters )
 	}
 
 	return freqs;
-}
-
-string modify_filename( string filename, string modifier )
-{
-	size_t dot_position = filename.find( "." );
-	if ( dot_position != string::npos )
-	{
-		string str = filename.substr( 0, dot_position );
-		//cout << "str: " << str << endl;
-			
-		str = str + "_" + modifier + ".txt";
-
-		return str;
-	}
-	else
-	{
-		cout << "There is not dot in filename! Setting filename to base" << endl;
-		
-		return modifier + ".txt";
-	}
-}
-
-bool check_dir_exists( string dirname )
-{
-	DIR* dir = opendir( dirname.c_str() );
-	if ( dir )
-	{
-		// directory exists
-		closedir( dir );
-		return true;
-	}
-	// directory doesn't exist
-	else if ( ENOENT == errno ) return false;
-	// unknown error
-	else
-	{
-		cout << "Unknown error status while checking ouput dir" << endl;
-		return false;
-	}
-}
-
-void create_dir( string dirname )
-{
-	int status = mkdir ( dirname.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
-}
-
-void saving_procedure( Parameters& parameters, vector<double>& freqs, SpectrumInfo& spectrumInfo, string modifier = "class" )
-{
-	string out_dir = parameters.output_directory;
-	
-	bool status = check_dir_exists( out_dir );
-	if ( !status )
-	{
-		//cout << "Creating directory" << endl;
-		create_dir( out_dir );
-	}
-
-	if ( modifier == "class" )
-	{
-		save( freqs, spectrumInfo.specfunc_total, out_dir + "/" + parameters.specfunc_filename );
-		save( freqs, spectrumInfo.spectrum_total, out_dir + "/" + parameters.spectrum_filename );
-		save( spectrumInfo.m2_total, out_dir + "/" + parameters.m2_filename );
-	}
-	else	
-	{
-		string specfunc_filename = modify_filename( parameters.specfunc_filename, modifier );
-		save( freqs, spectrumInfo.specfunc_total, out_dir + "/" + specfunc_filename );
-
-		string spectrum_filename = modify_filename( parameters.spectrum_filename, modifier );
-		save( freqs, spectrumInfo.spectrum_total, out_dir + "/" + spectrum_filename );
-
-		string m2_filename = modify_filename( parameters.m2_filename, modifier );
-		save( spectrumInfo.m2_total, out_dir + "/" + m2_filename );
-	}
 }
 
 void create_chunks( Parameters& parameters, vector<double>& B_CHUNKS_VECTOR, vector<double>& V0_CHUNKS_VECTOR )
@@ -280,10 +176,10 @@ void master_code( int world_size )
 	int FREQ_SIZE = freqs.size();
 	
 	// creating objects to hold spectrum info
-	SpectrumInfo classical( FREQ_SIZE );
-	SpectrumInfo d1( FREQ_SIZE );
-	SpectrumInfo d2( FREQ_SIZE );
-	SpectrumInfo d3( FREQ_SIZE );
+	SpectrumInfo classical( FREQ_SIZE, "classical" );
+	SpectrumInfo d1( FREQ_SIZE, "d1" );
+	SpectrumInfo d2( FREQ_SIZE, "d2" );
+	SpectrumInfo d3( FREQ_SIZE, "d3" );
 
 	// ##########################################################
 	int b_chunk_counter = 0;
@@ -314,11 +210,11 @@ void master_code( int world_size )
 												   V0_CHUNKS_VECTOR[ v0_chunk_counter + 1 ]);
 		p.counter = sent; 
 			
-		cout << "###" << endl;
-		cout << "generated p.b: " << p.b << endl;
-		cout << "generated p.v0: " << p.v0 << endl;
-		cout << "p.counter: " << p.counter << endl;
-		cout << "###" << endl;
+		//cout << "###" << endl;
+		//cout << "generated p.b: " << p.b << endl;
+		//cout << "generated p.v0: " << p.v0 << endl;
+		//cout << "p.counter: " << p.counter << endl;
+		//cout << "###" << endl;
 
 		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
 		sent++;
@@ -340,12 +236,11 @@ void master_code( int world_size )
 		
 		// ############################################################
 		// Receiving data
-		source = classical.receive( true );
+		classical.receive( source, true );
+		d1.receive( source, false );
+		d2.receive( source, false );
+		d3.receive( source, false );
 		received++;
-		
-		d1.receive( source );
-		d2.receive( source );
-		d3.receive( source );
 
 		// ############################################################
 
@@ -383,37 +278,35 @@ void master_code( int world_size )
 			cout << "#####################################" << endl;
 			
 			// adding chunk spectrum to total; zeroing out chunk data
-			cout << ">> Added chunk spectrum to total" << endl << endl;	
-			
-			classical.add_chunk_to_total_and_zero_out();
-
-			d1.add_chunk_to_total_and_zero_out();
-			d2.add_chunk_to_total_and_zero_out();
-			d3.add_chunk_to_total_and_zero_out();
+			//cout << ">> Added chunk spectrum to total" << endl << endl;	
+			classical.add_chunk_to_total();
+			d1.add_chunk_to_total();
+			d2.add_chunk_to_total();
+			d3.add_chunk_to_total();
 
 			//cout << "point counter is set to 0" << endl << endl;
 			sent = 0;
 			received = 0;
 			// ##################################################
 
-			cout << "Saving spectrum" << endl;
-			saving_procedure( parameters, freqs, classical ); 
-			saving_procedure( parameters, freqs, d1, "d1" );
-			saving_procedure( parameters, freqs, d2, "d2" );
-			saving_procedure( parameters, freqs, d3, "d3" );
+			cout << ">>Saving spectrum" << endl << endl;
+			classical.saving_procedure( parameters, freqs ); 
+			d1.saving_procedure( parameters, freqs );
+			d2.saving_procedure( parameters, freqs );
+			d3.saving_procedure( parameters, freqs );
 
 			// ##################################################
 			if ( b_chunk_counter < b_chunk_max - 1 )
 			{
-				cout << ">> b_chunk_counter is not maximum. incrementing..." << endl;
+				//cout << ">> b_chunk_counter is not maximum. incrementing..." << endl;
 				b_chunk_counter++;
 			}	
 			else
 			{
 				if ( v0_chunk_counter < v0_chunk_max - 1 )
 				{
-					cout << ">> v0_chunk_counter is not maximum. Incrementing..." << endl;
-					cout << ">> setting b_chunk_counter to 0" << endl;
+					//cout << ">> v0_chunk_counter is not maximum. Incrementing..." << endl;
+					//cout << ">> setting b_chunk_counter to 0" << endl;
 					v0_chunk_counter++;
 					b_chunk_counter = 0;
 				}
@@ -458,7 +351,6 @@ void master_code( int world_size )
 		d3.add_package_to_chunk();
 
 		//cout << "Added package spectrum to chunk." << endl;
-		//cout << "chunk_specfunc[0]: " << chunk_specfunc[0] << endl;
 		// ############################################################
 		
 		
@@ -513,7 +405,7 @@ double d1_corrector( double omega, double kT )
 
 double d2_corrector( double omega, double kT )
 {
-	return constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));	
+	return constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
 }
 
 double d3_corrector( double omega, double kT )
@@ -567,35 +459,43 @@ void slave_code( int world_rank )
 	double kT = constants::BOLTZCONST * parameters.Temperature;
 	// #####################################################
 	
-	// #####################################################
-	REAL epsabs;    //  absolute error bound
-	REAL epsrel;    //  relative error bound    
-	REAL t0;        // left edge of integration interval
-	REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
-	REAL h;         // initial, final step size
-	REAL xend;      // right edge of integration interval 
+	//// #####################################################
+	//REAL epsabs;    //  absolute error bound
+	//REAL epsrel;    //  relative error bound    
+	//REAL t0;        // left edge of integration interval
+	//REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
+	//REAL h;         // initial, final step size
+	//REAL xend;      // right edge of integration interval 
 
-	long fmax;      // maximal number of calls of right side in gear4()
-	long aufrufe;   // actual number of function calls
-	int  N;         // number of DEs in system
-	int  fehler;    // error code from umleiten(), gear4()
+	//long fmax;      // maximal number of calls of right side in gear4()
+	//long aufrufe;   // actual number of function calls
+	//int  N;         // number of DEs in system
+	//int  fehler;    // error code from umleiten(), gear4()
 
-	void *vmblock;  // List of dynamically allocated vectors
+	//void *vmblock;  // List of dynamically allocated vectors
 	
 	
-	N = 4;
-	vmblock = vminit();
-	y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
+	//N = 4;
+	//vmblock = vminit();
+	//y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
 	
-	// accuracy of trajectory
-	epsabs = 1E-13;
-	epsrel = 1E-13;
+	//// accuracy of trajectory
+	//epsabs = 1E-13;
+	//epsrel = 1E-13;
 	
-	fmax = 1e8;  		  // maximal number of calls 
+	//fmax = 1e8;  		  // maximal number of calls 
 	// #####################################################
 
 	ICPoint p;
 	ICHamPoint ics;
+
+	Trejectory trajectory( 4 ); // 4 equations
+
+	// creating objects to hold spectal info
+	SpectrumInfo classical;
+	SpectrumInfo d1( d1_corrector );
+	SpectrumInfo d2( d2_corrector );
+	SpectrumInfo d3( d3_corrector );
 
 	while ( true )
 	{
@@ -610,10 +510,10 @@ void slave_code( int world_rank )
 			break;
 		}
 
-		y0[0] = ics.R;
-		y0[1] = - ics.pR;
-		y0[2] = ics.theta;
-		y0[3] = ics.pT;
+		trajectory.y0[0] = ics.R;
+		trajectory.y0[1] = - ics.pR;
+		trajectory.y0[2] = ics.theta;
+		trajectory.y0[3] = ics.pT;
 
 		//cout << "####" << endl;
 		//cout << "p.v0: " << p.v0 << endl;
@@ -625,11 +525,11 @@ void slave_code( int world_rank )
 		//cout << "#####" << endl;
 
 		// out of memory?
-		if ( !vmcomplete(vmblock) )
-		{ 
-			cout << "mgear: out of memory" << endl;
-			return;
-		}
+		//if ( !vmcomplete(vmblock) )
+		//{ 
+			//cout << "mgear: out of memory" << endl;
+			//return;
+		//}
 
 		// #####################################################
 		// p.v0, p.b -- in SI
@@ -736,12 +636,6 @@ void slave_code( int world_rank )
 
 		double ReFx, ReFy, ReFz;
 		double ImFx, ImFy, ImFz;
-		
-		// creating objects to hold spectal info
-		SpectrumInfo classical;
-		SpectrumInfo d1( d1_corrector );
-		SpectrumInfo d2( d2_corrector );
-		SpectrumInfo d3( d3_corrector );
 
 		double specfunc_value_classical;
 		double spectrum_value_classical;
@@ -784,10 +678,10 @@ void slave_code( int world_rank )
 		d2.send();
 		d3.send();
 
-		classical.zero_out_package();
-		d1.zero_out_package();
-		d2.zero_out_package();
-		d3.zero_out_package();
+		classical.clear_package();
+		d1.clear_package();
+		d2.clear_package();
+		d3.clear_package();
 		// #################################################
 	}
 }

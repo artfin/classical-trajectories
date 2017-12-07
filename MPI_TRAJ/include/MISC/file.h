@@ -60,9 +60,5 @@ class FileReader
 											string& value,
 											int& line 
 										  );
-		void analyse_desymmetrization_group_line( string& variable,
-												  string& value,
-											  	  int& line
-												);	  
 };
 

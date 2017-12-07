@@ -131,16 +131,6 @@ void FileReader::parse_file( ifstream& infile )
 				value.erase();
 			}
 		}
-		else if ( current_group == "$desymmetrization" )
-		{
-			if ( is_assignment )
-			{
-				analyse_desymmetrization_group_line( variable, value, line );
-
-				variable.erase();
-				value.erase();
-			}
-		}
 		else 
 		{
 			string line_number_string = std::to_string( line );
@@ -187,19 +177,6 @@ bool FileReader::string_to_bool( string& value, int& line )
 	}
 
 	return result;
-}
-
-void FileReader::analyse_desymmetrization_group_line( string& variable, string& value, int& line )
-{
-	if ( variable == "d1_status" ) this->parameters->d1_status = string_to_bool( value, line );
-	else if ( variable == "d2_status" ) this->parameters->d2_status = string_to_bool( value, line );
-	else if ( variable == "d3_status" ) this->parameters->d3_status = string_to_bool( value, line );
-	else if ( variable == "d4_status" ) this->parameters->d4_status = string_to_bool( value, line );
-	else
-	{
-		string line_number_string = std::to_string( line );
-		throw std::invalid_argument( "Invalid variable name " + variable + " in $desymmetrisation group! Line number: " + line_number_string );
-	}
 }
 
 void FileReader::analyse_grid_group_line( string& variable, string& value, int& line )
