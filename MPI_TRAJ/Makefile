@@ -105,7 +105,10 @@ OBJ_PATH_DIATOM = ./obj/DIATOM/
 INC_PATH_DIATOM = -I ./include/DIATOM/
 
 $(OBJ_PATH_DIATOM)matrix.o: $(SRC_PATH_DIATOM)matrix.cpp
-	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_DIATOM) $(INC_PATH_DIP) $(INC_PATH_POT) 
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_DIATOM) $(INC_PATH_DIP) $(INC_PATH_POT)
+
+$(OBJ_PATH_DIATOM)trajectory.o: $(SRC_PATH_DIATOM)trajectory.cpp
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_DIATOM) $(INC_PATH_DIP) $(INC_PATH_POT) $(INC_PATH_GEAR) $(INC_PATH_MISC)
 ######################################################################
 
 ######################################################################
@@ -201,7 +204,7 @@ DIATOM_POT_OBJECTS = $(patsubst %,$(OBJ_PATH_POT)%,$(DIATOM_POT_OBJ))
 DIATOM_DIP_OBJ = ar_he_dip_buryak_fit.o 
 DIATOM_DIP_OBJECTS = $(patsubst %,$(OBJ_PATH_DIP)%,$(DIATOM_DIP_OBJ))
 
-DIATOM_OBJ = matrix.o
+DIATOM_OBJ = matrix.o trajectory.o
 DIATOM_OBJECTS = $(patsubst %,$(OBJ_PATH_DIATOM)%,$(DIATOM_OBJ))
 
 # using special Gear method without additional parameters 

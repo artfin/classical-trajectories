@@ -5,9 +5,6 @@
 #include <random>
 #include <ctime>
 
-// matrix multiplication
-#include "matrix.h"
-
 // FileReader class
 #include "file.h"
 // Parameters class
@@ -64,27 +61,6 @@ static double UniformDouble( const double &min = 0.0, const double &max = 1.0 )
 {
     uniform_real_distribution<double> distribution( min, max );
     return distribution( uniform_generator );
-}
-
-void syst (REAL t, REAL *y, REAL *f)
-{
-  	(void)(t); // avoid unused parameter warning 
-
-	double *out = new double[4];
-
-	rhs( out, y[0], y[1], y[2], y[3] );
-
-	//cout << "out[0]: " << out[0] << endl;
-	//cout << "out[1]: " << out[1] << endl;
-	//cout << "out[2]: " << out[2] << endl;
-	//cout << "out[3]: " << out[3] << endl;
-
-	f[0] = out[0]; // \dot{R} 
-	f[1] = out[1]; // \dot{p_R}
-	f[2] = out[2]; // \dot{\theta}
-	f[3] = out[3]; // \dot{p_\theta}
-
-	delete [] out;
 }
 
 vector<double> create_frequencies_vector( Parameters& parameters )
@@ -458,33 +434,6 @@ void slave_code( int world_rank )
 	
 	double kT = constants::BOLTZCONST * parameters.Temperature;
 	// #####################################################
-	
-	//// #####################################################
-	//REAL epsabs;    //  absolute error bound
-	//REAL epsrel;    //  relative error bound    
-	//REAL t0;        // left edge of integration interval
-	//REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
-	//REAL h;         // initial, final step size
-	//REAL xend;      // right edge of integration interval 
-
-	//long fmax;      // maximal number of calls of right side in gear4()
-	//long aufrufe;   // actual number of function calls
-	//int  N;         // number of DEs in system
-	//int  fehler;    // error code from umleiten(), gear4()
-
-	//void *vmblock;  // List of dynamically allocated vectors
-	
-	
-	//N = 4;
-	//vmblock = vminit();
-	//y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
-	
-	//// accuracy of trajectory
-	//epsabs = 1E-13;
-	//epsrel = 1E-13;
-	
-	//fmax = 1e8;  		  // maximal number of calls 
-	// #####################################################
 
 	ICPoint p;
 	ICHamPoint ics;
@@ -515,22 +464,6 @@ void slave_code( int world_rank )
 		trajectory.y0[2] = ics.theta;
 		trajectory.y0[3] = ics.pT;
 
-		//cout << "####" << endl;
-		//cout << "p.v0: " << p.v0 << endl;
-		//cout << "p.b: " << p.b << endl;
-		//cout << "ics.R = " << y0[0] << endl;
-		//cout << "ics.pR = " << y0[1] << endl;
-		//cout << "ics.theta = " << y0[2] << endl;
-		//cout << "ics.pT = " << y0[3] << endl;
-		//cout << "#####" << endl;
-
-		// out of memory?
-		//if ( !vmcomplete(vmblock) )
-		//{ 
-			//cout << "mgear: out of memory" << endl;
-			//return;
-		//}
-
 		// #####################################################
 		// p.v0, p.b -- in SI
 		double b_integrand = fabs( 2 * M_PI * p.v0 * p.b ); 
@@ -541,80 +474,8 @@ void slave_code( int world_rank )
 		//cout << "stat_weight: " << stat_weight << endl;
 		// #####################################################
 		
-		int counter = 0;
-		double R_end_value = y0[0] + 0.001;
-
-		// dipole moment in laboratory frame
-		vector<double> temp( 3 );
-		vector<double> dipx;
-		vector<double> dipy;
-		vector<double> dipz;
-		
-		// #####################################################
-		t0 = 0.0;
-
-		h = 0.1;    		  // initial step size
-		xend = parameters.sampling_time; // initial right bound of integration
-		// #####################################################
-
 		clock_t start = clock();
 
-		// #####################################################
-		while ( y0[0] < R_end_value ) 
-		{
-			if ( counter == parameters.MaxTrajectoryLength )
-			{
-				//cout << "Trajectory cut!" << endl;
-				break;
-			}
-			
-			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
-			
-			//cout << "%%%" << endl;
-			//cout << "t0: " << t0 << endl;
-			//cout << "xend: " << xend << endl;
-			//cout << "%%%" << endl;
-
-			if ( fehler != 0 ) 
-			{
-				cout << "Gear4: error n = " << 10 + fehler << endl;
-				break;
-			}
-
-			//cout << "t0: " << t0 << "; r: " << y0[0] << endl;
-
-			// y0[0] -- R
-			// y0[1] -- PR
-			// y0[2] -- \theta
-			// y0[3] -- p_\theta
-			
-			if ( parameters.use_S_matrix == true )
-			{
-				transform_dipole( temp, y0[0], y0[2] );
-			}
-			else
-			{
-				dipole_without_S( temp, y0[0] );
-				//cout << "transformed dipole" << endl;
-			}
-			
-			//cout << "t: " << t0 * constants::ATU <<
-				   	//"; R (alu): " << y0[0] << 	
-					//"; R: " << y0[0] * constants::ALU << 
-					//"; dipole z: " << temp[2] * constants::ADIPMOMU << endl;
-
-			dipx.push_back( temp[0] );
-			dipy.push_back( temp[1] );
-			dipz.push_back( temp[2] );
-
-			xend = parameters.sampling_time * (counter + 2);
-
-			aufrufe = 0;  // actual number of calls
-
-			counter++;
-		}
-		// #####################################################
-	
 		// #####################################################
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();

@@ -1,6 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include "matrix.h"
+
+#include <vector>
+#include "parameters.h"
 
 // Gear header files
 #include "basis.h"
@@ -12,7 +16,8 @@ class Trajectory
 {
 public:
 	int N;
-	
+	Parameters parameters;
+
 	REAL epsabs = 1E-13;    //  absolute error bound
 	REAL epsrel = 1E-13;    //  relative error bound    
 	REAL t0;        // left edge of integration interval
@@ -26,6 +31,13 @@ public:
 
 	void *vmblock;  // List of dynamically allocated vectors
 	
+	// dipole moment in laboratory frame
+	std::vector<double> temp{ std::vector<double>(3) };
+	std::vector<double> dipx;
+	std::vector<double> dipy;
+	std::vector<double> dipz;
 
-	Trajectory ( int N );
+	void syst( REAL t, REAL *y, REAL *f );
+	void run_trajectory( void );
+	Trajectory ( Parameters& parameters, const int& N );
 };
