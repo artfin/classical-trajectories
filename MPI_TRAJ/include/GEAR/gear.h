@@ -22,8 +22,8 @@ int gear4          /* Gear  method of 4th order for DESs of 1st order */
      REAL      *x,             /* starting or end point      .........*/
      REAL      xend,           /* desired end point (> x)     ........*/
      int       n,              /* number of DEs    ...................*/
-     std::function<void()> dgl,
-	 //dglsysfnk dgl,            /* right hand side of system of DEs ...*/
+	 /*std::function<void()> dgl,*/
+	 dglsysfnk dgl,            /* right hand side of system of DEs ...*/
      REAL      y[],            /* initial value or solution ..........*/
      REAL      epsabs,         /* absolute error bound    ............*/
      REAL      epsrel,         /* relative error bound    ............*/
