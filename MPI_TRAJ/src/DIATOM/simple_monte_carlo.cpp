@@ -28,8 +28,11 @@
 // library for FFT
 #include <fftw3.h>
 
-// Trajectory class (INCLUDED LAST!)
-#include "trajectory.hpp"
+// Gear header files
+#include "basis.h"
+#include "vmblock.h"
+#include "gear.h"
+#include "t_dgls.h"
 
 // ############################################
 // Exit tag for killing slave
@@ -460,36 +463,36 @@ void slave_code( int world_rank )
 	// #####################################################
 	
 	//// #####################################################
-	//REAL epsabs;    //  absolute error bound
-	//REAL epsrel;    //  relative error bound    
-	//REAL t0;        // left edge of integration interval
-	//REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
-	//REAL h;         // initial, final step size
-	//REAL xend;      // right edge of integration interval 
+	REAL epsabs;    //  absolute error bound
+	REAL epsrel;    //  relative error bound    
+	REAL t0;        // left edge of integration interval
+	REAL *y0;       // [0..n-1]-vector: initial value, approxim. 
+	REAL h;         // initial, final step size
+	REAL xend;      // right edge of integration interval 
 
-	//long fmax;      // maximal number of calls of right side in gear4()
-	//long aufrufe;   // actual number of function calls
-	//int  N;         // number of DEs in system
-	//int  fehler;    // error code from umleiten(), gear4()
+	long fmax;      // maximal number of calls of right side in gear4()
+	long aufrufe;   // actual number of function calls
+	int  N;         // number of DEs in system
+	int  fehler;    // error code from umleiten(), gear4()
 
-	//void *vmblock;  // List of dynamically allocated vectors
-	
-	
-	//N = 4;
-	//vmblock = vminit();
-	//y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
-	
-	//// accuracy of trajectory
-	//epsabs = 1E-13;
-	//epsrel = 1E-13;
-	
-	//fmax = 1e8;  		  // maximal number of calls 
+	void *vmblock;  // List of dynamically allocated vectors
+
+
+	N = 4;
+	vmblock = vminit();
+	y0 = (REAL*) vmalloc(vmblock, VEKTOR, N, 0);
+
+	// accuracy of trajectory
+	epsabs = 1E-13;
+	epsrel = 1E-13;
+
+	fmax = 1e8;  		  // maximal number of calls 
 	// #####################################################
 
 	ICPoint p;
 	ICHamPoint ics;
 
-	Trejectory trajectory( 4 ); // 4 equations
+	//Trejectory trajectory( 4 ); // 4 equations
 
 	// creating objects to hold spectal info
 	SpectrumInfo classical;
@@ -510,10 +513,10 @@ void slave_code( int world_rank )
 			break;
 		}
 
-		trajectory.y0[0] = ics.R;
-		trajectory.y0[1] = - ics.pR;
-		trajectory.y0[2] = ics.theta;
-		trajectory.y0[3] = ics.pT;
+		y0[0] = ics.R;
+		y0[1] = - ics.pR;
+		y0[2] = ics.theta;
+		y0[3] = ics.pT;
 
 		//cout << "####" << endl;
 		//cout << "p.v0: " << p.v0 << endl;
