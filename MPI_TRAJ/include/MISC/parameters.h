@@ -30,11 +30,12 @@ class Parameters
 
 		int NPOINTS;
 
+		bool use_mcmc_generator;
+
 		double RDIST;
 		double sampling_time;
 		int MaxTrajectoryLength;
 		double FREQ_MAX;
-		bool use_S_matrix;
 
 		double Temperature;
 		

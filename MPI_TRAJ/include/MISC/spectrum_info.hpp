@@ -62,7 +62,7 @@ public:
 	void save( std::vector<double>& v1, std::vector<double>& v2, std::string filename );
 	void save( const double& m2, std::string filename );
 
-	void saving_procedure( Parameters& parameters, std::vector<double>& freqs );
+	void saving_procedure( Parameters& parameters, std::vector<double>& freqs, std::string filename = "" );
 	std::string modify_filename( std::string filename, std::string modifier );
 	bool check_dir_exists( std::string dirname );
 };

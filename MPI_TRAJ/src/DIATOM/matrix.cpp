@@ -34,15 +34,6 @@ void transform_dipole( std::vector<double> &res, double R, double theta )
 	res[2] = lab_dipole[2];
 }
 
-void dipole_without_S( std::vector<double>& res, double R )
-{
-	double dipz = ar_he_dip_buryak_fit( R );
-
-	res[0] = 0;
-	res[1] = 0;
-	res[2] = dipz;
-}
-
 void transform_coordinates( std::tuple<double, double, double> &he_coords, 
 							std::tuple<double, double, double> &ar_coords, 
 							const double &R, const double &theta )

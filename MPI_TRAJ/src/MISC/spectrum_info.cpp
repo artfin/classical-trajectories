@@ -146,17 +146,24 @@ void SpectrumInfo::save( const double& m2, std::string filename )
 	file.close();
 }
 
-void SpectrumInfo::saving_procedure( Parameters& parameters, std::vector<double>& freqs )
+void SpectrumInfo::saving_procedure( Parameters& parameters, std::vector<double>& freqs, std::string filename )
 {
 	std::string out_dir = parameters.output_directory;
-	
+	std::cout << "out_dir: " << out_dir << std::endl;
+
 	bool status = check_dir_exists( out_dir );
 	if ( !status )
 	{
 		mkdir ( out_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 	}
 
+	if ( filename != "" )
+	{
+		save( freqs, spectrum_chunk, out_dir + "/" + filename );
+	}
+
 	std::string specfunc_filename = modify_filename( parameters.specfunc_filename, modifier );
+	std::cout << "specfunc_filename: " << specfunc_filename << std::endl;
 	save( freqs, specfunc_total, out_dir + "/" + specfunc_filename );
 
 	std::string spectrum_filename = modify_filename( parameters.spectrum_filename, modifier );

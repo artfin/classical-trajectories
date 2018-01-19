@@ -223,7 +223,7 @@ void FileReader::analyse_trajectory_group_line( string& variable, string& value,
 	else if ( variable == "sampling_time" ) this->parameters->sampling_time = string_to_double( value, line );
 	else if ( variable == "MaxTrajectoryLength" ) this->parameters->MaxTrajectoryLength = string_to_int( value, line );
 	else if( variable == "FREQ_MAX" ) this->parameters->FREQ_MAX = string_to_double( value, line );
-	else if ( variable == "use_S_matrix" ) this->parameters->use_S_matrix = string_to_bool( value, line );
+	else if ( variable == "use_mcmc_generator" ) this->parameters->use_mcmc_generator = string_to_bool( value, line );
 	else
 	{
 		string line_number_string = std::to_string( line );

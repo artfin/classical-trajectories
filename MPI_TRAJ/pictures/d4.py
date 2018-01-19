@@ -24,7 +24,7 @@ def symmetrize( freqs, specfunc ):
     specfunc = specfunc + [ s for s in reversed(specfunc) ][:-1]
     return freqs, specfunc
 
-freqs, specfunc = read_file( "./specfunc_buryak_fit_dipole.txt" )
+freqs, specfunc = read_file( "../output/specfunc_buryak_dipole.txt" )
 
 freqs, specfunc = symmetrize( freqs, specfunc )
 
@@ -59,14 +59,17 @@ spl = inter.InterpolatedUnivariateSpline(
         [ p[1].real for p in pairs ]
     )
 
-for t, v in zip(time, specfunc_ifft):
-    print('t: {0}; spl(t): {1}; v: {2}'.format(t, spl(t), v))
+#for t, v in zip(time, specfunc_ifft):
+    #print('t: {0}; spl(t): {1}; v: {2}'.format(t, spl(t), v))
 
-x = np.linspace( 0, time[-1], 500 ) 
+#x = np.linspace( 0, time[-1], 500 ) 
 
-plt.xlim( (0, 2e-12) )
-plt.scatter( time, specfunc_ifft.real, s = 3 )
-plt.plot( x, spl(x), color = 'k', linestyle = ':', lw = 2 )
-plt.ylim( (-5.0e-80, 1.0e-79) )
-plt.show()
+#plt.xlim( (0, 2e-12) )
+#plt.scatter( time, specfunc_ifft.real, s = 3 )
+#plt.plot( x, spl(x), color = 'k', linestyle = ':', lw = 2 )
+#plt.ylim( (-5.0e-80, 1.0e-79) )
+#plt.show()
+
+print(spl(1.0j))
+correlation_d4 = []
 

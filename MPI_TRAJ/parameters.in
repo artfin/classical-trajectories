@@ -9,32 +9,30 @@ $trajectory
 	% 5*10**(-16) s
 	sampling_time = 20.67068666828068
 
+	use_mcmc_generator = true
 	MaxTrajectoryLength = 131072
-	use_S_matrix = false 
 	FREQ_MAX = 700.0
 $end
 
 $gridparameters
 	V0_MIN = 200.0
 	V0_MAX = 4600 
-	%V0_PARTS = 22
-	V0_PARTS = 3
+	V0_PARTS = 1 
 
 	B_MIN = 0.0
 	B_MAX = 4e-10
-	%B_PARTS = 16 
-	B_PARTS = 3
+	B_PARTS = 1
 $end
 
 $mcparameters
-	NPOINTS = 50 
+	NPOINTS = 50000 
 $end
 
 $files
-	output_directory = experiment 
-	specfunc_filename = specfunc_buryak_dipole_woutS.txt
-	m2_filename = m2_buryak_dipole_woutS.txt
-	spectrum_filename = spectrum_buryak_dipole_woutS.txt
+	output_directory = experiment/5000/
+	specfunc_filename = specfunc.txt
+	m2_filename = m2.txt
+	spectrum_filename = spectrum.txt
 $end
 
 

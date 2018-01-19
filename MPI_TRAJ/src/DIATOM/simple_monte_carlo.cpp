@@ -147,7 +147,7 @@ void master_code( int world_size )
 
 	Parameters parameters;
 	FileReader fileReader( "parameters.in", &parameters ); 
-	//parameters.show_parameters();
+	parameters.show_parameters();
 	
 	// #####################################################
 	// creating custom data type for MPI
@@ -352,6 +352,14 @@ void master_code( int world_size )
 		d1.add_package_to_chunk();	
 		d2.add_package_to_chunk();	
 		d3.add_package_to_chunk();
+
+		string name = "temp";
+		stringstream ss;
+		if ( received % 500 == 0 )
+		{
+			ss << received;
+			classical.saving_procedure( parameters, freqs, name + ss.str() + ".txt" );
+		}
 
 		//cout << "Added package spectrum to chunk." << endl;
 		// ############################################################
@@ -591,15 +599,7 @@ void slave_code( int world_rank )
 			// y0[2] -- \theta
 			// y0[3] -- p_\theta
 			
-			if ( parameters.use_S_matrix == true )
-			{
-				transform_dipole( temp, y0[0], y0[2] );
-			}
-			else
-			{
-				dipole_without_S( temp, y0[0] );
-				//cout << "transformed dipole" << endl;
-			}
+			transform_dipole( temp, y0[0], y0[2] );
 			
 			//cout << "t: " << t0 * constants::ATU <<
 				   	//"; R (alu): " << y0[0] << 	
