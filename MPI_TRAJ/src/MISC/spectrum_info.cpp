@@ -23,6 +23,17 @@ void SpectrumInfo::multiply_chunk( double multiplier )
 	m2_chunk *= multiplier;
 }
 
+void SpectrumInfo::multiply_total( const double& multiplier )
+{
+	for ( size_t i = 0; i < size; i++ )
+	{
+		specfunc_total[i] *= multiplier;
+		spectrum_total[i] *= multiplier;
+	}
+	
+	m2_total *= multiplier;
+}	
+
 void SpectrumInfo::add_package_to_chunk( void )
 {
 	for ( size_t i = 0; i < size; i++ )
@@ -31,13 +42,20 @@ void SpectrumInfo::add_package_to_chunk( void )
 		spectrum_chunk[i] += spectrum_package[i];
 	}
 
-	//for ( int i = 0; i < 5; i++ )
-	//{
-		//std::cout << "specfunc_chunk[" << i << "] = " << specfunc_chunk[i] << std::endl;
-	//}
-
 	m2_chunk += m2_package;
 }
+
+void SpectrumInfo::add_package_to_total( void )
+{
+	for ( size_t i = 0; i < size; i++ )
+	{
+		specfunc_total[i] += specfunc_package[i];
+		spectrum_total[i] += spectrum_package[i];
+	}
+
+	m2_total += m2_package;
+}
+
 
 void SpectrumInfo::add_chunk_to_total( void )
 {

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <string>
+#include <functional>
 
 using std::cout;
 using std::endl;

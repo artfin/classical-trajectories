@@ -68,4 +68,6 @@ ICPoint Parameters::generate_uniform_point( const double& bmin,
 	p.v0 = nextDouble( v0min, v0max );
 
 	return p;
-}	
+}
+
+

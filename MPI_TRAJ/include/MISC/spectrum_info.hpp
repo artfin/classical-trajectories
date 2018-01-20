@@ -48,8 +48,10 @@ public:
 	void reserve_space( void );
 
 	void multiply_chunk( double multiplier );
+	void multiply_total( const double& multiplier );
 	void add_chunk_to_total( void );
 	void add_package_to_chunk( void );
+	void add_package_total( void );
 
 	void zero_out_chunk( void );
 	void clear_package( void );
