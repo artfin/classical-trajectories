@@ -355,10 +355,11 @@ void master_code( int world_size )
 
 		string name = "temp";
 		stringstream ss;
-		if ( received % 500 == 0 )
+		if ( received % 10 == 0 )
 		{
 			ss << received;
 			classical.saving_procedure( parameters, freqs, name + ss.str() + ".txt" );
+			classical.zero_out_chunk();
 		}
 
 		//cout << "Added package spectrum to chunk." << endl;
