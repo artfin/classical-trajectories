@@ -140,7 +140,19 @@ void FileReader::parse_file( ifstream& infile )
 		line++;
     }
 }
- 
+
+std::vector<double> FileReader::string_to_vector( string& value, int& line )
+{
+	std::vector<double> result;
+	std::stringstream ss( value );
+	double temp;
+
+	while ( ss >> temp ) 
+		result.push_back( temp );
+
+	return result;
+}
+
 double FileReader::string_to_double( string& value, int& line ) 
 {
 	double result;
@@ -197,6 +209,10 @@ void FileReader::analyse_grid_group_line( string& variable, string& value, int& 
 void FileReader::analyse_mcparameters_group_line( string& variable, string& value, int& line )
 {
 	if ( variable == "NPOINTS" ) this->parameters->NPOINTS = string_to_int( value, line );
+	else if ( variable == "DIM" ) this->parameters->DIM = string_to_int( value, line );
+	else if ( variable == "initial_point" ) this->parameters->initial_point = string_to_vector( value, line );
+	else if ( variable == "alpha" ) this->parameters->alpha = string_to_double( value, line );
+	else if ( variable == "subchain_length" ) this->parameters->subchain_length = string_to_int( value, line );
 	else
 	{
 		string line_number_string = std::to_string( line );

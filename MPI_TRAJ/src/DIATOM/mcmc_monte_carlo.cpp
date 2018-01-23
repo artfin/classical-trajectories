@@ -4,6 +4,9 @@
 #include <iomanip>
 #include <random>
 #include <ctime>
+#include <functional>
+
+#include <Eigen/Dense>
 
 // matrix multiplication
 #include "matrix.h"
@@ -14,6 +17,8 @@
 #include "parameters.h"
 // SpectrumInfo class
 #include "spectrum_info.hpp"
+// MCMC_generator class
+#include "mcmc_generator.hpp"
 
 // should be included BEFORE Gear header files
 // due to namespace overlap
@@ -34,6 +39,11 @@
 #include "gear.h"
 #include "t_dgls.h"
 
+using namespace std;
+using namespace std::placeholders;
+using Eigen::VectorXf;
+using Eigen::VectorXd;
+
 // ############################################
 // Exit tag for killing slave
 const int EXIT_TAG = 42;
@@ -50,24 +60,6 @@ const double MU = MU_SI / constants::AMU;
 static const double MYPI = 3.141592653589793; 
 const double TWO_PI = 2 * MYPI; 
 // ############################################
-
-struct ICHamPoint
-{
-	double R;
-	double pR;
-	double theta;
-	double pT;
-};
-
-using namespace std;
-
-static mt19937 uniform_generator( 27717 );
-
-static double UniformDouble( const double &min = 0.0, const double &max = 1.0 )
-{
-    uniform_real_distribution<double> distribution( min, max );
-    return distribution( uniform_generator );
-}
 
 void syst (REAL t, REAL *y, REAL *f)
 {
@@ -90,6 +82,17 @@ void syst (REAL t, REAL *y, REAL *f)
 	delete [] out;
 }
 
+// x = [ pR, theta, pT ]
+double target_distribution( VectorXd x, const double& R, const double& temperature )
+{
+	double pR = x( 0 );
+	double theta = x( 1 );
+	double pT = x( 2 );
+
+	double h = pow(pR, 2) / (2 * MU) + pow(pT, 2) / (2 * MU * R * R);
+	return exp( -h * constants::HTOJ / (constants::BOLTZCONST * temperature )); 
+}
+
 vector<double> create_frequencies_vector( Parameters& parameters )
 {
 	double FREQ_STEP = 1.0 / (parameters.sampling_time * constants::ATU) / constants::LIGHTSPEED_CM / parameters.MaxTrajectoryLength; // cm^-1
@@ -105,41 +108,6 @@ vector<double> create_frequencies_vector( Parameters& parameters )
 	return freqs;
 }
 
-void create_chunks( Parameters& parameters, vector<double>& B_CHUNKS_VECTOR, vector<double>& V0_CHUNKS_VECTOR )
-{
-	double B_CHUNK, V0_CHUNK;
-
-	if ( parameters.B_PARTS != 1 )
-	{
-		B_CHUNK = (parameters.B_MAX - parameters.B_MIN) / (parameters.B_PARTS);
-	}
-	else 
-	{
-		B_CHUNK = parameters.B_MAX - parameters.B_MIN;
-	}
-
-	if ( parameters.V0_PARTS != 1 )
-	{
-		V0_CHUNK = (parameters.V0_MAX - parameters.V0_MIN) / (parameters.V0_PARTS );
-	}
-	else
-	{
-		V0_CHUNK = parameters.V0_MAX - parameters.V0_MIN;
-	}
-
-	double temp;
-	for ( int i = 0; i < parameters.B_PARTS + 1; i++ )
-	{
-		temp = parameters.B_MIN + i * B_CHUNK; 
-		B_CHUNKS_VECTOR.push_back( temp );
-	}	
-	for ( int i = 0; i < parameters.V0_PARTS + 1; i++ )
-	{
-		temp = parameters.V0_MIN + i * V0_CHUNK;
-		V0_CHUNKS_VECTOR.push_back( temp );
-	}
-}
-
 void master_code( int world_size )
 {
 	MPI_Status status;
@@ -147,28 +115,10 @@ void master_code( int world_size )
 
 	Parameters parameters;
 	FileReader fileReader( "parameters.in", &parameters ); 
-	parameters.show_parameters();
+	//parameters.show_parameters();
+
+	function<double(VectorXd)> target = bind( target_distribution, _1, parameters.RDIST, parameters.Temperature );
 	
-	// #####################################################
-	// creating custom data type for MPI
-	int blocksCount = 3; // number of entities inside struct
-	int blocksLength[3] = {1, 1, 1}; // lengths of entities inside struct
-
-	// types of variables in struct
-	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE};
-
-	MPI_Aint offsets[3]; // mpi_aint holds address (pointer)
-	MPI_Datatype MPI_ICPoint;
-	offsets[0] = offsetof( ICPoint, counter ); // sizes of variables?
-	offsets[1] = offsetof( ICPoint, b );
-	offsets[2] = offsetof( ICPoint, v0 );
-
-	MPI_Type_create_struct( blocksCount, blocksLength, offsets, types, &MPI_ICPoint );
-	MPI_Type_commit( &MPI_ICPoint );
-	// #####################################################
-
-	ICPoint p;
-
 	int sent = 0;	
 	int received = 0;
 
@@ -177,26 +127,31 @@ void master_code( int world_size )
 
 	vector<double> freqs = create_frequencies_vector( parameters );
 	int FREQ_SIZE = freqs.size();
-	
+
 	// creating objects to hold spectrum info
 	SpectrumInfo classical( FREQ_SIZE, "classical" );
 	SpectrumInfo d1( FREQ_SIZE, "d1" );
 	SpectrumInfo d2( FREQ_SIZE, "d2" );
 	SpectrumInfo d3( FREQ_SIZE, "d3" );
+	
+	// wrapping second argument (argument 1):
+	pair<int, double> p1(1, 2*M_PI); 
+	vector<pair<int, double>> to_wrap{ p1 };
 
+	MCMC_generator generator( target, parameters.DIM, parameters.alpha, parameters.subchain_length, to_wrap );
+	
+	VectorXd initial_point = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>( parameters.initial_point.data(), parameters.initial_point.size());	
+	generator.burnin( initial_point, 100000 );
+
+	
+	VectorXd p;
 	// sending first trajectory	
 	for ( int i = 1; i < world_size; i++ )
 	{
-		p = parameters.generate_mcmc_point( ); 
-		p.counter = sent; 
-			
-		//cout << "###" << endl;
-		//cout << "generated p.b: " << p.b << endl;
-		//cout << "generated p.v0: " << p.v0 << endl;
-		//cout << "p.counter: " << p.counter << endl;
-		//cout << "###" << endl;
+		p = generator.generate_point();
+		MPI_Send( p.data(), parameters.DIM, MPI_DOUBLE, i, 0, MPI_COMM_WORLD );
+		MPI_Send( &sent, 1, MPI_INT, i, 0, MPI_COMM_WORLD );
 
-		MPI_Send( &p, 1, MPI_ICPoint, i, 0, MPI_COMM_WORLD );
 		sent++;
 	}
 
@@ -213,20 +168,14 @@ void master_code( int world_size )
 
 			break;
 		}
-		
+
 		// ############################################################
 		// Receiving data
 		classical.receive( source, true );
-		d1.receive( source, false );
-		d2.receive( source, false );
-		d3.receive( source, false );
 		received++;
 		// ############################################################
 
 		classical.add_package_to_total();
-		d1.add_package_to_total();
-		d2.add_package_to_total();
-		d3.add_package_to_total();
 
 		//cout << "sent: " << sent << "; received: " << received << "; NPOINTS: " << parameters.NPOINTS << endl;	
 		if ( received == parameters.NPOINTS )
@@ -234,86 +183,39 @@ void master_code( int world_size )
 			double multiplier = 1.0 / parameters.NPOINTS; 
 			//cout << "multiplier: " << multiplier << endl;
 
-			// ##################################################################################
-
 			classical.multiply_total( multiplier );
-			d1.multiply_total( multiplier );
-			d2.multiply_total( multiplier );
-			d3.multiply_total( multiplier );
 
 			cout << ">>Saving spectrum" << endl << endl;
 			classical.saving_procedure( parameters, freqs ); 
-			d1.saving_procedure( parameters, freqs );
-			d2.saving_procedure( parameters, freqs );
-			d3.saving_procedure( parameters, freqs );
 
 			is_finished = true;
 		}		
-		
-		string name = "temp";
-		stringstream ss;
-		if ( received % 10 == 0 )
-		{
-			ss << received;
-			classical.saving_procedure( parameters, freqs, name + ss.str() + ".txt" );
-			classical.zero_out_chunk();
-		}
-		
+
 		if ( sent < parameters.NPOINTS )
 		{
-			p = parameters.generate_mcmc_point( );
-			p.counter = sent; 
-			
-			//cout << "###" << endl;
-			//cout << "generated p.b: " << p.b << endl;
-			//cout << "generated p.v0: " << p.v0 << endl;
-			//cout << "p.counter: " << p.counter << endl;
-			//cout << "###" << endl;
-			
-			MPI_Send( &p, 1, MPI_ICPoint, source, 0, MPI_COMM_WORLD );
+			p = generator.generate_point();
+			MPI_Send( p.data(), parameters.DIM, MPI_DOUBLE, source, 0, MPI_COMM_WORLD );
+			MPI_Send( &sent, 1, MPI_INT, source, 0, MPI_COMM_WORLD );
+
 			sent++;
 		}
 	}
 }
 
-void show_point( ICPoint p )
-{
-	cout << "%%%%%%%%%%" << endl;
-	cout << "p.counter: " << p.counter << endl;
-	cout << "p.b: " << p.b << endl;
-	cout << "p.v0: " << p.v0 << endl;
-	cout << "%%%%%%%%%%" << endl;
-}
+//double d1_corrector( double omega, double kT )
+//{
+	//return 2.0 / (1.0 + exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+//}	
 
-void transform_ICPoint_to_ICHamPoint( Parameters& parameters, ICPoint& p, ICHamPoint& ics )
-{
-	// input: p.b, p.vo -- in SI 
-	// output: ics.R, pR, theta, pT -- in A.U.
-	
-	ics.R = parameters.RDIST;
-   	ics.pR = MU * p.v0 / constants::AVU;
-	ics.theta = UniformDouble( 0.0, 2 * M_PI );
-	ics.pT = p.b / constants::ALU * ics.pR;	
-	
-	//cout << "p.b: " << p.b << endl;
-	//cout << "ics.pR: " << ics.pR << endl;
-	//cout << "ics.pT: " << ics.pT << endl;
-}
+//double d2_corrector( double omega, double kT )
+//{
+	//return constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
+//}
 
-double d1_corrector( double omega, double kT )
-{
-	return 2.0 / (1.0 + exp(-constants::PLANCKCONST_REDUCED * omega / kT));
-}	
-
-double d2_corrector( double omega, double kT )
-{
-	return constants::PLANCKCONST_REDUCED * omega / kT / (1.0 - exp(-constants::PLANCKCONST_REDUCED * omega / kT));
-}
-
-double d3_corrector( double omega, double kT )
-{
-	return exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 );
-}
+//double d3_corrector( double omega, double kT )
+//{
+	//return exp( constants::PLANCKCONST_REDUCED * omega / kT / 2.0 );
+//}
 
 void slave_code( int world_rank )
 {
@@ -322,25 +224,7 @@ void slave_code( int world_rank )
 	FileReader fileReader( "parameters.in", &parameters ); 
 
 	MPI_Status status;
-	
-	// #####################################################
-	// creating custom data type for MPI
-	int blocksCount = 3; // number of entities inside struct
-	int blocksLength[3] = {1, 1, 1}; // lengths of entities inside struct
 
-	// types of variables in struct
-	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE};
-
-	MPI_Aint offsets[3]; // mpi_aint holds address (pointer)
-	MPI_Datatype MPI_ICPoint;
-	offsets[0] = offsetof( ICPoint, counter ); // sizes of variables?
-	offsets[1] = offsetof( ICPoint, b );
-	offsets[2] = offsetof( ICPoint, v0 );
-
-	MPI_Type_create_struct( blocksCount, blocksLength, offsets, types, &MPI_ICPoint );
-	MPI_Type_commit( &MPI_ICPoint );
-	// #####################################################
-	
 	// #####################################################
 	// initializing special fourier class
 	Fourier fourier( parameters.MaxTrajectoryLength );
@@ -357,7 +241,7 @@ void slave_code( int world_rank )
 	double SPECFUNC_POWERS_OF_TEN = 1e19;
 	// m^-1 -> cm^-1
 	double SPECTRUM_POWERS_OF_TEN = 1e-2;
-	
+
 	double kT = constants::BOLTZCONST * parameters.Temperature;
 	// #####################################################
 	
@@ -388,38 +272,29 @@ void slave_code( int world_rank )
 	fmax = 1e8;  		  // maximal number of calls 
 	// #####################################################
 
-	ICPoint p;
-	ICHamPoint ics;
-
-	//Trejectory trajectory( 4 ); // 4 equations
-
 	// creating objects to hold spectal info
 	SpectrumInfo classical;
-	SpectrumInfo d1( d1_corrector );
-	SpectrumInfo d2( d2_corrector );
-	SpectrumInfo d3( d3_corrector );
+
+	vector<double> p( parameters.DIM );
+	int traj_counter = 0;
 
 	while ( true )
 	{
-		MPI_Recv( &p, 1, MPI_ICPoint, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status ); 
-		//cout << "(" << world_rank << ") Received ICPoint: " << p.counter << endl;
-		//show_point( p );
-		transform_ICPoint_to_ICHamPoint( parameters, p, ics );
-
+		MPI_Recv( &p[0], parameters.DIM, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status ); 
+		
 		if ( status.MPI_TAG == EXIT_TAG )
 		{
 			cout << "Received exit tag." << endl;
 			break;
 		}
+		MPI_Recv( &traj_counter, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status );
 
-		y0[0] = ics.R;
-		y0[1] = - ics.pR;
-		y0[2] = ics.theta;
-		y0[3] = ics.pT;
+		y0[0] = parameters.RDIST; 
+		y0[1] = p[0];
+		y0[2] = p[1]; 
+		y0[3] = p[2]; 
 
-		//cout << "####" << endl;
-		//cout << "p.v0: " << p.v0 << endl;
-		//cout << "p.b: " << p.b << endl;
+		//cout << "#####" << endl;
 		//cout << "ics.R = " << y0[0] << endl;
 		//cout << "ics.pR = " << y0[1] << endl;
 		//cout << "ics.theta = " << y0[2] << endl;
@@ -429,20 +304,10 @@ void slave_code( int world_rank )
 		// out of memory?
 		//if ( !vmcomplete(vmblock) )
 		//{ 
-			//cout << "mgear: out of memory" << endl;
-			//return;
+		//cout << "mgear: out of memory" << endl;
+		//return;
 		//}
 
-		// #####################################################
-		// p.v0, p.b -- in SI
-		double b_integrand = fabs( 2 * M_PI * p.v0 * p.b ); 
-
-		double v0_integrand = (MU_SI/TWO_PI/kT) * sqrt(MU_SI/TWO_PI/kT) * exp( -MU_SI*p.v0*p.v0 / (2.0 * kT)) * 4 * MYPI * p.v0 * p.v0; 
-
-		double stat_weight = b_integrand * v0_integrand;
-		//cout << "stat_weight: " << stat_weight << endl;
-		// #####################################################
-		
 		int counter = 0;
 		double R_end_value = y0[0] + 0.001;
 
@@ -451,7 +316,7 @@ void slave_code( int world_rank )
 		vector<double> dipx;
 		vector<double> dipy;
 		vector<double> dipz;
-		
+
 		// #####################################################
 		t0 = 0.0;
 
@@ -469,9 +334,9 @@ void slave_code( int world_rank )
 				//cout << "Trajectory cut!" << endl;
 				break;
 			}
-			
+
 			fehler = gear4(&t0, xend, N, syst, y0, epsabs, epsrel, &h, fmax, &aufrufe);
-			
+
 			//cout << "%%%" << endl;
 			//cout << "t0: " << t0 << endl;
 			//cout << "xend: " << xend << endl;
@@ -485,17 +350,12 @@ void slave_code( int world_rank )
 
 			//cout << "t0: " << t0 << "; r: " << y0[0] << endl;
 
-			// y0[0] -- R
-			// y0[1] -- PR
-			// y0[2] -- \theta
-			// y0[3] -- p_\theta
-			
 			transform_dipole( temp, y0[0], y0[2] );
-			
+
 			//cout << "t: " << t0 * constants::ATU <<
-				   	//"; R (alu): " << y0[0] << 	
-					//"; R: " << y0[0] * constants::ALU << 
-					//"; dipole z: " << temp[2] * constants::ADIPMOMU << endl;
+				//"; R (alu): " << y0[0] << 	
+				//"; R: " << y0[0] * constants::ALU << 
+				//"; dipole z: " << temp[2] * constants::ADIPMOMU << endl;
 
 			dipx.push_back( temp[0] );
 			dipy.push_back( temp[1] );
@@ -508,7 +368,7 @@ void slave_code( int world_rank )
 			counter++;
 		}
 		// #####################################################
-	
+
 		// #####################################################
 		// length of dipole vector = number of samples
 		int npoints = dipz.size();
@@ -546,36 +406,24 @@ void slave_code( int world_rank )
 			ImFz = fourier.outz[k][1];
 
 			dipfft = ReFx * ReFx + ReFy * ReFy + ReFz * ReFz +
-					 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
+ 					 ImFx * ImFx + ImFy * ImFy + ImFz * ImFz;
 			//cout << "dipfft[" << k << "] = " << dipfft * constants::ADIPMOMU * constants::ADIPMOMU << endl; 
-				
-			specfunc_value_classical = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * stat_weight * dipfft;
+
+			specfunc_value_classical = SPECFUNC_POWERS_OF_TEN * specfunc_coeff * dipfft;
 			classical.specfunc_package.push_back( specfunc_value_classical );
-	
-			spectrum_value_classical = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * stat_weight * omega *  ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
+
+			spectrum_value_classical = SPECTRUM_POWERS_OF_TEN * spectrum_coeff * omega *  ( 1.0 - exp( - constants::PLANCKCONST_REDUCED * omega / kT ) ) * dipfft;
 			classical.spectrum_package.push_back( spectrum_value_classical );
 
 			classical.m2_package += spectrum_value_classical * FREQ_STEP; 
-			// PLANCKCONST/2/PI = PLANCKCONST_REDUCED
-
-			d1.correct( classical, omega, FREQ_STEP, kT );
-			d2.correct( classical, omega, FREQ_STEP, kT, true );
-			d3.correct( classical, omega, FREQ_STEP, kT );
 		}
 
-		cout << "(" << world_rank << ") Processing " << p.counter << " trajectory. npoints = " << npoints << "; time = " << ( clock() - start ) / (double) CLOCKS_PER_SEC << "s" << endl;
-		
+		cout << "(" << world_rank << ") Processing " << traj_counter << " trajectory. npoints = " << npoints << "; time = " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;
+
 		//// #################################################
 		// Sending data
 		classical.send();
-		d1.send();
-		d2.send();
-		d3.send();
-
 		classical.clear_package();
-		d1.clear_package();
-		d2.clear_package();
-		d3.clear_package();
 		// #################################################
 	}
 }
@@ -596,16 +444,15 @@ int main( int argc, char* argv[] )
 	if ( world_rank == 0 ) 
 	{
 		clock_t start = clock();
-	
+
 		master_code( world_size );
-		
+
 		cout << "Time elapsed: " << (clock() - start) / (double) CLOCKS_PER_SEC << "s" << endl;
 	}	
 	else
 	{
 		slave_code( world_rank );
 	}
-
 
 	MPI_Finalize();
 

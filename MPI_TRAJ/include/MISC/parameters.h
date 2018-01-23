@@ -29,7 +29,11 @@ class Parameters
 		double V0_MAX;
 		int V0_PARTS;
 
+		int DIM;
 		int NPOINTS;
+		double alpha;
+		int subchain_length;
+		std::vector<double> initial_point;
 
 		bool use_mcmc_generator;
 

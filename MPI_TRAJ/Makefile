@@ -152,15 +152,15 @@ $(OBJ_PATH_MISC)parameters.o: $(SRC_PATH_MISC)parameters.cpp ./include/MISC/para
 
 $(OBJ_PATH_MISC)spectrum_info.o: $(SRC_PATH_MISC)spectrum_info.cpp
 	$(MPICC) $(CXXFLAGS) -c $^ -o $@ $(INC_PATH_MISC)
+
+$(OBJ_PATH_MISC)mcmc_generator.o: $(SRC_PATH_MISC)mcmc_generator.cpp
+	$(CCXX) $(CXXFLAGS) $(INCLUDE_EIGEN) -c $^ -o $@ $(INC_PATH_MISC)
 ######################################################################
 
 ######################################################################
 # path to miscellaneous functions
-MISC_OBJ = aux.o fft.o 
+MISC_OBJ = aux.o fft.o file.o parameters.o spectrum_info.o spectrum_info.o mcmc_generator.o 
 MISC_OBJECTS = $(patsubst %,$(OBJ_PATH_MISC)%,$(MISC_OBJ))
-
-MISC_OBJ_CUT = fft.o
-MISC_OBJECTS_CUT = $(patsubst %,$(OBJ_PATH_MISC)%,$(MISC_OBJ_CUT))
 ######################################################################
 
 ######################################################################
@@ -211,14 +211,13 @@ DIATOM_TRAJ_INC = $(INC_PATH_POT) $(INC_PATH_DIP) $(INC_PATH_GEAR) $(INC_PATH_MI
 diatom_trajs: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 
-buryak: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)main_buryak.cpp
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
-
 formatted_coords: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)formatted_coords.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_GSL) $^ -o $@ $(DIATOM_TRAJ_INC)
 
-SIMPLE_MC_OBJ = $(OBJ_PATH_MISC)file.o $(OBJ_PATH_MISC)parameters.o $(OBJ_PATH_MISC)spectrum_info.o 
-simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SIMPLE_MC_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp 
+simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp 
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
+
+mcmc_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)mcmc_monte_carlo.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 

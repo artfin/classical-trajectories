@@ -25,11 +25,15 @@ $gridparameters
 $end
 
 $mcparameters
-	NPOINTS = 50000 
+	DIM = 3
+	initial_point = 0.1 0.2 0.4
+	alpha = 7.0
+	subchain_length = 10
+	NPOINTS = 500 
 $end
 
 $files
-	output_directory = experiment/5000/
+	output_directory = experiment/mcmc/500/
 	specfunc_filename = specfunc.txt
 	m2_filename = m2.txt
 	spectrum_filename = spectrum.txt

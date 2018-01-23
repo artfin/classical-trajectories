@@ -13,28 +13,42 @@ using std::function;
 using std::vector;
 using std::pair;
 
-using Eigen::VectorXf;
+using Eigen::VectorXd;
+
+static vector<pair<int,double>> DEFAULT_VECTOR;
 
 class MCMC_generator 
 {
 public:
 	int DIM; // dimension of vector
 	double alpha; // radius of multidimensional ball to jump to
-	int n; // number of burnin steps to do before point selection 
+	int subchain_length;
+	vector<pair<int, double>> to_wrap;
 
-	function<double(VectorXf)> f;
+	bool burnin_done;
+
+	VectorXd current_point{ DIM };
+
+	function<double(VectorXd)> f;
 	std::mt19937 generator;
+	
+	void set_initial_point( std::vector<double> ip );
 
 	double nextDouble( const double& min, const double& max );
-	void nextGaussianVec( VectorXf &v, VectorXf &mean );
+	void nextGaussianVec( VectorXd &v, VectorXd &mean );
 	double wrapMax( const double& x, const double& max );
 
-	VectorXf metro_step( VectorXf& x );
+	void burnin( VectorXd initial_point, const int& burnin_length );
+	VectorXd metro_step( VectorXd& x );
 
-	VectorXf generate_point(
-		vector<pair<int, double>>& to_wrap = DEFAULT_VECTOR
-						   );
+	VectorXd generate_point( );
 
-	MCMC_generator( function<double(VectorXf)> f, const int& DIM, const double& alpha );
-	~MCMC();
+	MCMC_generator( 
+		function<double(VectorXd)> f, 
+		const int& DIM, 
+		const double& alpha, 
+		const int& subchain_length, 
+		vector<pair<int, double>>& to_wrap = DEFAULT_VECTOR 
+			);
+	~MCMC_generator();
 };

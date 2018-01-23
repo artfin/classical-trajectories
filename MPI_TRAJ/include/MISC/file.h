@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 // throwing exception
 #include <stdexcept>
@@ -28,6 +29,7 @@ class FileReader
 		double string_to_double( string& value, int& line );
 		int string_to_int( string& value, int& line );
 		bool string_to_bool( string& value, int& line );
+		std::vector<double> string_to_vector( string& value, int& line );
 
 		void parse_string( string curr_str, 
 						   string& keyword,

@@ -23,7 +23,13 @@ void Parameters::show_parameters( void )
 	cout << "FREQ_MAX (maximum frequency in spectrum): " << this->FREQ_MAX << endl;
 	cout << "#######################" << endl;	
 	cout << "Monte-Carlo parameters:" << endl;
-	cout << "NPOINTS" << this->NPOINTS << endl;
+	cout << "NPOINTS: " << this->NPOINTS << endl;
+	cout << "DIM: " << this->DIM << endl;
+	cout << "initial_point: ";
+	for ( size_t i = 0; i < this->initial_point.size(); i++ )
+		cout << initial_point[i] << " ";
+	cout << endl;
+	cout << "subchain_length: " << this->subchain_length << endl;
    	cout << "#######################" << endl;	
 	cout << "Gridparameters: " << endl;
 	cout << "B_MIN: " << this->B_MIN << endl;
