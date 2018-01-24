@@ -14,6 +14,11 @@ $trajectory
 	FREQ_MAX = 700.0
 $end
 
+% Buryak-Vigasin article
+% for the first version of spectrum calculation with 
+% grid (b, v0)
+% v0: 200 - 4600 m/s
+% b: 0.0 - 4.0 A
 $gridparameters
 	V0_MIN = 200.0
 	V0_MAX = 4600 
@@ -29,7 +34,11 @@ $mcparameters
 	initial_point = 0.1 0.2 0.4
 	alpha = 7.0
 	subchain_length = 10
-	NPOINTS = 500 
+	NPOINTS = 500
+
+% upper bound for value of b (gunsight parameter)
+% in Bohrs: 8.0 bohrs \approx 4.0 A
+	gunsight_upper_bound = 8.0  
 $end
 
 $files

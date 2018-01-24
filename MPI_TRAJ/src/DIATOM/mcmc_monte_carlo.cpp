@@ -153,16 +153,19 @@ void master_code( int world_size )
 	pair<int, double> p1(1, 2*M_PI); 
 	vector<pair<int, double>> to_wrap{ p1 };
 
-	MCMC_generator generator( target, parameters.DIM, parameters.alpha, parameters.subchain_length, to_wrap );
+	MCMC_generator generator( target, parameters, to_wrap );
 	
 	VectorXd initial_point = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>( parameters.initial_point.data(), parameters.initial_point.size());	
 	generator.burnin( initial_point, 100000 );
+
+	const int pR_index = 0;
+	const int Jx_index = 2;
 
 	VectorXd p;
 	// sending first trajectory	
 	for ( int i = 1; i < world_size; i++ )
 	{
-		p = generator.generate_point();
+		p = generator.generate_point( pR_index, Jx_index );
 		MPI_Send( p.data(), parameters.DIM, MPI_DOUBLE, i, 0, MPI_COMM_WORLD );
 		MPI_Send( &sent, 1, MPI_INT, i, 0, MPI_COMM_WORLD );
 
@@ -193,7 +196,7 @@ void master_code( int world_size )
 
 		string name = "temp";
 		stringstream ss;
-		if ( received % 10 == 0 )
+		if ( received % 500 == 0 )
 		{
 			ss << received;
 			classical.saving_procedure( parameters, freqs, name + ss.str() + ".txt", "total" );
@@ -207,7 +210,7 @@ void master_code( int world_size )
 
 			classical.multiply_total( multiplier / ham_integral );
 
-			cout << ">>Saving spectrum" << endl << endl;
+			cout << ">> Saving spectrum" << endl << endl;
 			classical.saving_procedure( parameters, freqs ); 
 
 			is_finished = true;
@@ -215,7 +218,9 @@ void master_code( int world_size )
 
 		if ( sent < parameters.NPOINTS )
 		{
-			p = generator.generate_point();
+			p = generator.generate_point( pR_index, Jx_index );
+			//generator.show_current_point( );	
+
 			MPI_Send( p.data(), parameters.DIM, MPI_DOUBLE, source, 0, MPI_COMM_WORLD );
 			MPI_Send( &sent, 1, MPI_INT, source, 0, MPI_COMM_WORLD );
 

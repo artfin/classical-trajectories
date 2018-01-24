@@ -34,6 +34,7 @@ class Parameters
 		double alpha;
 		int subchain_length;
 		std::vector<double> initial_point;
+		double gunsight_upper_bound;
 
 		bool use_mcmc_generator;
 

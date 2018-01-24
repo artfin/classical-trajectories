@@ -1,12 +1,9 @@
 #include "mcmc_generator.hpp"
 
-MCMC_generator::MCMC_generator( std::function<double(VectorXd)> f, 
-				 				const int& DIM, 
-								const double& alpha, 
-								const int& subchain_length, 
+MCMC_generator::MCMC_generator( std::function<double(VectorXd)> f,
+			   					Parameters& parameters,	
 								vector<pair<int, double>>& to_wrap ) : 
-		DIM(DIM), 
-		alpha(alpha), 
+		parameters(parameters),
 		subchain_length(subchain_length),
 		to_wrap(to_wrap),
 		f(f)
@@ -25,9 +22,9 @@ double MCMC_generator::nextDouble( const double& min, const double& max )
 
 void MCMC_generator::nextGaussianVec( VectorXd& v, VectorXd& mean )
 {
-	for ( size_t i = 0; i < DIM; i++ )
+	for ( size_t i = 0; i < parameters.DIM; i++ )
 	{
-		std::normal_distribution<double> d( mean(i), alpha );
+		std::normal_distribution<double> d( mean(i), parameters.alpha );
 		v(i) = d( generator );
 	}
 }
@@ -39,7 +36,7 @@ double MCMC_generator::wrapMax( const double& x, const double& max )
 
 VectorXd MCMC_generator::metro_step( VectorXd& x )
 {
-	VectorXd prop( DIM );
+	VectorXd prop( parameters.DIM );
 	nextGaussianVec( prop, x );
 
 	if ( nextDouble(0.0, 1.0) < std::min( 1.0, f(prop) / f(x) ))
@@ -63,7 +60,16 @@ void MCMC_generator::burnin( VectorXd initial_point, const int& burnin_length )
 	burnin_done = true;
 }
 
-VectorXd MCMC_generator::generate_point( )
+void MCMC_generator::show_current_point( void )
+{
+	cout << "Generated p: ";
+	for ( size_t i = 0; i < parameters.DIM; i++ )
+		cout << "p(" << i << ") = " << current_point(i) << "; ";
+	cout << endl;
+}
+
+VectorXd MCMC_generator::generate_point( const int& pR_index,
+										 const int& Jx_index )
 {
 	if ( burnin_done == false )
 	{
@@ -75,7 +81,10 @@ VectorXd MCMC_generator::generate_point( )
 	VectorXd x = current_point;
 	VectorXd xnew;
 
-	while ( moves < subchain_length )
+	double gunsight;
+	bool point_found = false;
+
+	while ( moves < parameters.subchain_length && !point_found )
 	{
 		xnew = metro_step( x );
 
@@ -98,6 +107,13 @@ VectorXd MCMC_generator::generate_point( )
 			x = xnew;
 			moves++;
 		}
+
+		gunsight = x(Jx_index) / x(pR_index);
+
+		if ( moves >= subchain_length && 
+			 gunsight < parameters.gunsight_upper_bound &&
+			 x(pR_index) < 0 )
+			point_found = true;
 	}	
 
 	current_point = x;
