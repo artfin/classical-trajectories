@@ -19,6 +19,10 @@
 #include "spectrum_info.hpp"
 // MCMC_generator class
 #include "mcmc_generator.hpp"
+// Integrand class
+#include "integrand.hpp"
+// Integrator class
+#include "integrator.hpp"
 
 // should be included BEFORE Gear header files
 // due to namespace overlap
@@ -41,7 +45,6 @@
 
 using namespace std;
 using namespace std::placeholders;
-using Eigen::VectorXf;
 using Eigen::VectorXd;
 
 // ############################################
@@ -119,6 +122,18 @@ void master_code( int world_size )
 
 	function<double(VectorXd)> target = bind( target_distribution, _1, parameters.RDIST, parameters.Temperature );
 	
+	Integrand integrand( target, 3 );
+	integrand.set_limits()->add_limit( 0, "-inf", "+inf" )
+						  ->add_limit( 1, 0.0, 2.0 * M_PI )
+						  ->add_limit( 2, "-inf", "+inf" );
+	
+	Integrator integrator( integrand, 0 );
+	integrator.set_callback();
+	
+	int niter = 10, ndots = 50000;	
+	double ham_integral = integrator.run_integration( niter, ndots );
+	ham_integral = ham_integral * constants::HTOJ * constants::HTOJ * constants::ATU / constants::ALU;	
+
 	int sent = 0;	
 	int received = 0;
 
@@ -143,7 +158,6 @@ void master_code( int world_size )
 	VectorXd initial_point = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>( parameters.initial_point.data(), parameters.initial_point.size());	
 	generator.burnin( initial_point, 100000 );
 
-	
 	VectorXd p;
 	// sending first trajectory	
 	for ( int i = 1; i < world_size; i++ )
@@ -177,13 +191,21 @@ void master_code( int world_size )
 
 		classical.add_package_to_total();
 
-		//cout << "sent: " << sent << "; received: " << received << "; NPOINTS: " << parameters.NPOINTS << endl;	
+		string name = "temp";
+		stringstream ss;
+		if ( received % 10 == 0 )
+		{
+			ss << received;
+			classical.saving_procedure( parameters, freqs, name + ss.str() + ".txt", "total" );
+			classical.zero_out_total();
+		}
+
 		if ( received == parameters.NPOINTS )
 		{
 			double multiplier = 1.0 / parameters.NPOINTS; 
 			//cout << "multiplier: " << multiplier << endl;
 
-			classical.multiply_total( multiplier );
+			classical.multiply_total( multiplier / ham_integral );
 
 			cout << ">>Saving spectrum" << endl << endl;
 			classical.saving_procedure( parameters, freqs ); 
@@ -224,6 +246,22 @@ void slave_code( int world_rank )
 	FileReader fileReader( "parameters.in", &parameters ); 
 
 	MPI_Status status;
+	
+	// #####################################################
+	// Integrating hamiltonian over the phase space
+	function<double(VectorXd)> target = bind( target_distribution, _1, parameters.RDIST, parameters.Temperature );
+	
+	Integrand integrand( target, 3 );
+	integrand.set_limits()->add_limit( 0, "-inf", "+inf" )
+						  ->add_limit( 1, 0.0, 2.0 * M_PI )
+						  ->add_limit( 2, "-inf", "+inf" );
+	
+	Integrator integrator( integrand, world_rank );
+	integrator.set_callback();
+	
+	int niter = 10, ndots = 50000;	
+	double ham_integral = integrator.run_integration( niter, ndots );
+	// #####################################################
 
 	// #####################################################
 	// initializing special fourier class

@@ -4,6 +4,7 @@
 #include <random>
 #include <functional>
 #include <vector>
+#include <chrono>
 
 #include <Eigen/Dense>
 
@@ -30,7 +31,9 @@ public:
 	VectorXd current_point{ DIM };
 
 	function<double(VectorXd)> f;
-	std::mt19937 generator;
+
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::mt19937 generator{ seed }; 
 	
 	void set_initial_point( std::vector<double> ip );
 

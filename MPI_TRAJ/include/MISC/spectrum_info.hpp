@@ -54,6 +54,7 @@ public:
 	void add_package_to_total( void );
 
 	void zero_out_chunk( void );
+	void zero_out_total( void );
 	void clear_package( void );
 
 	void correct( SpectrumInfo& classical, double omega, double freq_step, double kT, bool beware_zero = false );
@@ -64,7 +65,7 @@ public:
 	void save( std::vector<double>& v1, std::vector<double>& v2, std::string filename );
 	void save( const double& m2, std::string filename );
 
-	void saving_procedure( Parameters& parameters, std::vector<double>& freqs, std::string filename = "" );
+	void saving_procedure( Parameters& parameters, std::vector<double>& freqs, const std::string filename = "", const std::string type = "" );
 	std::string modify_filename( std::string filename, std::string modifier );
 	bool check_dir_exists( std::string dirname );
 };

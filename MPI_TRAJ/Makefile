@@ -11,6 +11,7 @@ INCLUDE_FFTW = -lfftw3
 INCLUDE_EIGEN = -I/usr/local/include/eigen3
 INCLUDE_GSL = -lgsl -lgslcblas
 INCLUDE_GNUPLOT_IO = -I /home/artfin/Desktop/repos/gnuplot-iostream  
+INCLUDE_HEP = -I /home/artfin/Downloads/hep-mc-0.5/include/
 
 OPENGL_LFLAGS = -lglut -lGL -lGLEW -lGLU
 
@@ -218,7 +219,7 @@ simple_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)simple_monte_carlo.cpp
 	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
 
 mcmc_monte_carlo: $(DIATOM_TRAJ_OBJ) $(SRC_PATH_DIATOM)mcmc_monte_carlo.cpp
-	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $^ -o $@ $(DIATOM_TRAJ_INC)
+	$(MPICC) $(CXXFLAGS) $(INCLUDE_EIGEN) $(INCLUDE_FFTW) $(INCLUDE_HEP) $^ -o $@ $(DIATOM_TRAJ_INC)
 ######################################################################
 
 ######################################################################

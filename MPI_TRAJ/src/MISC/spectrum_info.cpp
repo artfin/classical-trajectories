@@ -83,6 +83,17 @@ void SpectrumInfo::zero_out_chunk( void )
 	m2_chunk = 0;
 }
 
+void SpectrumInfo::zero_out_total( void )
+{
+	for ( size_t i = 0; i < size; i++ )
+	{
+		specfunc_total[i] = 0;
+		spectrum_total[i] = 0;
+	}
+
+	m2_total = 0;
+}
+
 void SpectrumInfo::clear_package( void )
 {
 	specfunc_package.clear();
@@ -164,7 +175,7 @@ void SpectrumInfo::save( const double& m2, std::string filename )
 	file.close();
 }
 
-void SpectrumInfo::saving_procedure( Parameters& parameters, std::vector<double>& freqs, std::string filename )
+void SpectrumInfo::saving_procedure( Parameters& parameters, std::vector<double>& freqs, const std::string filename, const std::string type )
 {
 	std::string out_dir = parameters.output_directory;
 	std::cout << "out_dir: " << out_dir << std::endl;
@@ -177,7 +188,10 @@ void SpectrumInfo::saving_procedure( Parameters& parameters, std::vector<double>
 
 	if ( filename != "" )
 	{
-		save( freqs, spectrum_chunk, out_dir + "/" + filename );
+		if ( type == "chunk" )
+			save( freqs, spectrum_chunk, out_dir + "/" + filename );
+		if ( type == "total" )
+			save( freqs, spectrum_total, out_dir + "/" + filename );
 	}
 
 	std::string specfunc_filename = modify_filename( parameters.specfunc_filename, modifier );
